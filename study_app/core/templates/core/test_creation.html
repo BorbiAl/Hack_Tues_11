@@ -1,11 +1,11 @@
+<!-- filepath: d:\Documents\Hack_Tues_11\study_app\core\templates\core\test_creation.html -->
 {% extends "base.html" %}
 {% block content %}
 <h2>Create a Test</h2>
-<form action="/create_test" method="POST">
-    <input type="text" name="grade" placeholder="Grade" required>
-    <input type="text" name="subject" placeholder="Subject" required>
-    <input type="text" name="textbook" placeholder="Textbook" required>
-    <input type="date" name="reminder_date" required>
-    <button type="submit">Create Test</button>
+<form action="{% url 'core:generate_test' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="pdf_file">Upload PDF:</label>
+    <input type="file" name="pdf_file" id="pdf_file" required>
+    <button type="submit">Generate Test</button>
 </form>
 {% endblock %}

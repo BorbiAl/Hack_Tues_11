@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Generated Test</h2>
+<pre>{{ test }}</pre>
+<a href="{% url 'core:test_creation' %}">Back to Test Creation</a>
+{% endblock %}

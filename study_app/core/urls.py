@@ -10,5 +10,6 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('test-creation/', views.test_creation_view, name='test_creation'),
     path('test-list/', views.test_list_view, name='test_list'),
-    path('ranking/', views.ranking_view, name='ranking'),
+    path('ranking/', views.ranking_view, name='ranking'),  # Ensure this line is correct
+    path('generate-test/', views.generate_test_view, name='generate_test'),
 ]

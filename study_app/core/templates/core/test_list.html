@@ -1,5 +1,11 @@
+<!-- filepath: d:\Documents\Hack_Tues_11\study_app\core\templates\core\test_list.html -->
 {% extends "base.html" %}
 {% block content %}
-<h2>Upcoming Tests</h2>
-<ul id="test-list"></ul>
+<h2>Test List</h2>
+<ul>
+    {% for test in tests %}
+    <li>{{ test.name }} - {{ test.date }}</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'core:test_creation' %}">Create a New Test</a>
 {% endblock %}
