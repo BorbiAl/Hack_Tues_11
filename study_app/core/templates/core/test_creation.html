@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Create a Test</h2>
+<form action="/create_test" method="POST">
+    <input type="text" name="grade" placeholder="Grade" required>
+    <input type="text" name="subject" placeholder="Subject" required>
+    <input type="text" name="textbook" placeholder="Textbook" required>
+    <input type="date" name="reminder_date" required>
+    <button type="submit">Create Test</button>
+</form>
+{% endblock %}
