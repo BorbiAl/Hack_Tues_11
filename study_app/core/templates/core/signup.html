@@ -12,10 +12,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up - EduGamify</title>
-  <link rel="stylesheet" href="signup.css" />
 </head>
 <style>
-    /* Base styling similar to the landing page */
 body {
     font-family: 'Nunito', sans-serif;
     background-color: #ffffff;
@@ -92,28 +90,15 @@ body {
 </style>
 
 <body>
-  <div class="signup-container">
-    <h2>Create Your Account</h2>
-    <form action="signup-process.php" method="post">
-      <label for="fullname">Full Name</label>
-      <input type="text" id="fullname" name="fullname" required />
-
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required />
-
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" required />
-
-      <label for="confirm-password">Confirm Password</label>
-      <input type="password" id="confirm-password" name="confirm-password" required />
-
-      <button type="submit" class="primary">Sign Up</button>
+    <h2 class="signup-container">Signup</h2>
+    <form method="post" class="signup-container">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="primary">Signup</button> 
     </form>
-    <p class="alternate">
-      Already have an account? <a href="login.html">Log in here</a>
-    </p>
-  </div>
+    {% if error %}
+      <p style="color: red;">{{ error }}</p>
+    {% endif %}
 </body>
 </html>
-
 
