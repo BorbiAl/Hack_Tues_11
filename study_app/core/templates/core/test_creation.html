@@ -1,11 +1,44 @@
-<!-- filepath: d:\Documents\Hack_Tues_11\study_app\core\templates\core\test_creation.html -->
 {% extends "base.html" %}
 {% block content %}
 <h2>Create a Test</h2>
-<form action="{% url 'core:generate_test' %}" method="POST" enctype="multipart/form-data">
+
+<!-- Display errors -->
+{% if error %}
+<div style="color: red;">{{ error }}</div>
+{% endif %}
+
+<!-- Form for uploading PDF and selecting options -->
+<form action="{% url 'core:test_creation' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <label for="pdf_file">Upload PDF:</label>
-    <input type="file" name="pdf_file" id="pdf_file" required>
+    <input type="file" name="pdf_file" id="pdf_file" required><br><br>
+
+    <label for="start_page">Start Page:</label>
+    <input type="number" name="start_page" id="start_page" min="1" required><br><br>
+
+    <label for="end_page">End Page:</label>
+    <input type="number" name="end_page" id="end_page" min="1" required><br><br>
+
+    <label for="due_date">Due Date:</label>
+    <input type="text" name="due_date" id="due_date" required><br><br>
+
     <button type="submit">Generate Test</button>
 </form>
+
+<!-- Preview of the selected material -->
+{% if selected_text %}
+<h3>Preview of Selected Material (Pages {{ start_page }} to {{ end_page }})</h3>
+<pre>{{ selected_text }}</pre>
+<p><strong>Due Date:</strong> {{ due_date }}</p>
+{% endif %}
+
+<!-- Initialize Flatpickr -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr("#due_date", {
+            dateFormat: "Y-m-d", // Format: YYYY-MM-DD
+            minDate: "today",    // Prevent selecting past dates
+        });
+    });
+</script>
 {% endblock %}

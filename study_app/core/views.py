@@ -3,6 +3,8 @@ from langdetect import detect
 from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.core.exceptions import ValidationError
+from django.utils.dateparse import parse_date
 
 def login_view(request):
     return render(request, 'core/login.html')
@@ -22,8 +24,8 @@ def profile_view(request):
     }
     return render(request, 'core/profile.html', context)
 
-# Maximum allowed file size in bytes (e.g., 50 MB)
-MAX_FILE_SIZE = 50 * 1024 * 1024
+# Maximum allowed file size in bytes (e.g., 500 MB)
+MAX_FILE_SIZE = 500 * 1024 * 1024
 
 def test_creation_view(request):
     if request.method == 'POST':
