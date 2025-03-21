@@ -4,35 +4,28 @@ from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
 from django.shortcuts import render, redirect
 from django.core.exceptions import ValidationError
 from django.utils.dateparse import parse_date
-from django.contrib.auth import authenticate, login
-from .forms import LoginForm, SignupForm
+from django.contrib.auth import login
 from core.models import Test, Subject
 import json
-from django.contrib import messages
+from .forms import CustomUserCreationForm
+from django.contrib.auth.views import LoginView
 
 def home_view(request):
     return render(request, 'base.html')
 
 def signup_view(request):
-    return render(request, 'core/signup.html', {'form': SignupForm()})
-
-def login_view(request):
     if request.method == 'POST':
-        form = LoginForm(request, data=request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('dashboard')
-            else:
-                messages.error(request, "Invalid username or password.")
-        else:
-            messages.error(request, "Invalid username or password.")
+            user = form.save() 
+            login(request, user)
+            return redirect('dashboard') 
     else:
-        form = LoginForm()
-    return render(request, 'core/login.html', {'form': form})
+        form = CustomUserCreationForm()
+    return render(request, 'signup.html', {'form': form})
+
+class CustomLoginView(LoginView):
+    template_name = 'login.html'
 
 def ranking_view(request):
     tests = Test.objects.all().order_by('-score')
@@ -47,12 +40,10 @@ def dashboard_view(request):
 def profile_view(request):
     context = {
         'username': 'JohnDoe',
-        'email': 'johndoe@example.com',
         'joined_date': '2025-01-01',
     }
     return render(request, 'core/profile.html', context)
 
-MAX_FILE_SIZE = 500 * 1024 * 1024
 def test_list_view(request):
     tests = Test.objects.all()
     return render(request, 'core/test_list.html', {'tests': tests})
