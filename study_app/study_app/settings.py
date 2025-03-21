@@ -86,12 +86,12 @@ DATABASES = {
         'NAME': 'baiganio_db', 
         'USER': 'root',        
         'PASSWORD': 'YnNh768j', 
-        'HOST': '192.168.65.1',     
+        'HOST': 'localhost',     
         'PORT': '3306',           
     }
 }
 
-# AUTH_USER_MODEL = 'core.User'
+AUTH_USER_MODEL = 'core.User'
 
 
 # Password validation

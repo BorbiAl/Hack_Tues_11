@@ -1,30 +1,24 @@
 from django.db import models
 import bcrypt
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 
-class AuthUser(AbstractUser):
-    groups = models.ManyToManyField(
-        Group,
-        related_name='authuser_set', 
-        blank=True,
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name='authuser_permissions_set', 
-        blank=True,
-    )
-    created_at = models.DateTimeField(default=timezone.now)
-
-class User(models.Model):
-    username = models.CharField(max_length=50, unique=True)
-    password_hash = models.CharField(max_length=255)
-
-    def set_password(self, password):
-        self.password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-
+    
+class User(AbstractUser):
     def check_password(self, password):
         return bcrypt.checkpw(password.encode(), self.password_hash.encode())
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+    username = models.CharField(max_length=50, unique=True)
+    password_hash = models.CharField(max_length=255)
+    bio = models.TextField(blank=True, null=True)
+    def set_password(self, password):
+        self.password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    def __str__(self):
+        return self.username
+
+
+    
 
 class Subject(models.Model):
     name = models.CharField(max_length=255) 

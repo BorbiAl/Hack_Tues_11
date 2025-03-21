@@ -1,76 +1,45 @@
-import os 
 import pdfplumber
 from langdetect import detect
 from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
-from django.shortcuts import render
-from django.http import JsonResponse
+from django.shortcuts import render, redirect
 from django.core.exceptions import ValidationError
 from django.utils.dateparse import parse_date
-from core.models import Test 
-from core.models import Subject
-import torch
-from django.views.decorators.csrf import csrf_exempt
-import json
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.http import JsonResponse
-
-
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
-from .forms import SignupForm, LoginForm
-import sqlite3
-from django.conf import settings
+from .forms import LoginForm, SignupForm
+from core.models import Test, Subject
+import json
+from django.contrib import messages
 
+def home_view(request):
+    return render(request, 'base.html')
 
 def signup_view(request):
-    if request.method == 'POST':
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = SignupForm()
-    return render(request, 'signup.html', {'form': form})
+    return render(request, 'core/signup.html', {'form': SignupForm()})
 
 def login_view(request):
     if request.method == 'POST':
-        form = LoginForm(request.POST)
+        form = LoginForm(request, data=request.POST)
         if form.is_valid():
-            
-            return redirect('home')
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('dashboard')
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid username or password.")
     else:
         form = LoginForm()
-    
     return render(request, 'core/login.html', {'form': form})
-# Removed unused import
-
-def run_sql_view(request):
-    db_path = settings.DATABASES['default']['NAME']
-    connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
-
-    try:
-        cursor.execute(sql_query)
-        results = cursor.fetchall()
-        columns = [description[0] for description in cursor.description]
-        data = [dict(zip(columns, row)) for row in results]
-    except sqlite3.Error as e:
-        return JsonResponse({'error': str(e)}, status=400)
-    finally:
-        connection.close()
-    if request.method == 'POST':
-        sql_query = request.POST.get('sql_query', '')
-
-        if not sql_query.strip().lower().startswith(('select', 'pragma')):
-            return JsonResponse({'error': 'Only SELECT and PRAGMA queries are allowed.'}, status=400)
-        return HttpResponse(f"SQL Query: {sql_query}")
-
-    return render(request, 'core/run_sql.html')
 
 def ranking_view(request):
-    tests = Test.objects.all().order_by('-score')  # Assuming 'score' is a field in the Test model
-    return render(request, 'core/ranking.html', {'tests': tests})
+    tests = Test.objects.all().order_by('-score')
+    subjects = Subject.objects.all()
+    return render(request, 'core/ranking.html', {'tests': tests, 'subjects': subjects})
+
+MAX_FILE_SIZE = 500 * 1024 * 1024
 
 def dashboard_view(request):
     return render(request, 'core/dashboard.html')
@@ -211,4 +180,4 @@ def generate_test_view(request):
 
         return render(request, 'core/test_result.html', {'test': generated_test})
 
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+    return json({'error': 'Invalid request method'}, status=405)

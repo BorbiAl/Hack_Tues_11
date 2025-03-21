@@ -1,16 +1,14 @@
 from django.urls import path
-from . import views
-
-app_name = 'core'
+from .views import home_view, login_view, signup_view, dashboard_view, profile_view, test_creation_view, test_list_view, ranking_view, generate_test_view
 
 urlpatterns = [
-    path('', views.login_view, name='login'),
-    path('signup/', views.signup_view, name='signup'),
-    path('dashboard/', views.dashboard_view, name='dashboard'),
-    path('profile/', views.profile_view, name='profile'),
-    path('test-creation/', views.test_creation_view, name='test_creation'),
-    path('test-list/', views.test_list_view, name='test_list'),
-    path('ranking/', views.ranking_view, name='ranking'),  # Ensure this line is correct
-    path('generate-test/', views.generate_test_view, name='generate_test'),
-    path('login/', views.login_view, name='login'),
+    path('', home_view, name='home'),
+    path('login/', login_view, name='login'),
+    path('signup/', signup_view, name='signup'),
+    path('dashboard/', dashboard_view, name='dashboard'),
+    path('profile/', profile_view, name='profile'),
+    path('test-creation/', test_creation_view, name='test_creation'),
+    path('test-list/', test_list_view, name='test_list'),
+    path('ranking/', ranking_view, name='ranking'),
+    path('generate-test/', generate_test_view, name='generate_test'),
 ]
