@@ -43,9 +43,9 @@ Frontend- HTML, CSS, JAVASCRIPT
 Backend- MySQL, Django
 
 🎓Отбор
-Борис Александров- Backend&AI
-Борис Йорданов- Backend&AI
-Велина Цанева- Frontend&UI
+Борис Александров- Backend&AI, 
+Борис Йорданов- Backend&AI,
+Велина Цанева- Frontend&UI,
 Дара Панайотова- UX&Product management
 
 
