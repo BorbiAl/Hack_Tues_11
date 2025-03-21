@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'corsheaders',
-    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -87,12 +86,14 @@ DATABASES = {
         'NAME': 'baiganio_db', 
         'USER': 'root',        
         'PASSWORD': 'YnNh768j', 
-        'HOST': '127.0.0.1',     
+        'HOST': '192.168.65.1',     
         'PORT': '3306',           
     }
 }
 
-AUTH_USER_MODEL = 'accounts.User'
+# AUTH_USER_MODEL = 'core.User'
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

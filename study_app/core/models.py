@@ -1,14 +1,20 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 import bcrypt
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from .forms import SignupForm, LoginForm
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.utils import timezone
 
-class User(AbstractUser):
-    
-    pass
+class AuthUser(AbstractUser):
+    groups = models.ManyToManyField(
+        Group,
+        related_name='authuser_set', 
+        blank=True,
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name='authuser_permissions_set', 
+        blank=True,
+    )
+    created_at = models.DateTimeField(default=timezone.now)
 
 class User(models.Model):
     username = models.CharField(max_length=50, unique=True)
@@ -28,33 +34,9 @@ class Subject(models.Model):
 
 class Test(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='tests') 
-    title = models.CharField(max_length=255) 
-    questions = models.TextField()  
-    created_at = models.DateTimeField(auto_now_add=True) 
+    title = models.CharField(max_length=255, default='No title available') 
+    questions = models.TextField(default='No questions available') 
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.title
-    
-def signup(request):
-    if request.method == 'POST':
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = SignupForm()
-    return render(request, 'signup.html', {'form': form})
-
-def login_view(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('home')  # Replace with your desired redirect
-    else:
-        form = LoginForm()
-    return render(request, 'login.html', {'form': form})
