@@ -11,7 +11,22 @@ from core.models import Subject
 import torch
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.http import JsonResponse
+
 # Removed unused import
+
+def run_sql_view(request):
+    # Example logic for running SQL queries (replace with your actual logic)
+    if request.method == 'POST':
+        sql_query = request.POST.get('sql_query', '')
+        # You can add logic here to execute the SQL query securely
+        # For now, we'll just return the query as a response
+        return HttpResponse(f"SQL Query: {sql_query}")
+
+    return render(request, 'core/run_sql.html')
+
 def ranking_view(request):
     tests = Test.objects.all().order_by('-score')  # Assuming 'score' is a field in the Test model
     return render(request, 'core/ranking.html', {'tests': tests})
