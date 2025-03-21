@@ -1,5 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Ranking</h2>
-<ul id="ranking-list"></ul>
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Score</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ranking in rankings %}
+        <tr>
+            <td>{{ ranking.username }}</td>
+            <td>{{ ranking.score }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'core:dashboard' %}">Back to Dashboard</a>
 {% endblock %}
