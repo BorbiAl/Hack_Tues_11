@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ test.title }}</h2>
+
+<!-- Progress Bar -->
+<div style="width: 100%; background-color: #f3f3f3; border: 1px solid #ccc;">
+    <div class="progress-bar" style="width: '{{ progress|default:0 }}%';"></div>
+</div>
+<p>Question {{ current_question }} of {{ total_questions }}</p>
+
+<!-- Display Current Question -->
+<p><strong>{{ question.text }}</strong></p>
+<form action="" method="GET">
+    {% csrf_token %}
+    {% for option in question.options %}
+    <input type="radio" name="answer" value="{{ option }}" required> {{ option }}<br>
+    {% endfor %}
+    <input type="hidden" name="question" value="{{ current_question|add:1 }}">
+    <button type="submit">Next</button>
+</form>
+{% endblock %}

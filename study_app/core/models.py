@@ -13,15 +13,17 @@ class User(models.Model):
         return bcrypt.checkpw(password.encode(), self.password_hash.encode())
 
 class Subject(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=255)  # Subject name (e.g., Math, Science)
+    description = models.TextField(blank=True, null=True)  # Optional description
+
+    def __str__(self):
+        return self.name
 
 class Test(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    grade_level = models.CharField(max_length=10)
-    test_name = models.CharField(max_length=100)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='tests')  # Link to subject
+    title = models.CharField(max_length=255)  # Test title
+    questions = models.TextField()  # Store questions as JSON or plain text
+    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp for creation
 
-class Result(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    test = models.ForeignKey(Test, on_delete=models.CASCADE)
-    score = models.DecimalField(max_digits=5, decimal_places=2)
-    test_date = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.title
