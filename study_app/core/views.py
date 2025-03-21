@@ -9,6 +9,7 @@ from core.models import Test, Subject
 import json
 from .forms import CustomUserCreationForm
 from django.contrib.auth.views import LoginView
+from .models import Profile
 
 def home_view(request):
     return render(request, 'base.html')
@@ -17,28 +18,17 @@ def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save() 
-            login(request, user)
-            return redirect('dashboard') 
-    else:
-        form = CustomUserCreationForm()
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
             user = form.save()
-            login(request, user)
-            return redirect('dashboard') 
+           
+            Profile.objects.create(user=user) 
+            login(request, user) 
+            return redirect('home')
     else:
         form = CustomUserCreationForm()
-    return render(request, 'core/signup.html', {'form': form}) 
+    return render(request, 'core/signup.html', {'form': form})
 
 class CustomLoginView(LoginView):
-    template_name = 'login.html'
-
-def ranking_view(request):
-    tests = Test.objects.all().order_by('-score')
-    subjects = Subject.objects.all()
-    return render(request, 'core/ranking.html', {'tests': tests, 'subjects': subjects})
+    template_name = 'core/dashboard.html'
 
 MAX_FILE_SIZE = 500 * 1024 * 1024
 
@@ -129,15 +119,16 @@ def test_list_view(request):
     return render(request, 'core/test_list.html', {'subjects': subjects})
 
 def ranking_view(request):
-
-    context = {
-        'rankings': [
-            {'username': 'JohnDoe', 'score': 95},
-            {'username': 'JaneSmith', 'score': 90},
-            {'username': 'AliceBrown', 'score': 85},
-        ]
-    }
-    return render(request, 'core/ranking.html', context)
+    if request.method == 'GET':
+        context = {
+            'rankings': [
+                {'username': 'JohnDoe', 'score': 95},
+                {'username': 'JaneSmith', 'score': 90},
+                {'username': 'AliceBrown', 'score': 85},
+            ]
+        }
+        return render(request, 'core/ranking.html', context)
+    return json({'error': 'Invalid request method'}, status=405)
 
 def generate_test_view(request):
     if request.method == 'POST' and request.FILES.get('pdf_file'):

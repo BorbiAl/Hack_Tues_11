@@ -93,11 +93,10 @@ body {
 
 <body>
     <h2 class="signup-container">Signup</h2>
-    <form method="post" class="signup-container">
+    <form method="post" action="{% url 'signup' %}" class="signup-container">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="primary">Signup</button> 
-    </form>
+        <button type="submit" class="primary">Signup</button><form method="post" action="{% url 'signup' %}" class="signup-container">
     {% if error %}
       <p style="color: red;">{{ error }}</p>
     {% endif %}
