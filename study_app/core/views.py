@@ -14,7 +14,7 @@ import json
 # Removed unused import
 def ranking_view(request):
     tests = Test.objects.all().order_by('-score')  # Assuming 'score' is a field in the Test model
-    return render(request, 'core/ranking.html', {'tests': tests})def login_view(request):
+    return render(request, 'core/ranking.html', {'tests': tests})
 
 def login_view(request):
     return render(request, 'core/login.html')
