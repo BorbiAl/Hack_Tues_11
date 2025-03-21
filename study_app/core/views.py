@@ -22,7 +22,15 @@ def signup_view(request):
             return redirect('dashboard') 
     else:
         form = CustomUserCreationForm()
-    return render(request, 'signup.html', {'form': form})
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('dashboard') 
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'core/signup.html', {'form': form}) 
 
 class CustomLoginView(LoginView):
     template_name = 'login.html'
