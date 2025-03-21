@@ -1,3 +1,4 @@
+import os 
 import pdfplumber
 from langdetect import detect
 from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
