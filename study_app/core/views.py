@@ -1,3 +1,4 @@
+import os 
 import pdfplumber
 from langdetect import detect
 from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
@@ -5,7 +6,12 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from django.utils.dateparse import parse_date
-
+from core.models import Test 
+from core.models import Subject
+import torch
+from django.views.decorators.csrf import csrf_exempt
+import json
+# Removed unused import
 def ranking_view(request):
     tests = Test.objects.all().order_by('-score')  # Assuming 'score' is a field in the Test model
     return render(request, 'core/ranking.html', {'tests': tests})def login_view(request):
@@ -158,4 +164,4 @@ def generate_test_view(request):
         # Step 5: Return the generated test
         return render(request, 'core/test_result.html', {'test': generated_test})
 
-    return render(request, 'core/test_creation.html')
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
