@@ -1,0 +1,148 @@
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #ffffff;
+    color: #3d0066;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    max-width: 75rem;
+    margin: auto;
+    padding: 1.25rem;
+  }
+  
+  /* Header fixed to the top */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3d0066;
+    color: #ffffff;
+    border-radius: 0.625rem;
+    padding: 1rem 2rem;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  /* Hero Section */
+  .hero {
+    text-align: center;
+    padding: 6.25rem 1.25rem;
+    background-color: #eec7fc;
+    border-radius: 0.625rem;
+    margin-top: 1.25rem;
+  }
+  
+  .hero h1 {
+    font-size: 3rem;
+    margin-bottom: 0.625rem;
+    color: #3d0066;
+  }
+  
+  .hero p {
+    font-size: 1.25rem;
+    color: #c670ff;
+    margin-bottom: 1.25rem;
+  }
+  
+  .hero img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 1.25rem;
+  }
+  
+  .hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  /* Buttons with shared pulse animation */
+  .hero-buttons button {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    border-radius: 2rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    animation: pulse 2s infinite;
+  }
+  
+  .primary {
+    background: #ffe047;
+    color: #3d0066;
+  }
+  
+  .primary:hover {
+    background: #ffce1f;
+    animation-play-state: paused;
+  }
+  
+  .secondary {
+    background: #ffffff;
+    color: #3d0066;
+    border: 2px solid #3d0066;
+  }
+  
+  .secondary:hover {
+    background: #3d0066;
+    color: #ffffff;
+    animation-play-state: paused;
+  }
+  
+  /* Pulse animation keyframes */
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  
+  /* Features Section */
+  .features {
+    display: flex;
+    justify-content: space-around;
+    margin: 3.125rem 0;
+  }
+  
+  .feature-card {
+    background-color: #ffffff;
+    padding: 1.25rem;
+    border: 1px solid #eec7fc;
+    border-radius: 0.625rem;
+    text-align: center;
+    box-shadow: 0.125rem 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+    width: 30%;
+    color: #3d0066;
+  }
+  
+  .feature-card img {
+    width: 5rem;
+    height: auto;
+    margin-bottom: 1rem;
+  }
+  
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 1.25rem;
+    background-color: #3d0066;
+    color: #ffffff;
+    border-radius: 0.625rem;
+  }
+  
+  .footer a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .footer a:hover {
+    color: #ffe047;
+  }
