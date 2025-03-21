@@ -86,7 +86,7 @@ DATABASES = {
         'NAME': 'baiganio_db', 
         'USER': 'root',        
         'PASSWORD': 'YnNh768j', 
-        'HOST': '192.168.56.1',     
+        'HOST': '192.168.65.1',     
         'PORT': '3306',           
     }
 }
