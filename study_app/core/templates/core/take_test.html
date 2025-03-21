@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAi Ganio</title>
+    <link rel="icon" type="image/x-icon" href="../core/css/icons8-idea.svg">
+    <link rel="stylesheet" href="../static/core/take_test.css">
+</head>
+
+<h2>{{ test.title }}</h2>
+
+<div style="width: 100%; background-color: #f3f3f3; border: 1px solid #ccc;">
+    <div class="progress-bar" style="width: '{{ progress|default:0 }}%';"></div>
+</div>
+<p>Question {{ current_question }} of {{ total_questions }}</p>
+
+<p><strong>{{ question.text }}</strong></p>
+<form action="" method="GET">
+    {% csrf_token %}
+    {% for option in question.options %}
+    <input type="radio" name="answer" value="{{ option }}" required> {{ option }}<br>
+    {% endfor %}
+    <input type="hidden" name="question" value="{{ current_question|add:1 }}">
+    <button type="submit">Next</button>
+</form>
+{% endblock %}
