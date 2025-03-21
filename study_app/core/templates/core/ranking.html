@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="../static/core/css/ranking.css">
 
 <style>
-  /* Reuse or extend styles from dashboard */
 
   body {
     margin: 0;
@@ -22,8 +21,7 @@
     padding: 1.25rem;
   }
 
-  /* Header */
-  .header {
+   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -54,13 +52,11 @@
     font-weight: bold;
   }
 
-  /* Main Layout */
-  .main-content {
+   .main-content {
     display: flex;
     margin-top: 1.25rem;
   }
 
-  /* Sidebar */
   .sidebar {
     width: 15rem;
     background-color: #3d0066;
@@ -105,8 +101,7 @@
     margin-right: 0.75rem;
   }
 
-  /* Content Section */
-  .content {
+   .content {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -114,8 +109,7 @@
     padding: 1rem;
   }
 
-  /* Ranking Card */
-  .ranking-card {
+   .ranking-card {
     background-color: #eec7fc;
     width: 100%;
     max-width: 30rem;
@@ -154,8 +148,7 @@
     transform: scale(0.98);
   }
 
-  /* Placeholder leaderboard list */
-  .leaderboard-list {
+   .leaderboard-list {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -170,11 +163,10 @@
     border-radius: 0.625rem;
     justify-content: center;
     font-weight: bold;
-    opacity: 0.6; /* visually indicate it's inactive */
+    opacity: 0.6;
   }
 
-  /* Responsive */
-  @media (max-width: 48rem) {
+   @media (max-width: 48rem) {
     .main-content {
       flex-direction: column;
     }
@@ -187,7 +179,6 @@
 
 <body>
   <div class="container">
-    <!-- HEADER (copied from dashboard) -->
     <header class="header">
       <div class="header-logo">LOGO</div>
       <div class="header-streak">
@@ -196,9 +187,8 @@
       </div>
     </header>
 
-    <!-- MAIN CONTENT: Sidebar + Ranking -->
     <div class="main-content">
-      <!-- SIDEBAR (updated with new navigation items) -->
+
       <aside class="sidebar">
         <ul class="nav-list">
           <li>
@@ -228,7 +218,7 @@
         </ul>
       </aside>
 
-      <!-- RANKING CONTENT -->
+
       <section class="content">
         <div class="ranking-card">
           <h2>Silver League</h2>
@@ -236,7 +226,6 @@
           <button class="start-lesson-btn">Start a Lesson</button>
 
           <ul class="leaderboard-list">
-            <!-- Inactive placeholders -->
             <li class="leaderboard-item">1. Placeholder</li>
             <li class="leaderboard-item">2. Placeholder</li>
             <li class="leaderboard-item">3. Placeholder</li>

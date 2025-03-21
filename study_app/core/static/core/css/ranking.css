@@ -6,19 +6,18 @@
   
   body {
     font-family: 'Nunito', sans-serif;
-    background-color: #1e1e1e; /* Dark background */
-    color: #f3f3f3; /* Light text */
+    background-color: #1e1e1e; 
+    color: #f3f3f3;
   }
   
   .page-container {
     display: flex;
-    min-height: 100vh; /* Full-height layout */
-  }
+    min-height: 100vh;
+    }
   
-  /* Sidebar Styles */
-  .sidebar {
+    .sidebar {
     width: 16rem;
-    background-color: #2c2c2c; /* Slightly lighter dark for sidebar */
+    background-color: #2c2c2c;
     display: flex;
     flex-direction: column;
     padding: 1.5rem 1rem;
@@ -60,7 +59,7 @@
   }
   
   .nav-item.active {
-    background-color: #58cc02; /* Duolingo's bright green accent */
+    background-color: #58cc02; 
     color: #1e1e1e;
   }
   
@@ -70,15 +69,13 @@
     margin-right: 0.75rem;
   }
   
-  /* Main Content */
-  .main-content {
+   .main-content {
     flex-grow: 1;
     padding: 2rem;
     display: flex;
     flex-direction: column;
   }
-  
-  /* League Header Section */
+
   .league-header {
     background-color: #2c2c2c;
     padding: 1.5rem;
@@ -98,12 +95,12 @@
     width: 2rem;
     height: 2rem;
     margin: 0 0.5rem;
-    opacity: 0.4; /* Dim icons that are inactive */
+    opacity: 0.4; 
     transition: opacity 0.3s ease;
   }
   
   .league-badge.active {
-    opacity: 1; /* Highlight the active league icon */
+    opacity: 1;
   }
   
   .league-name {
@@ -138,7 +135,6 @@
     transform: scale(0.98);
   }
   
-  /* Leaderboard List */
   .leaderboard {
     list-style: none;
     width: 100%;
@@ -167,7 +163,7 @@
     font-size: 1.25rem;
     font-weight: 700;
     margin-right: 1rem;
-    color: #58cc02; /* Duolingo's bright green for rank number */
+    color: #58cc02; 
   }
   
   .avatar-container {
@@ -192,7 +188,6 @@
     color: #58cc02; 
   }
   
-  /* Responsive Adjustments */
   @media (max-width: 48rem) {
     .page-container {
       flex-direction: column;

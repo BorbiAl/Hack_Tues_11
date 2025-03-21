@@ -14,7 +14,6 @@ body {
     padding: 1.25rem;
 }
   
-  /* Header */
   .header {
     display: flex;
     justify-content: space-between;
@@ -46,14 +45,12 @@ body {
     font-weight: bold;
   }
   
-  /* Main Content Layout */
-  .main-content {
+    .main-content {
     display: flex;
     margin-top: 1.25rem;
   }
   
-  /* Sidebar Navigation */
-  .sidebar {
+    .sidebar {
     width: 15rem;
     background-color: #3d0066;
     padding: 1.25rem;
@@ -97,16 +94,14 @@ body {
     margin-right: 0.75rem;
   }
   
-  /* Content Area */
-  .content {
+    .content {
     flex-grow: 1;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
     grid-gap: 1.25rem;
   }
   
-  /* Card Base Styles */
-  .card {
+    .card {
     background-color: #eec7fc;
     padding: 1.5rem;
     border-radius: 0.625rem;
@@ -121,8 +116,7 @@ body {
     transform: translateY(0);
   }
   
-  /* Welcome Card */
-  .welcome-card h2 {
+    .welcome-card h2 {
     margin-top: 0;
     font-size: 1.75rem;
     color: #3d0066;
@@ -131,7 +125,7 @@ body {
     color: #ffce1f;
   }
   
-  /* Course Card */
+  
   .course-card h3 {
     margin-top: 0;
     font-size: 1.5rem;
@@ -142,8 +136,7 @@ body {
     color: #c670ff;
   }
   
-  /* Streak Card */
-  .streak-card {
+   .streak-card {
     display: flex;
     align-items: center;
   }
@@ -163,8 +156,7 @@ body {
     color: #ffce1f;
   }
   
-  /* XP Tracker Card */
-  .xp-card {
+    .xp-card {
     display: flex;
     align-items: center;
   }
@@ -184,8 +176,7 @@ body {
     color: #ffe047;
   }
   
-  /* Quote / Motivation Card */
-  .quote-card {
+    .quote-card {
     grid-column: 1 / -1;
     text-align: center;
     font-size: 1.25rem;
@@ -195,8 +186,7 @@ body {
     border: 0.125rem solid #eec7fc;
   }
   
-  /* Responsive adjustments if needed */
-  @media (max-width: 48rem) {
+    @media (max-width: 48rem) {
     .main-content {
       flex-direction: column;
     }

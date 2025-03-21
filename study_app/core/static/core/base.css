@@ -11,8 +11,6 @@ body {
   margin: auto;
   padding: 1.25rem;
 }
-
-/* Header fixed to the top */
 .header {
   position: sticky;
   top: 0;
@@ -31,7 +29,6 @@ body {
   font-weight: bold;
 }
 
-/* Hero Section */
 .hero {
   text-align: center;
   padding: 6.25rem 1.25rem;
@@ -64,7 +61,6 @@ body {
   gap: 1rem;
 }
 
-/* Buttons with shared pulse animation */
 .hero-buttons button {
   padding: 1rem 2rem;
   font-size: 1.2rem;
@@ -97,14 +93,12 @@ body {
   animation-play-state: paused;
 }
 
-/* Pulse animation keyframes */
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
 }
 
-/* Features Section */
 .features {
   display: flex;
   justify-content: space-around;
@@ -128,7 +122,6 @@ body {
   margin-bottom: 1rem;
 }
 
-/* Footer */
 .footer {
   text-align: center;
   padding: 1.25rem;
