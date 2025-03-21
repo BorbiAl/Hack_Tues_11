@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGamify - Home</title>
+    <title>EduGamify - Landing page</title>
     <link rel="stylesheet" href="../static/core/base.css">
 </head>
 <body>
@@ -16,8 +16,8 @@
         <p>Bite-sized lessons that keep you engaged and motivated.</p>
         <img src="placeholder.png" alt="Mascot Illustration" />
         <div class="hero-buttons">
-          <button class="primary">Get Started</button>
-          <button class="secondary">Login</button>
+          <a href="{% url 'signup' %}" class="primary">Get Started</a>
+          <a href="{% url 'login' %}" class="secondary">Login</a>
         </div>
       </section>
       <section class="features">

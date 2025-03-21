@@ -4,24 +4,248 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduGamify - Home</title>
-    <link rel="stylesheet" href="../static/core/ranking.css">
-</head>
-<h2>Ranking</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Username</th>
-            <th>Score</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for ranking in rankings %}
-        <tr>
-            <td>{{ ranking.username }}</td>
-            <td>{{ ranking.score }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<a href="{% url 'core:dashboard' %}">Back to Dashboard</a>
-{% endblock %}
+    <link rel="stylesheet" href="../static/core/css/ranking.css">
+
+<style>
+  /* Reuse or extend styles from dashboard */
+
+  body {
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+    background-color: #ffffff;
+    color: #3d0066;
+  }
+
+  .container {
+    max-width: 75rem;
+    margin: 0 auto;
+    padding: 1.25rem;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3d0066;
+    color: #ffffff;
+    padding: 1rem 2rem;
+    border-radius: 0.625rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+  }
+  .header-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  .header-streak {
+    display: flex;
+    align-items: center;
+  }
+  .header-streak .icon {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.5rem;
+  }
+  .streak-number {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+
+  /* Main Layout */
+  .main-content {
+    display: flex;
+    margin-top: 1.25rem;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 15rem;
+    background-color: #3d0066;
+    padding: 1.25rem;
+    border-radius: 0.625rem;
+    margin-right: 1.25rem;
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+  }
+  .nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.625rem;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+  }
+  .nav-item:hover {
+    background-color: #c670ff;
+    transform: scale(1.02);
+  }
+  .nav-item:focus {
+    outline: 0.125rem solid #ffe047;
+    outline-offset: 0.25rem;
+  }
+  .nav-item:active {
+    transform: scale(0.98);
+  }
+  .nav-item.active {
+    background-color: #ffe047;
+    color: #3d0066;
+  }
+  .nav-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.75rem;
+  }
+
+  /* Content Section */
+  .content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  /* Ranking Card */
+  .ranking-card {
+    background-color: #eec7fc;
+    width: 100%;
+    max-width: 30rem;
+    padding: 1.5rem;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .ranking-card h2 {
+    margin: 0 0 1rem;
+    font-size: 1.75rem;
+  }
+  .ranking-card p {
+    margin-bottom: 1.25rem;
+    font-size: 1.125rem;
+  }
+
+  .ranking-card .start-lesson-btn {
+    background-color: #ffe047;
+    border: none;
+    border-radius: 0.625rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #3d0066;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+  }
+  .ranking-card .start-lesson-btn:hover {
+    background-color: #ffce1f;
+    transform: scale(1.02);
+  }
+  .ranking-card .start-lesson-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Placeholder leaderboard list */
+  .leaderboard-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .leaderboard-item {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    color: #3d0066;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.625rem;
+    justify-content: center;
+    font-weight: bold;
+    opacity: 0.6; /* visually indicate it's inactive */
+  }
+
+  /* Responsive */
+  @media (max-width: 48rem) {
+    .main-content {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+      margin-bottom: 1.25rem;
+    }
+  }
+</style>
+
+<body>
+  <div class="container">
+    <!-- HEADER (copied from dashboard) -->
+    <header class="header">
+      <div class="header-logo">LOGO</div>
+      <div class="header-streak">
+        <img src="placeholder-flame.png" alt="Flame Icon" class="icon" />
+        <span class="streak-number">5</span>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT: Sidebar + Ranking -->
+    <div class="main-content">
+      <!-- SIDEBAR (updated with new navigation items) -->
+      <aside class="sidebar">
+        <ul class="nav-list">
+          <li>
+        <a href="dashboard.html" class="nav-item">
+          <img src="placeholder-home.png" alt="Home Icon" class="nav-icon" />
+          <span>Home</span>
+        </a>
+          </li>
+          <li>
+        <a href="#" class="nav-item active">
+          <img src="placeholder-ranking.png" alt="Ranking Icon" class="nav-icon" />
+          <span>Ranking</span>
+        </a>
+          </li>
+          <li>
+        <a href="take_test.html" class="nav-item">
+          <img src="placeholder-tests.png" alt="Tests Icon" class="nav-icon" />
+          <span>Tests</span>
+        </a>
+          </li>
+          <li>
+        <a href="profile.html" class="nav-item">
+          <img src="placeholder-profile.png" alt="Profile Icon" class="nav-icon" />
+          <span>Profile</span>
+        </a>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- RANKING CONTENT -->
+      <section class="content">
+        <div class="ranking-card">
+          <h2>Silver League</h2>
+          <p>Complete a lesson to join this week's leaderboard</p>
+          <button class="start-lesson-btn">Start a Lesson</button>
+
+          <ul class="leaderboard-list">
+            <!-- Inactive placeholders -->
+            <li class="leaderboard-item">1. Placeholder</li>
+            <li class="leaderboard-item">2. Placeholder</li>
+            <li class="leaderboard-item">3. Placeholder</li>
+            <li class="leaderboard-item">4. Placeholder</li>
+            <li class="leaderboard-item">5. Placeholder</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>
