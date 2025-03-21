@@ -12,7 +12,18 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import pymysql
+from dotenv import load_dotenv
+import environ
+
+load_dotenv()
 pymysql.install_as_MySQLdb()
+# Initialize the environment variables
+env = environ.Env()
+environ.Env.read_env()  # Read .env file
+
+# Use environment variables in your settings
+SECRET_KEY = env('DJANGO_SECRET_KEY')
+DEBUG = env.bool('DEBUG', default=False)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -81,15 +92,10 @@ WSGI_APPLICATION = 'study_app.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'baiganio_db', 
-        'USER': 'root',        
-        'PASSWORD': 'YnNh768j', 
-        'HOST': 'localhost',     
-        'PORT': '3306',           
-    }
+    'default': env.db('DATABASE_URL')  # Automatically pulls from the DATABASE_URL in .env
 }
+
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 AUTH_USER_MODEL = 'core.User'
 
