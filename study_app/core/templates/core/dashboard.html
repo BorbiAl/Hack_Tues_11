@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduGamify - Home</title>
-    <link rel="stylesheet" href="../static/core/base.css">
+    <link rel="stylesheet" href="../static/core/css/dashboard.css">
 </head>
 
 <style> 
@@ -18,7 +18,6 @@
     font-family: 'Nunito', sans-serif;
     background-color: #ffffff;
     color: #3d0066;
-    font-size: 1rem;
 }
 .container {
     max-width: 75rem;
@@ -26,8 +25,7 @@
     padding: 1.25rem;
 }
   
-  /* Header */
-  .header {
+   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -57,14 +55,12 @@
     font-size: 1.25rem;
     font-weight: bold;
   }
-  
-  /* Main Content Layout */
+
   .main-content {
     display: flex;
     margin-top: 1.25rem;
   }
   
-  /* Sidebar Navigation */
   .sidebar {
     width: 15rem;
     background-color: #3d0066;
@@ -108,8 +104,7 @@
     height: 1.5rem;
     margin-right: 0.75rem;
   }
-  
-  /* Content Area */
+
   .content {
     flex-grow: 1;
     display: grid;
@@ -117,7 +112,7 @@
     grid-gap: 1.25rem;
   }
   
-  /* Card Base Styles */
+
   .card {
     background-color: #eec7fc;
     padding: 1.5rem;
@@ -133,7 +128,6 @@
     transform: translateY(0);
   }
   
-  /* Welcome Card */
   .welcome-card h2 {
     margin-top: 0;
     font-size: 1.75rem;
@@ -143,8 +137,7 @@
     color: #ffce1f;
   }
   
-  /* Course Card */
-  .course-card h3 {
+    .course-card h3 {
     margin-top: 0;
     font-size: 1.5rem;
     color: #3d0066;
@@ -154,7 +147,7 @@
     color: #c670ff;
   }
   
-  /* Streak Card */
+
   .streak-card {
     display: flex;
     align-items: center;
@@ -175,7 +168,7 @@
     color: #ffce1f;
   }
   
-  /* XP Tracker Card */
+
   .xp-card {
     display: flex;
     align-items: center;
@@ -196,18 +189,17 @@
     color: #ffe047;
   }
   
-  /* Quote / Motivation Card */
+
   .quote-card {
     grid-column: 1 / -1;
     text-align: center;
     font-size: 1.25rem;
     color: #3d0066;
-    padding: 1.5rem;
+    padding: 2.5rem;
     background-color: #ffffff;
     border: 0.125rem solid #eec7fc;
   }
   
-  /* Responsive adjustments if needed */
   @media (max-width: 48rem) {
     .main-content {
       flex-direction: column;
@@ -227,8 +219,12 @@
   <div class="container">
     <header class="header">
       <div class="header-logo">bAIganio</div>
+      <div class="xp-card card">
+        <img src="../../static/core/css/xptracker.png" alt="XP Tracker Icon" class="nav-icon" />
+        <div class="xp-info">
+        </div>
       <div class="header-streak">
-        <img src="../../static/core/css/icons8-fire-48.png" alt="Flame Icon" class="icon" />
+        <img src="../../static/core/css/icons8-fire-48.png" alt="Flame Icon" class="nav-icon" />
         <span class="streak-number">5</span>
       </div>
     </header>
@@ -238,25 +234,25 @@
         <ul class="nav-list">
           <li>
             <a href="#" class="nav-item active">
-              <img src="../../static/core/css/home.png" alt="Home Icon" class="icon" />
+              <img src="../../static/core/css/home.png" alt="Home Icon" class="nav-icon" />
               <span>Home</span>
             </a>
           </li>
           <li>
             <a href="ranking.html" class="nav-item active">
-              <img src="../../static/core/css/ranking.png" alt="Ranking Icon" class="icon" />
+              <img src="../../static/core/css/ranking.png" alt="Ranking Icon" class="nav-icon" />
               <span>Ranking</span>
             </a>
           </li>
           <li>
-            <a href="take_test.html" class="nav-item">
-              <img src="../../static/core/css/icons8-test-48.png" alt="Ranking Icon" class="icon" />
+            <a href="test_create.html" class="nav-item">
+              <img src="../../static/core/css/icons8-test-48.png" alt="Ranking Icon" class="nav-icon" />
               <span>Tests</span>
             </a>
           </li>
           <li>
             <a href="profile.htm" class="nav-item">
-              <img src="../../static/core/css/profile.png" alt="Profile Icon" class="icon" />
+              <img src="../../static/core/css/profile.png" alt="Profile Icon" class="nav-icon" />
               <span>Profile</span>
             </a>
           </li>
@@ -280,13 +276,6 @@
             <p><strong>5 days</strong> in a row</p>
           </div>
         </div>
-
-        <div class="xp-card card">
-          <img src="../../static/core/css/xptracker.png" alt="XP Tracker Icon" class="icon" />
-          <div class="xp-info">
-            <h3>XP Tracker</h3>
-            <p>Current XP: <strong>1200 XP</strong></p>
-          </div>
         </div>
         <div class="quote-card card">
           <p>"Keep going! Every lesson takes you one step closer to mastery."</p>

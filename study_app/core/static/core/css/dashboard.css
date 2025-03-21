@@ -72,11 +72,18 @@ body {
     font-weight: bold;
     color: #3d0066;
   }
+
+  .xp-tracker-card {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    flex: 1;
+    cursor: pointer;
+  }
   
   .streak {
     display: flex;
     align-items: center;
-    color: #ffe047;
+    color: #b59700;
   }
   
   .streak img {
@@ -111,11 +118,11 @@ body {
   /* Progress Cards Section */
   .progress-cards {
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
     margin-bottom: 2rem;
   }
   
-  .course-card, .daily-streak-card, .xp-tracker-card {
+  .course-card, .daily-streak-card {
     background-color: #ffffff;
     padding: 1.5rem;
     border-radius: 0.625rem;
@@ -145,7 +152,7 @@ body {
     display: flex;
     align-items: center;
     font-size: 1.25rem;
-    color: #ffe047;
+    color: #b59700;
   }
   
   .streak-counter img {
@@ -176,6 +183,7 @@ body {
     font-size: 1.25rem;
     text-align: center;
     color: #3d0066;
+    padding-top: 3rem;
   }
   
   .quote-section blockquote {

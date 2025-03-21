@@ -7,9 +7,9 @@ body {
 }
 
 .container {
-  max-width: 75rem;
+  max-width: 100rem;
   margin: auto;
-  padding: 1.25rem;
+  padding: rem;
 }
 .header {
   position: sticky;
@@ -20,12 +20,11 @@ body {
   align-items: center;
   background-color: #3d0066;
   color: #ffffff;
-  border-radius: 0.625rem;
   padding: 1rem 2rem;
 }
 
 .logo {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: bold;
 }
 
@@ -33,14 +32,15 @@ body {
   text-align: center;
   padding: 6.25rem 1.25rem;
   background-color: #eec7fc;
-  border-radius: 0.625rem;
   margin-top: 1.25rem;
 }
 
 .hero h1 {
+  padding-top: 1rem;
   font-size: 3rem;
   margin-bottom: 0.625rem;
   color: #3d0066;
+  justify-content: center;
 }
 
 .hero p {
@@ -50,6 +50,7 @@ body {
 }
 
 .hero img {
+  justify-content: center;
   max-width: 100%;
   height: auto;
   margin-bottom: 1.25rem;
@@ -58,40 +59,40 @@ body {
 .hero-buttons {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  padding-left: 6rem;
+  padding-right: 10rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  gap: 8rem;
 }
 
-.hero-buttons button {
+.primary, .secondary {
+  background: #f8e16f;
+  color: #3d0066;
   padding: 1rem 2rem;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   border-radius: 2rem;
   transition: all 0.3s ease;
   cursor: pointer;
   border: none;
-  animation: pulse 2s infinite;
-}
-
-.primary {
-  background: #ffe047;
+  background-color: #f8e16f;
   color: #3d0066;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  background-image: linear-gradient(135deg, #f8e16f, #ffe047);
+  animation: pulse 2s infinite;
+  width: 12rem; /* Ensures both buttons have the same width */
+  text-align: center;
 }
 
-.primary:hover {
-  background: #ffce1f;
-  animation-play-state: paused;
-}
-
-.secondary {
+.primary:hover, .secondary:hover {
+  font-size: 1.5rem;
   background: #ffffff;
   color: #3d0066;
-  border: 2px solid #3d0066;
+  animation-play-state: paused;
+  background-image: none;
+  transform: scale(1.1);
 }
 
-.secondary:hover {
-  background: #3d0066;
-  color: #ffffff;
-  animation-play-state: paused;
-}
 
 @keyframes pulse {
   0% { transform: scale(1); }
@@ -117,8 +118,8 @@ body {
 }
 
 .feature-card img {
-  width: 5rem;
-  height: auto;
+  width: 7rem;
+  height: 8rem;
   margin-bottom: 1rem;
 }
 
