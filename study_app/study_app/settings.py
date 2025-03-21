@@ -92,6 +92,7 @@ WSGI_APPLICATION = 'study_app.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
+    'ENGINE': 'django.db.backends.mysql',
     'default': env.db('DATABASE_URL')  # Automatically pulls from the DATABASE_URL in .env
 }
 
