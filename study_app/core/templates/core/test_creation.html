@@ -7,6 +7,8 @@
 <div style="color: red;">{{ error }}</div>
 {% endif %}
 
+<title>BAi Ganio</title>
+
 <form action="{% url 'core:test_creation' %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <label for="pdf_file">Upload PDF:</label>
