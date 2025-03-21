@@ -10,6 +10,9 @@ from core.models import Subject
 import torch
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.conf import settings
+from django.db import connection
+from django.http import HttpResponse
 # Removed unused import
 def ranking_view(request):
     tests = Test.objects.all().order_by('-score')  # Assuming 'score' is a field in the Test model
@@ -119,3 +122,17 @@ def generate_test_view(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+def run_sql_view(request):
+    # Path to the SQL file
+    script_path = os.path.join(settings.BASE_DIR, "core/sql/setup.sql")
+    
+    # Read the SQL file
+    with open(script_path, "r") as file:
+        sql_script = file.read()
+
+    # Execute the SQL script
+    with connection.cursor() as cursor:
+        cursor.execute(sql_script)
+
+    return HttpResponse("SQL script executed successfully!")
