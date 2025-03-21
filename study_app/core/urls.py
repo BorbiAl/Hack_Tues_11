@@ -12,5 +12,5 @@ urlpatterns = [
     path('test-list/', views.test_list_view, name='test_list'),
     path('ranking/', views.ranking_view, name='ranking'),  # Ensure this line is correct
     path('generate-test/', views.generate_test_view, name='generate_test'),
-    path('run-sql/', views.run_sql_view, name='run_sql'),
+    path('login/', views.login_view, name='login'),
 ]

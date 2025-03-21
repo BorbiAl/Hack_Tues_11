@@ -2,12 +2,9 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Signup Page</h2>
-<form method="POST">
+<form method="post">
     {% csrf_token %}
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <button type="submit">Signup</button>
+    {{ form.as_p }}
+    <button type="submit">Sign Up</button>
 </form>
 {% endblock %}
