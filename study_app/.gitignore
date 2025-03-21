@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.D:\Documents\Hack_Tues_11\study_app\core\__pycache__
+.D:\Documents\Hack_Tues_11\study_app\core\migrations\__pycache__
+.D:\Documents\Hack_Tues_11\study_app\study_app\__pycache__
 
 # C extensions
 *.so
@@ -108,7 +111,6 @@ ENV/
 env/
 venv.bak/
 venv.bak/
-
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -138,3 +140,8 @@ cython_debug/
 
 # VS Code
 .vscode/
+
+.D:\Documents\Hack_Tues_11\study_app\core\__pycache__
+.D:\Documents\Hack_Tues_11\study_app\core\migrations\__pycache__
+.D:\Documents\Hack_Tues_11\study_app\study_app\__pycache__
+
