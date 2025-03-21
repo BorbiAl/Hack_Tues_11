@@ -8,8 +8,12 @@ from django.utils.dateparse import parse_date
 from core.models import Test 
 from core.models import Subject
 import torch
-import torch.nn as nn
-
+from django.views.decorators.csrf import csrf_exempt
+import json
+# Removed unused import
+def ranking_view(request):
+    tests = Test.objects.all().order_by('-score')  # Assuming 'score' is a field in the Test model
+    return render(request, 'core/ranking.html', {'tests': tests})
 def login_view(request):
     return render(request, 'core/login.html')
 
@@ -31,141 +35,87 @@ def profile_view(request):
 # Maximum allowed file size in bytes (e.g., 500 MB)
 MAX_FILE_SIZE = 500 * 1024 * 1024
 
+def test_list_view(request):
+    tests = Test.objects.all()
+    return render(request, 'core/test_list.html', {'tests': tests})
 
 def test_creation_view(request):
-    if request.method == 'POST' and request.FILES.get('pdf_file'):
-        try:
-            # Step 1: Extract form data
-            pdf_file = request.FILES['pdf_file']
-            start_page = int(request.POST.get('start_page'))
-            end_page = int(request.POST.get('end_page'))
-            due_date = request.POST.get('due_date')
+    if request.method == 'POST':
+        pdf_file = request.FILES.get('pdf_file')
+        start_page = int(request.POST.get('start_page', 1)) - 1
+        end_page = int(request.POST.get('end_page', 1)) - 1
+        due_date = request.POST.get('due_date')
 
-            # Step 2: Extract text from the specified pages of the PDF
+        if not pdf_file:
+            return render(request, 'core/test_creation.html', {'error': 'No file uploaded'})
+
+        if pdf_file.size > MAX_FILE_SIZE:
+            return render(request, 'core/test_creation.html', {'error': 'File size exceeds the maximum limit'})
+
+        extracted_text = ""
+        try:
             with pdfplumber.open(pdf_file) as pdf:
-                if start_page < 1 or end_page > len(pdf.pages) or start_page > end_page:
-                    raise ValidationError("Invalid page range.")
-                text = ""
-                for page_num in range(start_page - 1, end_page):
-                    text += pdf.pages[page_num].extract_text()
-
-            # Step 3: Detect the language of the text
-            language = detect(text)
-
-            # Step 4: Translate to Bulgarian if needed
-            if language != "bg":
-                translator = pipeline("translation", model="Helsinki-NLP/opus-mt-mul-bg")
-                translated = translator(text, max_length=512)
-                text = translated[0]['translation_text']
-
-            # Step 5: Generate the test
-            model_name = "gpt2"  # Replace with a larger model if needed
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
-            model = AutoModelForCausalLM.from_pretrained(model_name)
-
-            prompt = f"""
-            Based on the following content, create a single test in Bulgarian with all question types:
-            1. A multiple-choice question with one correct answer and two incorrect answers.
-            2. A matching question where terms are matched with their meanings.
-            3. A typing question where the user must type the correct answer.
-
-            Content:
-            {text}
-
-            Provide the test in Bulgarian.
-            """
-            inputs = tokenizer.encode(prompt, return_tensors="pt")
-            outputs = model.generate(inputs, max_length=1024, num_return_sequences=1, temperature=0.7)
-            generated_test = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-            # Step 6: Render the result
-            return render(request, 'core/test_creation.html', {
-                'selected_text': text,
-                'start_page': start_page,
-                'end_page': end_page,
-                'due_date': due_date,
-                'generated_test': generated_test
-            })
-
+                for page_num in range(start_page, end_page + 1):
+                    if 0 <= page_num < len(pdf.pages):
+                        extracted_text += pdf.pages[page_num].extract_text() or ""
         except Exception as e:
-            return render(request, 'core/test_creation.html', {'error': f"Error: {str(e)}"})
+            return render(request, 'core/test_creation.html', {'error': f'Error processing PDF: {str(e)}'})
+
+        if not extracted_text.strip():
+            return render(request, 'core/test_creation.html', {'error': 'No text found in the selected pages'})
+
+        return render(request, 'core/test_creation.html', {
+            'selected_text': extracted_text,
+            'start_page': start_page + 1,
+            'end_page': end_page + 1,
+            'due_date': due_date,
+        })
 
     return render(request, 'core/test_creation.html')
 
 
-def test_list_view(request):
-    # Example context data for the test list page
-    context = {
-        'tests': [
-            {'name': 'Math Test', 'date': '2025-03-20'},
-            {'name': 'Science Test', 'date': '2025-03-19'},
-            {'name': 'History Test', 'date': '2025-03-18'},
-        ]
-    }
-    return render(request, 'core/test_list.html', context)
-
-def ranking_view(request):
-    # Example context data for the ranking page
-    context = {
-        'rankings': [
-            {'username': 'JohnDoe', 'score': 95},
-            {'username': 'JaneSmith', 'score': 90},
-            {'username': 'AliceBrown', 'score': 85},
-        ]
-    }
-    return render(request, 'core/ranking.html', context)
-
+@csrf_exempt
 def generate_test_view(request):
-    if request.method == 'POST' and request.FILES.get('pdf_file'):
-        # Step 1: Extract text from the uploaded PDF
-        pdf_file = request.FILES['pdf_file']
-        with pdfplumber.open(pdf_file) as pdf:
-            text = ""
-            for page in pdf.pages:
-                text += page.extract_text()
-
-        # Step 2: Detect the language of the text
-        language = detect(text)
-
-        # Step 3: Translate to Bulgarian if needed
-        if language != "bg":
-            translator = pipeline("translation", model="Helsinki-NLP/opus-mt-mul-bg")
-            translated = translator(text, max_length=512)
-            text = translated[0]['translation_text']
-
-        # Step 4: Generate the test
-        model_name = "gpt2"  # Replace with a larger model if needed
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name)
-
-        prompt = f"""
-        Based on the following content, create a single test in Bulgarian with all question types:
-        1. A multiple-choice question with one correct answer and two incorrect answers.
-        2. A matching question where terms are matched with their meanings.
-        3. A typing question where the user must type the correct answer.
-
-        Content:
-        {text[:1000]}  # Limit the content to 1000 characters
-
-        Provide the test in Bulgarian.
-        """
-        inputs = tokenizer.encode(prompt, return_tensors="pt", truncation=True, max_length=1024)
-
+    if request.method == 'POST':
         try:
-            outputs = model.generate(
-                inputs, 
-                max_new_tokens=500,  # Limit the number of new tokens generated
-                num_return_sequences=1, 
-                temperature=0.7,
-                do_sample=True,
-                top_k=50,
-                top_p=0.95,
-            )
-            generated_test = tokenizer.decode(outputs[0], skip_special_tokens=True)
+            # Parse the request data
+            data = json.loads(request.body)
+            pdf_file = request.FILES.get('pdf_file')
+            selected_pages = data.get('selected_pages', [])
+            due_date = data.get('due_date')
 
-            # Step 5: Return the generated test
-            return render(request, 'core/test_result.html', {'test': generated_test})
+            # Validate due date
+            if not parse_date(due_date):
+                return JsonResponse({'error': 'Invalid due date format'}, status=400)
+
+            # Validate file size
+            if pdf_file.size > MAX_FILE_SIZE:
+                return JsonResponse({'error': 'File size exceeds the maximum limit'}, status=400)
+
+            # Extract text from selected pages using pdfplumber
+            extracted_text = ""
+            with pdfplumber.open(pdf_file) as pdf:
+                for page_num in selected_pages:
+                    if 0 <= page_num < len(pdf.pages):
+                        extracted_text += pdf.pages[page_num].extract_text() or ""
+
+            if not extracted_text.strip():
+                return JsonResponse({'error': 'No text found in the selected pages'}, status=400)
+
+            # Generate AI-based test using transformers
+            tokenizer = AutoTokenizer.from_pretrained("gpt2")
+            model = AutoModelForCausalLM.from_pretrained("gpt2")
+            generator = pipeline('text-generation', model=model, tokenizer=tokenizer)
+
+            prompt = f"Create a test based on the following content:\n{extracted_text}\n"
+            ai_generated_test = generator(prompt, max_length=500, num_return_sequences=1)[0]['generated_text']
+
+            # Save the test to the database (optional)
+            Test.objects.create(content=ai_generated_test, due_date=due_date)
+
+            return JsonResponse({'test': ai_generated_test}, status=200)
+
         except Exception as e:
-            return render(request, 'core/test_creation.html', {'error': f"Error generating test: {str(e)}"})
+            return JsonResponse({'error': str(e)}, status=500)
 
-    return render(request, 'core/test_creation.html')
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
