@@ -1,22 +1,25 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGamify - Home</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduGamify - Home</title>
 </head>
 <style>
   /* Global Resets */
   * {
     box-sizing: border-box;
   }
+
   body {
     margin: 0;
     font-family: 'Nunito', sans-serif;
     background-color: #f9f9f9;
     color: #333333;
   }
+
   .container {
     max-width: 75rem;
     margin: 0 auto;
@@ -36,19 +39,23 @@
     z-index: 1000;
     box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
   }
+
   .header-logo {
     font-size: 1.5rem;
     font-weight: bold;
   }
+
   .header-streak {
     display: flex;
     align-items: center;
   }
+
   .header-streak .icon {
     width: 2rem;
     height: 2rem;
     margin-right: 0.5rem;
   }
+
   .streak-number {
     font-size: 1.25rem;
     font-weight: bold;
@@ -70,11 +77,13 @@
     margin-right: 1.25rem;
     box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
   }
+
   .nav-list {
     list-style: none;
     padding: 0;
     margin: 0;
   }
+
   .nav-item {
     display: flex;
     align-items: center;
@@ -85,21 +94,26 @@
     border-radius: 0.625rem;
     transition: background-color 0.3s ease, transform 0.1s ease;
   }
+
   .nav-item:hover {
     background-color: #c670ff;
     transform: scale(1.02);
   }
+
   .nav-item:focus {
-    outline: 0.125rem solid #ffe047;
+    outline: 0.125rem solid #d6a800;
     outline-offset: 0.25rem;
   }
+
   .nav-item:active {
     transform: scale(0.98);
   }
+
   .nav-item.active {
-    background-color: #ffe047;
+    background-color: #d6a800;
     color: #3d0066;
   }
+
   .nav-icon {
     width: 1.5rem;
     height: 1.5rem;
@@ -109,12 +123,14 @@
   .content {
     flex-grow: 1;
   }
+
   .profile-card {
     background-color: #eec7fc;
     padding: 2rem;
     border-radius: 0.625rem;
-    box-shadow: 0 0.125rem 0.625rem rgba(0,0,0,0.1);
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
   }
+
   .profile-card h2 {
     margin-top: 0;
     font-size: 1.75rem;
@@ -122,16 +138,19 @@
     text-align: center;
     margin-bottom: 1.5rem;
   }
+
   .profile-info p {
     font-size: 1.125rem;
     margin: 0.5rem 0;
     color: #3d0066;
   }
+
   .profile-actions {
     display: flex;
     justify-content: space-around;
     margin-top: 2rem;
   }
+
   .profile-actions button {
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
@@ -140,27 +159,32 @@
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
   }
+
   .profile-actions .edit-btn {
-    background-color: #ffe047;
+    background-color: #d6a800;
     color: #3d0066;
   }
+
   .profile-actions .edit-btn:hover {
     background-color: #ffce1f;
   }
+
   .profile-actions .change-password-btn {
     background-color: #ffffff;
     color: #3d0066;
     border: 2px solid #3d0066;
   }
+
   .profile-actions .change-password-btn:hover {
     background-color: #3d0066;
     color: #ffffff;
   }
-  
+
   @media (max-width: 48rem) {
     .main-content {
       flex-direction: column;
     }
+
     .sidebar {
       width: 100%;
       margin-bottom: 1.25rem;
@@ -168,58 +192,66 @@
   }
 </style>
 </head>
+
 <body>
-<div class="container">
-  <header class="header">
-    <div class="header-logo">bAIganio</div>
-    <div class="header-streak">
-      <img src="../../static/core/css/icons8-fire-48.png" alt="Flame Icon" class="nav-icon">
-      <span class="streak-number">5</span>
-    </div>
-  </header>
-  <div class="main-content">
-    <aside class="sidebar">
-      <ul class="nav-list">
-        <li>
-          <a href="dashboard.html" class="nav-item">
-            <img src="../../static/core/css/home.png" alt="Home Icon" class="nav-icon">
-            <span>Home</span>
-          </a>
-        </li>
-        <li>
-          <a href="ranking.html" class="nav-item">
-            <img src="../../static/core/css/ranking.png" alt="Ranking Icon" class="nav-icon">
-            <span>Ranking</span>
-          </a>
-        </li>
-        <li>
-          <a href="test_create.html" class="nav-item">
-            <img src="../../static/core/css/icons8-test-48.png" alt="Tests Icon" class="nav-icon">
-            <span>Tests</span>
-          </a>
-        </li>
-        <li>
-          <a href="profile.html" class="nav-item active">
-            <img src="../../static/core/css/profile.png" alt="Profile Icon" class="nav-icon">
-            <span>Profile</span>
-          </a>
-        </li>
-      </ul>
-    </aside>
-    <section class="content">
-      <div class="profile-card card">
-        <h2>Profile Details</h2>
-        <div class="profile-info">
-          <p><strong>Name:</strong> Alex</p>
-          <!-- Email removed -->
+  <div class="container">
+    <header class="header">
+      <div class="header-logo">bAIganio</div>
+      <div class="header-streak">
+        <img src="../../static/core/css/icons8-fire-48.png" alt="Flame Icon" class="nav-icon">
+        <span class="streak-number">5</span>
+      </div>
+    </header>
+    <div class="main-content">
+      <aside class="sidebar">
+        <ul class="nav-list">
+          <li>
+            <a href="{% url 'dashboard' %}" class="nav-item">
+              <img src="../../static/core/css/home.png" alt="Home Icon" class="nav-icon">
+              <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'ranking' %}" class="nav-item">
+              <img src="../../static/core/css/ranking.png" alt="Ranking Icon" class="nav-icon">
+              <span>Ranking</span>
+            </a>
+          </li>
+          {% if tests %}
+          {% for test in tests %}
+          <li>
+            <a href="{% url 'take_test' test.id %}" class="nav-item">
+              <img src="{% static 'core/css/icons8-test-48.png' %}" alt="Test Icon" class="nav-icon" />
+              <span>Tests</span>
+            </a>
+          </li>
+          {% endfor %}
+          {% else %}
+          <li>No tests available.</li>
+          {% endif %}
+          <li>
+            <a href="{% url 'profile' %}" class="nav-item active">
+              <img src="../../static/core/css/profile.png" alt="Profile Icon" class="nav-icon">
+              <span>Profile</span>
+            </a>
+          </li>
+        </ul>
+      </aside>
+      <section class="content">
+        <div class="profile-card card">
+          <h2>Profile Details</h2>
+          <div class="profile-info">
+            <p><strong>Name:</strong> {{ username }}</p>
+          </div>
         </div>
         <div class="profile-actions">
           <button class="edit-btn">Edit Profile</button>
           <button class="change-password-btn">Change Password</button>
         </div>
-      </div>
+    </div>
     </section>
   </div>
-</div>
+  </div>
 </body>
+
 </html>

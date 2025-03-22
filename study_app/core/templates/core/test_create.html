@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGamify - Home</title>
+    <title>BAi Ganio</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
     <link rel="stylesheet" href="{% static 'core/css/test_create.css' %}">
 </head>
 
@@ -100,14 +101,14 @@
       transform: scale(1.02);
     }
     .nav-item:focus {
-      outline: 0.125rem solid #ffe047;
+      outline: 0.125rem solid #d6a800;
       outline-offset: 0.25rem;
     }
     .nav-item:active {
       transform: scale(0.98);
     }
     .nav-item.active {
-      background-color: #ffe047;
+      background-color: #d6a800;
       color: #3d0066;
     }
     .nav-icon {
@@ -180,7 +181,7 @@
         }
         
         .footer a:hover {
-          color: #ffe047;
+          color: #d6a800;
         }
       }
         
@@ -211,7 +212,7 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'take_test' %}" class="nav-item active">
+            <a href="{% url 'take_test' test.id %}" class="nav-item active">
               <img src="../../static/core/css/icons8-test-48.png" alt="Test Icon" class="nav-icon" />
               <span>Tests</span>
             </a>
@@ -227,9 +228,18 @@
       <section class="content">
         <div class="test-create-card card">
             <h2>Create a new test</h2>
-            <form action="test_grade.html" method="get">
-            <button type="submit" class="create-test-button">Create a new test</button>
-            </form>
+            <form action="{% url 'test_creation' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="pdf_file">Upload PDF:</label>
+                <input type="file" id="pdf_file" name="pdf_file" required>
+                <label for="start_page">Start Page:</label>
+                <input type="number" id="start_page" name="start_page" min="1" required>
+                <label for="end_page">End Page:</label>
+                <input type="number" id="end_page" name="end_page" min="1" required>
+                <label for="due_date">Due Date:</label>
+                <input type="date" id="due_date" name="due_date" required>
+                <button type="submit" class="create-test-button">Create Test</button>
+              </form>
         </div>
       </section>
       <footer class="footer">

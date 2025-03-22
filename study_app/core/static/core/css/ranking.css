@@ -84,6 +84,12 @@
     text-align: center;
     position: relative;
   }
+
+  .username{
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #d6a800;
+  }
   
   .league-icons {
     display: flex;

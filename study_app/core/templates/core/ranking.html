@@ -1,218 +1,240 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAi Ganio</title>
-    <link rel="icon" type="image/x-icon" href="../core/css/icons8-idea.svg">
-    <link rel="stylesheet" href="{% static 'core/css/ranking.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAi Ganio</title>
+  <link rel="icon" type="image/x-icon" href="../core/css/icons8-idea.svg">
+  <link rel="stylesheet" href="{% static 'core/css/ranking.css' %}">
 
-<style>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Nunito', sans-serif;
+      background-color: #ffffff;
+      color: #3d0066;
+    }
 
-  body {
-    margin: 0;
-    font-family: 'Nunito', sans-serif;
-    background-color: #ffffff;
-    color: #3d0066;
-  }
+    .container {
+      max-width: 75rem;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
 
-  .container {
-    max-width: 75rem;
-    margin: 0 auto;
-    padding: 1.25rem;
-  }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #3d0066;
+      color: #ffffff;
+      padding: 1rem 2rem;
+      border-radius: 0.625rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+    }
 
-   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #3d0066;
-    color: #ffffff;
-    padding: 1rem 2rem;
-    border-radius: 0.625rem;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-  }
-  .header-logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  .header-streak {
-    display: flex;
-    align-items: center;
-  }
-  .header-streak .icon {
-    width: 2rem;
-    height: 2rem;
-    margin-right: 0.5rem;
-  }
-  .streak-number {
-    font-size: 1.25rem;
-    font-weight: bold;
-  }
+    .header-logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
 
-   .main-content {
-    display: flex;
-    margin-top: 1.25rem;
-  }
+    .header-streak {
+      display: flex;
+      align-items: center;
+    }
 
-  .sidebar {
-    width: 15rem;
-    background-color: #3d0066;
-    padding: 1.25rem;
-    border-radius: 0.625rem;
-    margin-right: 1.25rem;
-    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-  }
-  .nav-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: #ffffff;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    border-radius: 0.625rem;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-  }
-  .nav-item:hover {
-    background-color: #c670ff;
-    transform: scale(1.02);
-  }
-  .nav-item:focus {
-    outline: 0.125rem solid #ffe047;
-    outline-offset: 0.25rem;
-  }
-  .nav-item:active {
-    transform: scale(0.98);
-  }
-  .nav-item.active {
-    background-color: #ffe047;
-    color: #3d0066;
-  }
-  .nav-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    margin-right: 0.75rem;
-  }
+    .header-streak .icon {
+      width: 2rem;
+      height: 2rem;
+      margin-right: 0.5rem;
+    }
 
-   .content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-  }
+    .streak-number {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
 
-   .ranking-card {
-    background-color: #eec7fc;
-    width: 100%;
-    max-width: 30rem;
-    padding: 1.5rem;
-    border-radius: 0.625rem;
-    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-
-  .ranking-card h2 {
-    margin: 0 0 1rem;
-    font-size: 1.75rem;
-  }
-  .ranking-card p {
-    margin-bottom: 1.25rem;
-    font-size: 1.125rem;
-  }
-
-  .ranking-card .start-lesson-btn {
-    background-color: #ffe047;
-    border: none;
-    border-radius: 0.625rem;
-    padding: 0.75rem 1.25rem;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #3d0066;
-    cursor: pointer;
-    margin-bottom: 2rem;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-  }
-  .ranking-card .start-lesson-btn:hover {
-    background-color: #ffce1f;
-    transform: scale(1.02);
-  }
-  .ranking-card .start-lesson-btn:active {
-    transform: scale(0.98);
-  }
-
-   .leaderboard-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .leaderboard-item {
-    display: flex;
-    align-items: center;
-    background-color: #ffffff;
-    color: #3d0066;
-    margin-bottom: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.625rem;
-    justify-content: center;
-    font-weight: bold;
-    opacity: 0.6;
-  }
-
-   @media (max-width: 48rem) {
     .main-content {
-      flex-direction: column;
-    }
-    .sidebar {
-      width: 100%;
-      margin-bottom: 1.25rem;
+      display: flex;
+      margin-top: 1.25rem;
     }
 
-    .footer {
-      text-align: center;
-      padding: 1.25rem;
+    .sidebar {
+      width: 15rem;
       background-color: #3d0066;
-      color: #ffffff;
-      border-radius: 0.625rem;
-    }
-    
-    .footer a {
-      color: #ffffff;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-    .footer {
-      text-align: center;
       padding: 1.25rem;
-      background-color: #3d0066;
-      color: #ffffff;
       border-radius: 0.625rem;
+      margin-right: 1.25rem;
+      box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
     }
-    
-    .footer a {
-      color: #ffffff;
+
+    .nav-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
       text-decoration: none;
-      transition: color 0.3s ease;
+      color: #ffffff;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      border-radius: 0.625rem;
+      transition: background-color 0.3s ease, transform 0.1s ease;
     }
-    
-    .footer a:hover {
-      color: #ffe047;
+
+    .nav-item:hover {
+      background-color: #c670ff;
+      transform: scale(1.02);
     }
-    .footer a:hover {
-      color: #ffe047;
+
+    .nav-item:focus {
+      outline: 0.125rem solid #d6a800;
+      outline-offset: 0.25rem;
     }
-    
-  }
-</style>
+
+    .nav-item:active {
+      transform: scale(0.98);
+    }
+
+    .nav-item.active {
+      background-color: #d6a800;
+      color: #3d0066;
+    }
+
+    .nav-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-right: 0.75rem;
+    }
+
+    .content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .ranking-card {
+      background-color: #eec7fc;
+      width: 100%;
+      max-width: 30rem;
+      padding: 1.5rem;
+      border-radius: 0.625rem;
+      box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .ranking-card h2 {
+      margin: 0 0 1rem;
+      font-size: 1.75rem;
+    }
+
+    .ranking-card p {
+      margin-bottom: 1.25rem;
+      font-size: 1.125rem;
+    }
+
+    .ranking-card .start-lesson-btn {
+      background-color: #d6a800;
+      border: none;
+      border-radius: 0.625rem;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #3d0066;
+      cursor: pointer;
+      margin-bottom: 2rem;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+
+    .ranking-card .start-lesson-btn:hover {
+      background-color: #ffce1f;
+      transform: scale(1.02);
+    }
+
+    .ranking-card .start-lesson-btn:active {
+      transform: scale(0.98);
+    }
+
+    .leaderboard-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      background-color: #d6a800;
+      color: #3d0066;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.625rem;
+      justify-content: center;
+      font-weight: bold;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 48rem) {
+      .main-content {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        margin-bottom: 1.25rem;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 1.25rem;
+        background-color: #3d0066;
+        color: #ffffff;
+        border-radius: 0.625rem;
+      }
+
+      .footer a {
+        color: #ffffff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 1.25rem;
+        background-color: #3d0066;
+        color: #ffffff;
+        border-radius: 0.625rem;
+      }
+
+      .username {
+        color: #d6a800;
+      }
+
+      .footer a {
+        color: #ffffff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer a:hover {
+        color: #d6a800;
+      }
+
+      .footer a:hover {
+        color: #d6a800;
+      }
+
+    }
+  </style>
 
 <body>
   <div class="container">
@@ -229,53 +251,49 @@
       <aside class="sidebar">
         <ul class="nav-list">
           <li>
-                        <a href="{% url 'dashboard' %}" class="nav-item">
+            <a href="{% url 'dashboard' %}" class="nav-item">
 
-          <img src="placeholder-home.png" alt="Home Icon" class="nav-icon" />
-          <span>Home</span>
-        </a>
+              <img src="../../static/core/css/home.png" alt="Home Icon" class="nav-icon">
+              <span>Home</span>
+            </a>
           </li>
           <li>
-                        <a href="{% url 'ranking' %}" class="nav-item active">
+            <a href="{% url 'ranking' %}" class="nav-item active">
 
-          <img src="placeholder-ranking.png" alt="Ranking Icon" class="nav-icon" />
-          <span>Ranking</span>
-        </a>
+              <img src="../../static/core/css/icons8-test-48.png" alt="Tests Icon" class="nav-icon">
+              <span>Ranking</span>
+            </a>
           </li>
           <li>
-                        <a href="{% url 'test_create' %}" class="nav-item">
-
-          <img src="placeholder-tests.png" alt="Tests Icon" class="nav-icon" />
-          <span>Tests</span>
-        </a>
+            <a href="{% url 'test_create' %}" class="nav-item">
+              <img src="../../static/core/css/profile.png" alt="Profile Icon" class="nav-icon">
+              <span>Tests</span>
+            </a>
           </li>
           <li>
-                        <a href="{% url 'profile' %}" class="nav-item">
+            <a href="{% url 'profile' %}" class="nav-item">
 
-          <img src="placeholder-profile.png" alt="Profile Icon" class="nav-icon" />
-          <span>Profile</span>
-        </a>
+              <img src="placeholder-profile.png" alt="Profile Icon" class="nav-icon" />
+              <span>Profile</span>
+            </a>
           </li>
         </ul>
       </aside>
 
 
       <section class="content">
-        <div class="ranking-card">
-          <h2>Silver League</h2>
-          <p>Complete a lesson to join this week's leaderboard</p>
-          <button class="start-lesson-btn">Start a Lesson</button>
-
-          <ul class="leaderboard-list">
-            <li class="leaderboard-item">1. Placeholder</li>
-            <li class="leaderboard-item">2. Placeholder</li>
-            <li class="leaderboard-item">3. Placeholder</li>
-            <li class="leaderboard-item">4. Placeholder</li>
-            <li class="leaderboard-item">5. Placeholder</li>
+        <div class="ranking-card card">
+          <h2>Welcome, <span class="username">{{ username }}</span>!</h2>
+          <p>Here are the current rankings:</p>
+          <ul>
+            {% for ranking in rankings %}
+            <li>{{ ranking.username }} - {{ ranking.score }} points</li>
+            {% endfor %}
           </ul>
         </div>
       </section>
     </div>
   </div>
 </body>
+
 </html>
