@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.utils import timezone
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
@@ -37,11 +38,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
-class Subject(models.Model):
-    name = models.CharField(max_length=255) 
-    description = models.TextField(blank=True, null=True)
-    def __str__(self):
-        return self.name
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -52,21 +48,22 @@ class Profile(models.Model):
         return f"{self.user.username}'s Profile"
 
 
-from django.db import models
-from django.conf import settings
+class Subject(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
 
 class Test(models.Model):
     title = models.CharField(max_length=255)
-    subject = models.ForeignKey('Subject', on_delete=models.CASCADE, related_name='tests', blank=True, null=True)
-    grade = models.IntegerField()  # Assuming grade is an integer
-    question_data = models.TextField(default='')
-    due_date = models.DateField(blank=True, null=True)
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE, related_name='tests')
+    grade = models.IntegerField()  # Grade (1 to 12)
+    question_data = models.JSONField(default=list)  # Store questions as JSON
+    created_at = models.DateTimeField(auto_now_add=True)  # Automatically set when the object is created
 
-    def get_pdf_filename(self):
-        # Generate the PDF filename based on subject and grade
-        if self.subject and self.grade:
-            return f"{self.subject.name.lower()}_{self.grade}.pdf"
-        return None
+    def __str__(self):
+        return self.title
 
 class Question(models.Model):
     test = models.ForeignKey(Test, related_name='question_set', on_delete=models.CASCADE)  # Renamed related_name

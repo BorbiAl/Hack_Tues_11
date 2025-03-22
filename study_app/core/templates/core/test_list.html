@@ -8,18 +8,19 @@
     <link rel="icon" type="image/x-icon" href="../core/css/icons8-idea.svg">
     <link rel="stylesheet" href="../static/core/test_list.css">
 </head>
+<body>
+    <h2>All Tests</h2>
 
-<h2>All Tests</h2>
-
-{% for subject in subjects %}
-<h3>{{ subject.name }}</h3>
-<ul>
-    {% for test in subject.tests.all %}
-    <li>
-        <strong>{{ test.title }}</strong>
-        <a href="{% url 'core:take_test' test.id %}">Take Test</a>
-    </li>
+    {% for subject in subjects %}
+    <h3>{{ subject.name }}</h3>
+    <ul>
+        {% for test in subject.tests.all %}
+        <li>
+            <strong>{{ test.title }}</strong>
+            <a href="{% url 'take_test' test.id %}">Take Test</a>
+        </li>
+        {% endfor %}
+    </ul>
     {% endfor %}
-</ul>
-{% endfor %}
-{% endblock %}
+</body>
+</html>

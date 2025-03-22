@@ -241,7 +241,7 @@
     <header class="header">
       <div class="header-logo">LOGO</div>
       <div class="header-streak">
-        <img src="placeholder-flame.png" alt="Flame Icon" class="icon" />
+        <img src="{% static 'core/css/icons8-fire-48.png' %}" alt="Flame Icon" class="icon" />
         <span class="streak-number">5</span>
       </div>
     </header>
@@ -265,15 +265,14 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'test_create' %}" class="nav-item">
-              <img src="../../static/core/css/profile.png" alt="Profile Icon" class="nav-icon">
+            <a href="{% url 'test_textbook' %}" class="nav-item">
+              <img src="{% static 'core/css/icons8-test-48.png' %}" alt="Tests Icon" class="nav-icon">
               <span>Tests</span>
             </a>
           </li>
-          <li>
             <a href="{% url 'profile' %}" class="nav-item">
 
-              <img src="placeholder-profile.png" alt="Profile Icon" class="nav-icon" />
+              <img src="{% static 'core/css/profile.png' %}" alt="Profile Icon" class="nav-icon" />
               <span>Profile</span>
             </a>
           </li>

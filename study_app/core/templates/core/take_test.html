@@ -1,45 +1,23 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ test.title }}</title>
-    <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
-    <link rel="stylesheet" href="{% static 'core/css/take_test.css' %}">
 </head>
 <body>
-    <header>
-        <h2>{{ test.title }}</h2>
-    </header>
-
-    <main>
-        <div class="progress-container">
-            <div class="progress-bar" style="width: '{{ progress|default:0 }}%';"></div>
-        </div>
-        <p>Question {{ current_question }} of {{ total_questions }}</p>
-
-        <div class="question">
-            <p><strong>{{ question }}</strong></p>
-        </div>
-
-        <form action="" method="GET">
-            {% csrf_token %}
+    <h2>{{ test.title }}</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {% for question in test.question_data %}
+        <div>
+            <p><strong>{{ question.text }}</strong></p>
             {% for option in question.options %}
-            <input type="radio" name="answer" value="{{ option }}" required> {{ option }}<br>
+            <input type="radio" name="question_{{ forloop.counter }}" value="{{ option }}" required> {{ option }}<br>
             {% endfor %}
-            <input type="hidden" name="question" value="{{ current_question|add:1 }}">
-            <button type="submit">Next</button>
-        </form>
-
-        <div class="navigation">
-            <a href="?question={{ current_question|add:-1 }}" class="btn" {% if current_question == 1 %}style="display:none;"{% endif %}>Previous</a>
-            <a href="?question={{ current_question|add:1 }}" class="btn" {% if current_question == total_questions %}style="display:none;"{% endif %}>Next</a>
         </div>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 BAi Ganio. All rights reserved.</p>
-    </footer>
+        {% endfor %}
+        <button type="submit">Submit Answers</button>
+    </form>
 </body>
 </html>

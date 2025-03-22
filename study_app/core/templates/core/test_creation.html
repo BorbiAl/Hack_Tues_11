@@ -1,55 +1,43 @@
 {% load static %}
-{% extends "base.html" %}
-{% block content %}
-<h2>Create a Test</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Test</title>
+    <link rel="stylesheet" href="{% static 'core/css/test_creation.css' %}">
+</head>
+<body>
+    <h2>Create a Test</h2>
+    {% if error %}
+    <div style="color: red;">{{ error }}</div>
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="subject">Select Subject:</label>
+        <select name="subject" id="subject" required>
+            {% for subject in subjects %}
+            <option value="{{ subject }}">{{ subject }}</option>
+            {% endfor %}
+        </select><br><br>
 
-{% if error %}
-<div style="color: red;">{{ error }}</div>
-{% endif %}
+        <label for="grade">Select Grade:</label>
+        <select name="grade" id="grade" required>
+            {% for grade in grades %}
+            <option value="{{ grade }}">Grade {{ grade }}</option>
+            {% endfor %}
+        </select><br><br>
 
-<title>BAi Ganio</title>
+        <label for="pdf_file">Upload Textbook PDF:</label>
+        <input type="file" name="pdf_file" id="pdf_file" required><br><br>
 
-<form action="{% url 'core:test_creation' %}" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label for="pdf_file">Upload PDF:</label>
-    <input type="file" name="pdf_file" id="pdf_file" required><br><br>
+        <label for="start_page">Start Page:</label>
+        <input type="number" name="start_page" id="start_page" min="1" required><br><br>
 
-    <label for="start_page">Start Page:</label>
-    <input type="number" name="start_page" id="start_page" min="1" required><br><br>
+        <label for="end_page">End Page:</label>
+        <input type="number" name="end_page" id="end_page" min="1" required><br><br>
 
-    <label for="end_page">End Page:</label>
-    <input type="number" name="end_page" id="end_page" min="1" required><br><br>
-
-    <label for="due_date">Due Date:</label>
-    <input type="date" name="due_date" id="due_date" required><br><br>
-
-    <button type="submit">Generate Test</button>
-</form>
-
-<h2>Create a Test</h2>
-
-{% if success %}
-<div style="color: green;">{{ success }}</div>
-{% endif %}
-
-<form action="{% url 'core:test_creation' %}" method="POST">
-    {% csrf_token %}
-    <label for="subject">Subject:</label>
-    <input type="text" name="subject" id="subject" required><br><br>
-
-    <label for="title">Test Title:</label>
-    <input type="text" name="title" id="title" required><br><br>
-
-    <label for="questions">Questions (JSON format):</label>
-    <textarea name="questions" id="questions" rows="10" required></textarea><br><br>
-
-    <button type="submit">Create Test</button>
-</form>
-
-{% if pdf_file %}
-{% if selected_text %}
-<h3>Preview of Selected Material (Pages {{ start_page }} to {{ end_page }})</h3>
-<pre>{{ selected_text }}</pre>
-<p><strong>Due Date:</strong> {{ due_date }}</p>
-{% endif %}
-{% endblock %}
+        <button type="submit">Generate Test</button>
+    </form>
+</body>
+</html>

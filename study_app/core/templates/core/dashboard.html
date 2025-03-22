@@ -286,14 +286,14 @@
               <span>Ranking</span>
             </a>
           </li>
-          {% for test in tests %}
-  <li>
-    <a href="{% url 'take_test' test.id %}" class="nav-item">
-      <img src="{% static 'core/css/icons8-test-48.png' %}" alt="Test Icon" class="nav-icon" />
-      <span>Tests</span>
-    </a>
-  </li>
-  {% endfor %}
+          <li>
+            <li>
+              <a href="{% url 'test_textbook' %}" class="nav-item">
+                <img src="{% static 'core/css/icons8-test-48.png' %}" alt="Tests Icon" class="nav-icon">
+                <span>Tests</span>
+              </a>
+            </li>
+        </li>
           <li>
             <a href="{% url 'profile' %}" class="nav-item">
               <img src="{% static 'core/css/profile.png' %}" alt="Profile Icon" class="nav-icon" />
@@ -334,3 +334,4 @@
 </body>
 
 </html>
+
