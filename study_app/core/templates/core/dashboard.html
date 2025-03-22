@@ -1,14 +1,15 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGamify - Dashboard</title>
-    <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduGamify - Dashboard</title>
+  <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
 </head>
 
-<style> 
+<style>
   * {
     box-sizing: border-box;
   }
@@ -18,14 +19,15 @@
     font-family: 'Nunito', sans-serif;
     background-color: #ffffff;
     color: #3d0066;
-}
-.container {
+  }
+
+  .container {
     max-width: 75rem;
     margin: 0 auto;
     padding: 1.25rem;
-}
-  
-   .header {
+  }
+
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -38,19 +40,23 @@
     z-index: 1000;
     box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
   }
+
   .header-logo {
     font-size: 1.5rem;
     font-weight: bold;
   }
+
   .header-streak {
     display: flex;
     align-items: center;
   }
+
   .header-streak .icon {
     width: 2rem;
     height: 2rem;
     margin-right: 0.5rem;
   }
+
   .streak-number {
     font-size: 1.25rem;
     font-weight: bold;
@@ -60,7 +66,7 @@
     display: flex;
     margin-top: 1.25rem;
   }
-  
+
   .sidebar {
     width: 15rem;
     background-color: #3d0066;
@@ -69,11 +75,13 @@
     margin-right: 1.25rem;
     box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
   }
+
   .nav-list {
     list-style: none;
     padding: 0;
     margin: 0;
   }
+
   .nav-item {
     display: flex;
     align-items: center;
@@ -84,21 +92,26 @@
     border-radius: 0.625rem;
     transition: background-color 0.3s ease, transform 0.1s ease;
   }
+
   .nav-item:hover {
     background-color: #c670ff;
     transform: scale(1.02);
   }
+
   .nav-item:focus {
     outline: 0.125rem solid #ffe047;
     outline-offset: 0.25rem;
   }
+
   .nav-item:active {
     transform: scale(0.98);
   }
+
   .nav-item.active {
     background-color: #ffe047;
     color: #3d0066;
   }
+
   .nav-icon {
     width: 1.5rem;
     height: 1.5rem;
@@ -111,7 +124,7 @@
     grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
     grid-gap: 1.25rem;
   }
-  
+
 
   .card {
     background-color: #eec7fc;
@@ -120,75 +133,85 @@
     box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
+
   .card:hover {
     transform: translateY(-0.125rem);
     box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
   }
+
   .card:active {
     transform: translateY(0);
   }
-  
+
   .welcome-card h2 {
     margin-top: 0;
     font-size: 1.75rem;
     color: #3d0066;
   }
+
   .username {
     color: #ffce1f;
   }
-  
-    .course-card h3 {
+
+  .course-card h3 {
     margin-top: 0;
     font-size: 1.5rem;
     color: #3d0066;
   }
+
   .course-card p {
     font-size: 1.125rem;
     color: #c670ff;
   }
-  
+
 
   .streak-card {
     display: flex;
     align-items: center;
   }
+
   .large-icon {
     width: 3rem;
     height: 3rem;
     margin-right: 1rem;
   }
+
   .streak-info h3 {
     margin: 0;
     font-size: 1.5rem;
     color: #3d0066;
   }
+
   .streak-info p {
     margin: 0.25rem 0 0;
     font-size: 1.125rem;
     color: #ffce1f;
   }
-  
+
 
   .xp-card {
     display: flex;
     align-items: center;
   }
+
   .small-icon {
     width: 2rem;
     height: 2rem;
     margin-right: 0.75rem;
   }
+
   .xp-info h3 {
     margin: 0;
     font-size: 1.5rem;
     color: #3d0066;
   }
+
   .xp-info p {
     margin: 0.25rem 0 0;
     font-size: 1.125rem;
     color: #ffe047;
   }
-  
+
 
   .quote-card {
     grid-column: 1 / -1;
@@ -199,18 +222,21 @@
     background-color: #ffffff;
     border: 0.125rem solid #eec7fc;
   }
-  
+
   @media (max-width: 48rem) {
     .main-content {
       flex-direction: column;
     }
+
     .sidebar {
       width: 100%;
       margin-bottom: 1.25rem;
     }
+
     .content {
       grid-template-columns: 1fr;
     }
+
     .footer {
       text-align: center;
       padding: 1.25rem;
@@ -218,109 +244,63 @@
       color: #ffffff;
       border-radius: 0.625rem;
     }
-    
+
     .footer a {
       color: #ffffff;
       text-decoration: none;
       transition: color 0.3s ease;
     }
-    
+
     .footer a:hover {
       color: #ffe047;
     }
   }
-    
-  
 </style>
 
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="header-logo">bAIganio</div>
-            <div class="header-streak">
-                <img src="{% static 'core/css/icons8-fire-48.png' %}" alt="Flame Icon" class="nav-icon" />
-                <span class="streak-number">5</span>
-            </div>
-        </header>
-        <div class="main-content">
-            <aside class="sidebar">
-                <ul class="nav-list">
-                    <li>
-                        <a href="{% url 'dashboard' %}" class="nav-item active">
-                            <img src="{% static 'core/css/home.png' %}" alt="Home Icon" class="nav-icon" />
-                            <span>Home</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'ranking' %}" class="nav-item">
-                            <img src="{% static 'core/css/ranking.png' %}" alt="Ranking Icon" class="nav-icon" />
-                            <span>Ranking</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'test_create' %}" class="nav-item">
-                            <img src="{% static 'core/css/icons8-test-48.png' %}" alt="Test Icon" class="nav-icon" />
-                            <span>Tests</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'profile' %}" class="nav-item">
-                            <img src="{% static 'core/css/profile.png' %}" alt="Profile Icon" class="nav-icon" />
-                            <span>Profile</span>
-                        </a>
-                    </li>
-                </ul>
-            </aside>
-            <section class="content">
-                <div class="welcome-card card">
-                    <h2>Hi, <span class="username">Alex</span>!</h2>
-                    <p>Welcome back! Let's continue your learning journey.</p>
-                </div>
-                <div class="course-card card">
-                    <h3>Geography Exam</h3>
-                    <p><strong>3 days</strong> left to complete your exam prep!</p>
-                </div>
-                <div class="quote-card card">
-                    <p>"Keep going! Every lesson takes you one step closer to mastery."</p>
-                </div>
-            </section>
-        </div>
+  <div class="container">
+    <!-- Header Section -->
+    <header class="header">
+      <div class="header-logo">bAIganio</div>
       <div class="header-streak">
-        <img src="../../static/core/css/icons8-fire-48.png" alt="Flame Icon" class="nav-icon" />
+        <img src="{% static 'core/css/icons8-fire-48.png' %}" alt="Flame Icon" class="nav-icon" />
         <span class="streak-number">5</span>
       </div>
     </header>
 
+    <!-- Main Content Section -->
     <div class="main-content">
+      <!-- Sidebar -->
       <aside class="sidebar">
         <ul class="nav-list">
           <li>
-            <a href="#" class="nav-item active">
-              <img src="../../static/core/css/home.png" alt="Home Icon" class="nav-icon" />
+            <a href="{% url 'dashboard' %}" class="nav-item active">
+              <img src="{% static 'core/css/home.png' %}" alt="Home Icon" class="nav-icon" />
               <span>Home</span>
             </a>
           </li>
           <li>
-            <a href="ranking.html" class="nav-item active">
-              <img src="../../static/core/css/ranking.png" alt="Ranking Icon" class="nav-icon" />
+            <a href="{% url 'ranking' %}" class="nav-item">
+              <img src="{% static 'core/css/ranking.png' %}" alt="Ranking Icon" class="nav-icon" />
               <span>Ranking</span>
             </a>
           </li>
           <li>
-            <a href="test_create.html" class="nav-item">
-              <img src="../../static/core/css/icons8-test-48.png" alt="Ranking Icon" class="nav-icon" />
+            <a href="{% url 'test_create' %}" class="nav-item">
+              <img src="{% static 'core/css/icons8-test-48.png' %}" alt="Test Icon" class="nav-icon" />
               <span>Tests</span>
             </a>
           </li>
           <li>
-            <a href="profile.htm" class="nav-item">
-              <img src="../../static/core/css/profile.png" alt="Profile Icon" class="nav-icon" />
+            <a href="{% url 'profile' %}" class="nav-item">
+              <img src="{% static 'core/css/profile.png' %}" alt="Profile Icon" class="nav-icon" />
               <span>Profile</span>
             </a>
           </li>
         </ul>
       </aside>
 
+      <!-- Content Section -->
       <section class="content">
         <div class="welcome-card card">
           <h2>Hi, <span class="username">Alex</span>!</h2>
@@ -330,27 +310,24 @@
           <h3>Geography Exam</h3>
           <p><strong>3 days</strong> left to complete your exam prep!</p>
         </div>
-
         <div class="streak-card card">
-          <img src="../../static/core/css/icons8-fire-48.png" alt="Flame Icon" class="icon" />
+          <img src="{% static 'core/css/icons8-fire-48.png' %}" alt="Flame Icon" class="icon" />
           <div class="streak-info">
             <h3>Daily Streak</h3>
             <p><strong>5 days</strong> in a row</p>
           </div>
         </div>
-        </div>
         <div class="quote-card card">
           <p>"Keep going! Every lesson takes you one step closer to mastery."</p>
         </div>
       </section>
-
-      <footer class="footer">
-        <p>
-          &copy; 2025 bAIganio. All rights reserved.
-        </p>
-      </footer>
     </div>
-    
+
+    <!-- Footer Section -->
+    <footer class="footer">
+      <p>&copy; 2025 bAIganio. All rights reserved.</p>
+    </footer>
   </div>
 </body>
+
 </html>
