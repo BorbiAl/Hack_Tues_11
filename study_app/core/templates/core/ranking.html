@@ -229,25 +229,29 @@
       <aside class="sidebar">
         <ul class="nav-list">
           <li>
-        <a href="dashboard.html" class="nav-item">
+                        <a href="{% url 'dashboard' %}" class="nav-item">
+
           <img src="placeholder-home.png" alt="Home Icon" class="nav-icon" />
           <span>Home</span>
         </a>
           </li>
           <li>
-        <a href="#" class="nav-item active">
+                        <a href="{% url 'ranking' %}" class="nav-item active">
+
           <img src="placeholder-ranking.png" alt="Ranking Icon" class="nav-icon" />
           <span>Ranking</span>
         </a>
           </li>
           <li>
-        <a href="take_test.html" class="nav-item">
+                        <a href="{% url 'test_create' %}" class="nav-item">
+
           <img src="placeholder-tests.png" alt="Tests Icon" class="nav-icon" />
           <span>Tests</span>
         </a>
           </li>
           <li>
-        <a href="profile.html" class="nav-item">
+                        <a href="{% url 'profile' %}" class="nav-item">
+
           <img src="placeholder-profile.png" alt="Profile Icon" class="nav-icon" />
           <span>Profile</span>
         </a>

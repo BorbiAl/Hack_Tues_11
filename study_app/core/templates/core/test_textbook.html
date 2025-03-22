@@ -9,10 +9,6 @@
 </head>
 <title>bAIganio - Select Grade</title>
 <style>
-
-    <title>bAIganio - Choose Textbook</title>
-    <link rel="stylesheet" href="../static/core/base.css" />
-    <style>
       * {
         box-sizing: border-box;
       }
@@ -171,10 +167,10 @@
         <aside class="sidebar">
           <ul class="nav-list">
             <li>
-              <a href="dashboard.html" class="nav-item">
-                <img src="../../static/core/css/home.png" alt="Home Icon" class="nav-icon" />
+                <a href="{% url 'dashboard' %}" class="nav-item">
+                <img src="{% static 'core/css/home.png' %}" alt="Home Icon" class="nav-icon" />
                 <span>Home</span>
-              </a>
+                </a>
             </li>
             <li>
               <a href="ranking.html" class="nav-item">

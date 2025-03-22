@@ -19,7 +19,8 @@
 <p>Question {{ current_question }} of {{ total_questions }}</p>
 
 <p><strong>{{ question.text }}</strong></p>
-<form action="" method="GET">
+<form action="{% url 'take_test' %}" method="GET">
+
     {% csrf_token %}
     {% for option in question.options %}
     <input type="radio" name="answer" value="{{ option }}" required> {{ option }}<br>

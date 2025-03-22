@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduGamify - Home</title>
+    <title>EduGamify - Dashboard</title>
     <link rel="stylesheet" href="{% static 'core/css/dashboard.css' %}">
 </head>
 
@@ -234,12 +234,56 @@
 </style>
 
 <body>
-  <div class="container">
-    <header class="header">
-      <div class="header-logo">bAIganio</div>
-      <div class="xp-card card">
-        <img src="../../static/core/css/xptracker.png" alt="XP Tracker Icon" class="nav-icon" />
-        <div class="xp-info">
+    <div class="container">
+        <header class="header">
+            <div class="header-logo">bAIganio</div>
+            <div class="header-streak">
+                <img src="{% static 'core/css/icons8-fire-48.png' %}" alt="Flame Icon" class="nav-icon" />
+                <span class="streak-number">5</span>
+            </div>
+        </header>
+        <div class="main-content">
+            <aside class="sidebar">
+                <ul class="nav-list">
+                    <li>
+                        <a href="{% url 'dashboard' %}" class="nav-item active">
+                            <img src="{% static 'core/css/home.png' %}" alt="Home Icon" class="nav-icon" />
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'ranking' %}" class="nav-item">
+                            <img src="{% static 'core/css/ranking.png' %}" alt="Ranking Icon" class="nav-icon" />
+                            <span>Ranking</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'test_create' %}" class="nav-item">
+                            <img src="{% static 'core/css/icons8-test-48.png' %}" alt="Test Icon" class="nav-icon" />
+                            <span>Tests</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'profile' %}" class="nav-item">
+                            <img src="{% static 'core/css/profile.png' %}" alt="Profile Icon" class="nav-icon" />
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+            <section class="content">
+                <div class="welcome-card card">
+                    <h2>Hi, <span class="username">Alex</span>!</h2>
+                    <p>Welcome back! Let's continue your learning journey.</p>
+                </div>
+                <div class="course-card card">
+                    <h3>Geography Exam</h3>
+                    <p><strong>3 days</strong> left to complete your exam prep!</p>
+                </div>
+                <div class="quote-card card">
+                    <p>"Keep going! Every lesson takes you one step closer to mastery."</p>
+                </div>
+            </section>
         </div>
       <div class="header-streak">
         <img src="../../static/core/css/icons8-fire-48.png" alt="Flame Icon" class="nav-icon" />
