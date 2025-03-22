@@ -199,26 +199,26 @@
       <aside class="sidebar">
         <ul class="nav-list">
           <li>
-            <a href='{% url 'dashboard.html'}' class="nav-item">
-              <img src="../../static/core/css/home.png" alt="Home Icon" class="nav-icon" />
+            <a href="{% url 'dashboard' %}" class="nav-item">
+              <img src="{% static 'core/css/home.png' %}" alt="Home Icon" class="nav-icon" />
               <span>Home</span>
             </a>
-          </li>
-          <li>
-            <a href="ranking.html" class="nav-item">
-              <img src="../../static/core/css/ranking.png" alt="Ranking Icon" class="nav-icon" />
+            </li>
+            <li>
+            <a href="{% url 'ranking' %}" class="nav-item">
+              <img src="{% static 'core/css/ranking.png' %}" alt="Ranking Icon" class="nav-icon" />
               <span>Ranking</span>
             </a>
-          </li>
-          <li>
-            <a href="take_test.html" class="nav-item active">
-              <img src="../../static/core/css/icons8-test-48.png" alt="Test Icon" class="nav-icon" />
+            </li>
+            <li>
+            <a href="{% url 'take_test' %}" class="nav-item active">
+              <img src="{% static 'core/css/icons8-test-48.png' %}" alt="Test Icon" class="nav-icon" />
               <span>Tests</span>
             </a>
-          </li>
-          <li>
-            <a href="profile.htm" class="nav-item">
-              <img src="../../static/core/css/profile.png" alt="Profile Icon" class="nav-icon" />
+            </li>
+            <li>
+            <a href="{% url 'profile' %}" class="nav-item">
+              <img src="{% static 'core/css/profile.png' %}" alt="Profile Icon" class="nav-icon" />
               <span>Profile</span>
             </a>
           </li>
