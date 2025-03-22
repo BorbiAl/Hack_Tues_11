@@ -11,6 +11,26 @@ from .forms import CustomUserCreationForm
 from django.contrib.auth.views import LoginView
 from .models import Profile
 
+def test_create_view(request):
+    return render(request, 'core/test_create.html')
+
+def test_grade_view(request):
+    return render(request, 'core/test_grade.html')
+
+def test_textbook_view(request):
+    return render(request, 'core/test_textbook.html')
+
+def test_subject_view(request):
+    return render(request, 'core/test_subject.html')
+
+def test_result_view(request):
+    return render(request, 'core/test_result.html')
+
+def test_question_view(request):
+    return render(request, 'core/test_question.html')
+
+def test_pages_daysleft_view(request):
+    return render(request, 'core/test_pages_daysleft.html')
 def home_view(request):
     return render(request, 'base.html')
 
@@ -28,13 +48,13 @@ def signup_view(request):
     return render(request, 'core/signup.html', {'form': form})
 
 class CustomLoginView(LoginView):
-    template_name = 'core/dashboard.html'
+    template_name = 'core/login.html'
 
 MAX_FILE_SIZE = 500 * 1024 * 1024
 
 def dashboard_view(request):
     return render(request, 'core/dashboard.html')
-
+    
 def profile_view(request):
     context = {
         'username': 'JohnDoe',
