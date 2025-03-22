@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
@@ -53,11 +52,27 @@ class Profile(models.Model):
         return f"{self.user.username}'s Profile"
 
 
+from django.db import models
+from django.conf import settings
+
 class Test(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='tests') 
-    title = models.CharField(max_length=255, default='No title available') 
-    questions = models.TextField(default='No questions available') 
-    created_at = models.DateTimeField(default=timezone.now)
+    title = models.CharField(max_length=255)
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE, related_name='tests', blank=True, null=True)
+    grade = models.IntegerField()  # Assuming grade is an integer
+    question_data = models.TextField(default='')
+    due_date = models.DateField(blank=True, null=True)
+
+    def get_pdf_filename(self):
+        # Generate the PDF filename based on subject and grade
+        if self.subject and self.grade:
+            return f"{self.subject.name.lower()}_{self.grade}.pdf"
+        return None
+
+class Question(models.Model):
+    test = models.ForeignKey(Test, related_name='question_set', on_delete=models.CASCADE)  # Renamed related_name
+    question_text = models.TextField()
+    correct_answer = models.CharField(max_length=255)
+    incorrect_answers = models.JSONField(default=list)
 
     def __str__(self):
-        return self.title
+        return self.question_text
