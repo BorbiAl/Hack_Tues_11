@@ -126,6 +126,7 @@
     grid-gap: 1.25rem;
   }
 
+
   .card {
     background-color: #eec7fc;
     padding: 1.5rem;
@@ -164,6 +165,7 @@
     color: #c670ff;
   }
 
+
   .streak-card {
     display: flex;
     align-items: center;
@@ -187,6 +189,7 @@
     color: #d6a800;
   }
 
+
   .xp-card {
     display: flex;
     align-items: center;
@@ -209,6 +212,7 @@
     font-size: 1.125rem;
     color: #d6a800;
   }
+
 
   .quote-card {
     grid-column: 1 / -1;
@@ -260,7 +264,7 @@
     <header class="header">
       <div class="header-logo">bAIganio</div>
       <div class="header-streak">
-        <img src="{% static 'core/css/icons8-fire-48.png' %}" alt="Flame Icon" class="nav-icon" />
+        <img href = "C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\static\core\css\icons8-fire-48.png" alt="Flame Icon" class="nav-icon" />
         <span class="streak-number">5</span>
       </div>
     </header>
@@ -272,34 +276,27 @@
         <ul class="nav-list">
           <li>
             <a href="{% url 'dashboard.html' %}" class="nav-item active">
-              <img src="{% static 'core/css/home.png' %}" alt="Home Icon" class="nav-icon" />
+              <img href = "C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\static\core\css\home.png" alt="Home Icon" class="nav-icon" />
               <span>Home</span>
             </a>
           </li>
           <li>
             <a href="{% url 'ranking.html' %}" class="nav-item">
-              <img src="{% static 'core/css/icons8-ranking-48.png' %}" alt="Ranking Icon" class="nav-icon" />
+              <img href = "C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\templates\core\ranking.html" alt="Ranking Icon" class="nav-icon" />
               <span>Ranking</span>
             </a>
           </li>
           {% for test in tests %}
-          <li>
-            <a href="{% url 'take_test.html' test.id %}" class="nav-item">
-              <img src="{% static 'core/css/icons8-test-48.png' %}" alt="Test Icon" class="nav-icon" />
-              <span>Tests</span>
-            </a>
-          </li>
-          {% endfor %}
-          <!-- New Test Button -->
-          <li>
-            <a href="{% url 'test' %}" class="nav-item">
-              <img src="{% static 'core/css/icons8-test-48.png' %}" alt="Test Icon" class="nav-icon" />
-              <span>Test</span>
-            </a>
-          </li>
+  <li>
+    <a href="{% url 'take_test.html' test.id %}" class="nav-item">
+      <img href = "C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\static\core\css\icons8-test-48.png" alt="Test Icon" class="nav-icon" />
+      <span>Tests</span>
+    </a>
+  </li>
+  {% endfor %}
           <li>
             <a href="{% url 'profile.html' %}" class="nav-item">
-              <img src="{% static 'core/css/profile.png' %}" alt="Profile Icon" class="nav-icon" />
+              <img href="C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\static\core\css\profile.png" alt="Profile Icon" class="nav-icon" />
               <span>Profile</span>
             </a>
           </li>
@@ -311,13 +308,13 @@
         <div class="welcome-card card">
           <h2>Hi, <span class="username">{{ username }}</span>!</h2>
           <p>Welcome back! Let's continue your learning journey.</p>
-        </div>
+      </div>
         <div class="course-card card">
           <h3>Geography Exam</h3>
           <p><strong>3 days</strong> left to complete your exam prep!</p>
         </div>
         <div class="streak-card card">
-          <img src="{% static 'core/css/icons8-fire-48.png' %}" alt="Flame Icon" class="icon" />
+          <img href ="C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\static\core\css\icons8-fire-48.png" alt="Flame Icon" class="icon" />
           <div class="streak-info">
             <h3>Daily Streak</h3>
             <p><strong>5 days</strong> in a row</p>
