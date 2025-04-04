@@ -33,25 +33,7 @@ def test_textbook_view(request):
 
     return render(request, 'core/test_textbook.html', {'files': files})
 def test_creation_view(request):
-    """
-    Handle the creation of a new test based on a PDF document.
 
-    This view processes form data to create a test, extracts text from a specified
-    range of pages in a PDF, generates questions using OpenAI, and saves the test.
-
-    Parameters:
-    request (HttpRequest): The HTTP request object containing form data.
-                           Expected POST parameters:
-                           - subject (str): The name of the subject.
-                           - grade (int): The grade level for the test.
-                           - start_page (int): The starting page number in the PDF.
-                           - end_page (int): The ending page number in the PDF.
-                           - pdf_url (str): The URL of the PDF file.
-
-    Returns:
-    HttpResponse: Redirects to the test-taking page if successful, or renders an
-                  error page if there's an issue processing the PDF or generating questions.
-    """
     if request.method == 'POST':
         # Get form data
         subject_name = request.POST.get('subject')
@@ -211,14 +193,25 @@ def signup_view(request):
             user = form.save()
            
             Profile.objects.create(user=user) 
-            login(request, user) 
-            return redirect('home')
+            login(request, user)
+            return redirect('dashboard')
     else:
         form = CustomUserCreationForm()
-    return render(request, 'core/signup.html', {'form': form})
+    return render(request, 'core/dashboard.html', {'form': form})
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 class CustomLoginView(LoginView):
     template_name = 'core/login.html'
+    
+    def form_valid(self, form):
+        logger.info(f"User {form.cleaned_data['username']} is attempting to log in.")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return '/dashboard/'
 
 MAX_FILE_SIZE = 500 * 1024 * 1024
 

@@ -11,13 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import pymysql
 import environ
 import os
 
 
 
-pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
@@ -87,12 +85,14 @@ WSGI_APPLICATION = 'study_app.wsgi.application'
 
 
 # Database
+import dj_database_url
+
+DATABASES = {
+    'default': dj_database_url.parse(env('DATABASE_URL'))
+}
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-DATABASES = {
-    'default': env.db('DATABASE_URL')  # Automatically pulls from the DATABASE_URL in .env
-}
 
 STATICFILES_DIRS = [BASE_DIR / 'core' / 'static']
 
