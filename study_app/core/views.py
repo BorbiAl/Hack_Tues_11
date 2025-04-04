@@ -18,20 +18,42 @@ import os
 
 openai.api_key = settings.OPENAI_API_KEY
 
+import logging
+logger = logging.getLogger(__name__)
+
 def test_textbook_view(request):
     # Path to the media directory
     media_path = settings.MEDIA_ROOT
     files = []
 
-    # Fetch all PDF files in the media directory
-    for file_name in os.listdir(media_path):
-        if file_name.endswith('.pdf'):
-            files.append({
-                'name': file_name,
-                'url': f"{settings.MEDIA_URL}{file_name}"
-            })
+    # Log media path for debugging
+    logger.info(f"Media path: {media_path}")
+    logger.info(f"Directory exists: {os.path.exists(media_path)}")
+    logger.info(f"Directory contents: {os.listdir(media_path)}")
+    
+    # Fetch all PDF files in the media directory and subdirectories
+    for root, dirs, filenames in os.walk(media_path):
+        logger.info(f"Scanning directory: {root}")
+        logger.info(f"Files found: {1}")
+        for file_name in filenames:
+            if file_name.lower().endswith('.pdf'):
+                relative_path = os.path.relpath(os.path.join(root, file_name), media_path)
+                file_data = {
+                    'name': os.path.splitext(file_name)[0],  # Remove .pdf extension
+                    'url': f"{settings.MEDIA_URL}{relative_path.replace(os.sep, '/')}"
+                }
+                files.append(file_data)
+                logger.info(f"Found PDF file: {file_data}")
+            else:
+                logger.info(f"Skipping non-PDF file: {file_name}")
 
-    return render(request, 'core/test_textbook.html', {'files': files})
+    context = {
+        'files': sorted(files, key=lambda x: x['name'])  # Sort alphabetically
+    }
+    
+    logger.info(f"Files being passed to template: {context['files']}")
+    
+    return render(request, 'core/test_textbook.html', context)
 def test_creation_view(request):
 
     if request.method == 'POST':
