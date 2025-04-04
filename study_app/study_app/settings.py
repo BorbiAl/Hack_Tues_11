@@ -22,7 +22,7 @@ env = environ.Env()
 environ.Env.read_env(env_file=str(BASE_DIR / ".env"))
 MEDIA_URL = 'study_app/core/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'study_app/core/media')
-
+PORT = os.environ.get("PORT", 8000)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
