@@ -1,7 +1,7 @@
 import openai
 import pdfplumber
 from langdetect import detect
-from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
+from transformers import pipeline as transformers_pipeline
 from django.shortcuts import render, redirect
 from django.core.exceptions import ValidationError
 from django.utils.dateparse import parse_date
@@ -256,7 +256,18 @@ def ranking_view(request):
         }
         return render(request, 'core/ranking.html', context)
 
-from transformers import pipeline as transformers_pipeline
+# Global variable for cached model
+_model_cache = None
+
+def get_cached_model():
+    global _model_cache
+    if _model_cache is None:
+        _model_cache = transformers_pipeline(
+            "text-generation",
+            model="distilgpt2",
+            device="cpu"
+        )
+    return _model_cache
 
 def generate_test_view(request):
     if request.method == 'POST' and request.FILES.get('pdf_file'):
@@ -283,14 +294,9 @@ def generate_test_view(request):
                         'error': f"Translation failed: {str(e)}"
                     })
 
-            # Use smaller model for test generation
+            # Use cached model for test generation
             try:
-                generator = transformers_pipeline(
-                    "text-generation",
-                    model="distilgpt2",  # Smaller model
-                    device="cpu",
-                    max_length=500
-                )
+                generator = get_cached_model()
                 
                 prompt = f"Create a test in Bulgarian based on: {text[:500]}"  # Limit prompt size
                 generated_test = generator(prompt)[0]['generated_text']
