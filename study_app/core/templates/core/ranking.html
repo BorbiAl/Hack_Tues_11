@@ -60,7 +60,22 @@
 
     .main-content {
       display: flex;
+      flex-direction: column;
       margin-top: 1.25rem;
+    }
+
+    .content-wrapper {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .ranking-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      margin-top: 1rem;
     }
 
     .sidebar {
@@ -257,17 +272,23 @@
       </aside>
 
 
-      <section class="content">
-        <div class="ranking-card card">
+      <div class="ranking-container">
+        <div class="ranking-card">
           <h2>Welcome, <span class="username">{{ username }}</span>!</h2>
-          <p>Here are the current rankings:</p>
-          <ul>
-            {% for ranking in rankings %}
-            <li>{{ ranking.username }} - {{ ranking.score }} points</li>
-            {% endfor %}
-          </ul>
+          <div class="leaderboard">
+            <h3>Leaderboard</h3>
+            <ul class="leaderboard-list">
+              {% for ranking in rankings %}
+              <li class="leaderboard-item">
+                <span class="rank">{{ forloop.counter }}.</span>
+                <span class="username">{{ ranking.username }}</span>
+                <span class="score">{{ ranking.score }} points</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   </div>
 </body>
