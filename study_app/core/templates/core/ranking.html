@@ -15,69 +15,24 @@
       font-family: 'Nunito', sans-serif;
       background-color: #ffffff;
       color: #3d0066;
+      display: flex;
+      flex-direction: column;
     }
-
+  
     .container {
       max-width: 75rem;
       margin: 0 auto;
       padding: 1.25rem;
-    }
-
-    .header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #3d0066;
-      color: #ffffff;
-      padding: 1rem 2rem;
-      border-radius: 0.625rem;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+      flex-direction: column;
     }
   
-    .header-logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-  
-    .header-streak {
-      display: flex;
-      align-items: center;
-    }
-  
-    .header-streak .icon {
-      width: 2rem;
-      height: 2rem;
-      margin-right: 0.5rem;
-    }
-  
-    .streak-number {
-      font-size: 1.25rem;
-      font-weight: bold;
-    }
-
     .main-content {
       display: flex;
-      flex-direction: column;
+      flex-direction: row; /* Align content horizontally */
       margin-top: 1.25rem;
     }
-
-    .content-wrapper {
-      display: flex;
-      gap: 1.5rem;
-      margin-top: 1rem;
-    }
-
-    .ranking-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 1rem;
-      margin-top: 1rem;
-    }
-
+  
     .sidebar {
       width: 15rem;
       background-color: #3d0066;
@@ -85,148 +40,18 @@
       border-radius: 0.625rem;
       margin-right: 1.25rem;
       box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+      flex-shrink: 0; /* Prevent sidebar from shrinking */
     }
   
-    .nav-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-  
-    .nav-item {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-      color: #ffffff;
-      padding: 0.75rem 1rem;
-      margin-bottom: 1rem;
-      border-radius: 0.625rem;
-      transition: background-color 0.3s ease, transform 0.1s ease;
-    }
-  
-    .nav-item:hover {
-      background-color: #c670ff;
-      transform: scale(1.02);
-    }
-  
-    .nav-item:focus {
-      outline: 0.125rem solid #d6a800;
-      outline-offset: 0.25rem;
-    }
-  
-    .nav-item:active {
-      transform: scale(0.98);
-    }
-  
-    .nav-item.active {
-      background-color: #d6a800;
-      color: #3d0066;
-    }
-  
-    .nav-icon {
-      width: 1.5rem;
-      height: 1.5rem;
-      margin-right: 0.75rem;
-    }
-
-    .content {
-      flex-grow: 1;
+    .ranking-container {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
       padding: 1rem;
-    }
-
-    .ranking-card {
-      background-color: #eec7fc;
-      width: 100%;
-      border-radius: 0.625rem;
-      box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-      text-align: center;
-      height: 25rem;
-    }
-
-    .ranking-card h2 {
-      margin: 0 0 1rem;
-      font-size: 1.75rem;
-    }
-
-    .ranking-card p {
-      margin-bottom: 1.25rem;
-      font-size: 1.125rem;
-    }
-
-    .leaderboard-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .leaderboard-item {
-      display: flex;
-      align-items: center;
-      background-color: #d6a800;
-      color: #3d0066;
-      margin-bottom: 0.75rem;
-      padding: 0.75rem 1rem;
-      border-radius: 0.625rem;
-      justify-content: center;
-      font-weight: bold;
-      opacity: 0.6;
-    }
-
-    @media (max-width: 48rem) {
-      .main-content {
-        flex-direction: column;
-      }
-
-      .sidebar {
-        width: 100%;
-        margin-bottom: 1.25rem;
-      }
-
-      .footer {
-        text-align: center;
-        padding: 1.25rem;
-        background-color: #3d0066;
-        color: #ffffff;
-        border-radius: 0.625rem;
-      }
-
-      .footer a {
-        color: #ffffff;
-        text-decoration: none;
-        transition: color 0.3s ease;
-      }
-
-      .footer {
-        text-align: center;
-        padding: 1.25rem;
-        background-color: #3d0066;
-        color: #ffffff;
-        border-radius: 0.625rem;
-      }
-
-      .username {
-        color: #d6a800;
-      }
-
-      .footer a {
-        color: #ffffff;
-        text-decoration: none;
-        transition: color 0.3s ease;
-      }
-
-      .footer a:hover {
-        color: #d6a800;
-      }
-
-      .footer a:hover {
-        color: #d6a800;
-      }
-
+      margin-top: 0; /* Remove top margin to align with sidebar */
     }
   </style>
+  
 
 <body>
   <div class="container">
