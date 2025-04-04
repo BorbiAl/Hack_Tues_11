@@ -98,7 +98,8 @@ STATICFILES_DIRS = [BASE_DIR / 'core' / 'static']
 
 AUTH_USER_MODEL = 'core.User'
 
-LOGIN_REDIRECT_URL = '/dashboard/'  
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
