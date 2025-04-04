@@ -154,6 +154,7 @@
     border-radius: 0.375rem;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 4.6rem;
   }
 
   .profile-actions .edit-btn {
@@ -232,11 +233,11 @@
           <h2>Profile Details</h2>
           <div class="profile-info">
             <p><strong>Name:</strong> {{ username }}</p>
+            <div class="profile-actions">
+              <button class="edit-btn">Edit Profile</button>
+              <button class="change-password-btn">Change Password</button>
+            </div>
           </div>
-        </div>
-        <div class="profile-actions">
-          <button class="edit-btn">Edit Profile</button>
-          <button class="change-password-btn">Change Password</button>
         </div>
     </section>
   </div>
