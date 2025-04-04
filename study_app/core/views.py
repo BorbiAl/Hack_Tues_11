@@ -203,12 +203,25 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from django.contrib.auth import authenticate
+from django.contrib import messages
+
 class CustomLoginView(LoginView):
     template_name = 'core/login.html'
     
     def form_valid(self, form):
-        logger.info(f"User {form.cleaned_data['username']} is attempting to log in.")
-        return super().form_valid(form)
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password']
+        user = authenticate(username=username, password=password)
+        
+        if user is not None:
+            logger.info(f"User {username} successfully logged in.")
+            login(self.request, user)
+            return super().form_valid(form)
+        else:
+            logger.warning(f"Failed login attempt for username: {username}")
+            messages.error(self.request, 'Invalid username or password')
+            return self.form_invalid(form)
 
     def get_success_url(self):
         return '/dashboard/'
