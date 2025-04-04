@@ -92,14 +92,22 @@ body {
     <h2>Sign Up</h2>
     <form method="post" action="{% url 'signup' %}">
       {% csrf_token %}
-      {% if error %}
-        <p style="color: red;">{{ error }}</p>
+      {% if form.errors %}
+        <p style="color: red;">
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+              {{ error }}<br>
+            {% endfor %}
+          {% endfor %}
+        </p>
       {% endif %}
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" required>
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" required>
-      <button class="primary" type="submit" href="{% url 'dashboard' %}">Signup</button>
+      {{ form.username.label_tag }}
+      {{ form.username }}
+      {{ form.password1.label_tag }}
+      {{ form.password1 }}
+      {{ form.password2.label_tag }}
+      {{ form.password2 }}
+      <button class="primary" type="submit">Signup</button>
     </form>
     <p class="alternate">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
   </div>

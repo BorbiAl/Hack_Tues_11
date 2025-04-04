@@ -191,13 +191,12 @@ def signup_view(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-           
-            Profile.objects.create(user=user) 
+            Profile.objects.create(user=user)
             login(request, user)
             return redirect('dashboard')
     else:
         form = CustomUserCreationForm()
-    return render(request, 'core/dashboard.html', {'form': form})
+    return render(request, 'core/signup.html', {'form': form})
 
 import logging
 
@@ -233,7 +232,11 @@ from .models import Test
 
 def dashboard_view(request):
     tests = Test.objects.all()  # Fetch all tests
-    return render(request, 'core/dashboard.html', {'tests': tests})
+    context = {
+        'tests': tests,
+        'username': request.user.username
+    }
+    return render(request, 'core/dashboard.html', context)
 
 def test_list_view(request):
     tests = Test.objects.all()  # Fetch all tests

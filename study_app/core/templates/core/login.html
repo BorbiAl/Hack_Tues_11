@@ -92,8 +92,8 @@ body {
     <h2>Log In</h2>
     <form method="post" action="{% url 'login' %}">
       {% csrf_token %}
-      {% if error %}
-        <p style="color: red;">{{ error }}</p>
+      {% if form.errors %}
+        <p style="color: red;">Invalid username or password</p>
       {% endif %}
       <label for="username">Username</label>
       <input type="text" id="username" name="username" required>
