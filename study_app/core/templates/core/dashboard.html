@@ -264,7 +264,7 @@
     <header class="header">
       <div class="header-logo">bAIganio</div>
       <div class="header-streak">
-        <img href = "C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\static\core\css\icons8-fire-48.png" alt="Flame Icon" class="nav-icon" />
+        <img src="{% static 'core/css/icons8-fire-48.png' %}" alt="Flame Icon" class="nav-icon" />
         <span class="streak-number">5</span>
       </div>
     </header>
@@ -276,13 +276,13 @@
         <ul class="nav-list">
           <li>
             <a href="{% url 'dashboard' %}" class="nav-item active">
-              <img href = "C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\static\core\css\home.png" alt="Home Icon" class="nav-icon" />
+              <img src="{% static 'core/css/home.png' %}" alt="Home Icon" class="nav-icon" />
               <span>Home</span>
             </a>
           </li>
           <li>
             <a href="{% url 'ranking' %}" class="nav-item">
-              <img href = "C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\templates\core\ranking.html" alt="Ranking Icon" class="nav-icon" />
+              <img src="{% static 'core/css/ranking.png' %}" alt="Ranking Icon" class="nav-icon" />
               <span>Ranking</span>
             </a>
           </li>
@@ -296,7 +296,7 @@
         </li>
           <li>
             <a href="{% url 'profile' %}" class="nav-item">
-              <img href="C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\static\core\css\profile.png" alt="Profile Icon" class="nav-icon" />
+              <img src="{% static 'core/css/profile.png' %}" alt="Profile Icon" class="nav-icon" />
               <span>Profile</span>
             </a>
           </li>
@@ -314,7 +314,7 @@
           <p><strong>3 days</strong> left to complete your exam prep!</p>
         </div>
         <div class="streak-card card">
-          <img href ="C:\Users\Velina\Documents\GitHub\Hack_Tues_11\study_app\core\static\core\css\icons8-fire-48.png" alt="Flame Icon" class="icon" />
+          <img src="{% static 'core/css/icons8-fire-48.png' %}" alt="Flame Icon" class="icon" />
           <div class="streak-info">
             <h3>Daily Streak</h3>
             <p><strong>5 days</strong> in a row</p>
