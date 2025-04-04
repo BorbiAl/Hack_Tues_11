@@ -256,44 +256,59 @@ def ranking_view(request):
         }
         return render(request, 'core/ranking.html', context)
 
+from transformers import pipeline as transformers_pipeline
+
 def generate_test_view(request):
     if request.method == 'POST' and request.FILES.get('pdf_file'):
+        try:
+            # Process PDF
+            pdf_file = request.FILES['pdf_file']
+            with pdfplumber.open(pdf_file) as pdf:
+                text = "".join(page.extract_text() for page in pdf.pages[:5])  # Limit to first 5 pages
 
-        pdf_file = request.FILES['pdf_file']
-        with pdfplumber.open(pdf_file) as pdf:
-            text = ""
-            for page in pdf.pages:
-                text += page.extract_text()
+            # Language detection
+            language = detect(text)
 
+            # Translation (if needed)
+            if language != "bg":
+                try:
+                    translator = transformers_pipeline(
+                        "translation_en_to_bg", 
+                        model="Helsinki-NLP/opus-mt-en-bg",
+                        device="cpu"
+                    )
+                    text = translator(text[:1000])[0]['translation_text']  # Limit input size
+                except Exception as e:
+                    return render(request, 'core/test_result.html', {
+                        'error': f"Translation failed: {str(e)}"
+                    })
 
-        language = detect(text)
+            # Use smaller model for test generation
+            try:
+                generator = transformers_pipeline(
+                    "text-generation",
+                    model="distilgpt2",  # Smaller model
+                    device="cpu",
+                    max_length=500
+                )
+                
+                prompt = f"Create a test in Bulgarian based on: {text[:500]}"  # Limit prompt size
+                generated_test = generator(prompt)[0]['generated_text']
 
+                return render(request, 'core/test_result.html', {
+                    'test': generated_test
+                })
+                
+            except Exception as e:
+                return render(request, 'core/test_result.html', {
+                    'error': f"Test generation failed: {str(e)}"
+                })
 
-        if language != "bg":
-            translator = pipeline("translation", model="Helsinki-NLP/opus-mt-mul-bg")
-            translated = translator(text, max_length=512)
-            text = translated[0]['translation_text']
+        except Exception as e:
+            return render(request, 'core/test_result.html', {
+                'error': f"Processing failed: {str(e)}"
+            })
 
-
-        model_name = "gpt2"  
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name)
-
-        prompt = f"""
-        Based on the following content, create a single test in Bulgarian with all question types:
-        1. A multiple-choice question with one correct answer and two incorrect answers.
-        2. A matching question where terms are matched with their meanings.
-        3. A typing question where the user must type the correct answer.
-
-        Content:
-        {text}
-
-        Provide the test in Bulgarian.
-        """
-        inputs = tokenizer.encode(prompt, return_tensors="pt")
-        outputs = model.generate(inputs, max_length=1000000, num_return_sequences=1, temperature=0.7)
-        generated_test = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-        return render(request, 'core/test_result.html', {'test': generated_test})
-
-    return json({'error': 'Invalid request method'}, status=405)
+    return render(request, 'core/test_result.html', {
+        'error': 'Invalid request method'
+    })
