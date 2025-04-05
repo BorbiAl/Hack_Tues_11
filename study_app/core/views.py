@@ -127,15 +127,20 @@ def test_result_view(request):
 
 def test_question_view(request):
     if request.method == 'POST':
+        logger.info("POST request received")
+        logger.info(f"Form data: {request.POST}")
+
         # Get the questions from session
         questions = request.session.get('questions', [])
         current_question_index = request.session.get('current_question_index', 0)
+        logger.info(f"Current question index: {current_question_index}")
 
         # Check if the current question index is within the range of questions
         if current_question_index < len(questions):
             current_question = questions[current_question_index]
             selected_answer = int(request.POST.get('answer'))
             correct_answer = current_question['answer']
+            logger.info(f"Selected answer: {selected_answer}, Correct answer: {correct_answer}")
 
             # Check if the selected answer is correct
             is_correct = selected_answer == correct_answer
@@ -167,6 +172,7 @@ def test_question_view(request):
         else:
             return redirect('test_result')
     else:
+        logger.info("GET request received")
         # If GET request, load and shuffle the questions
         questions = sample(get_random_questions(10), 10)
         request.session['questions'] = questions
