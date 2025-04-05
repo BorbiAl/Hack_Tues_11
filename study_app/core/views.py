@@ -122,7 +122,7 @@ def test_result_view(request):
         'results': results
     }
 
-    return render(request, 'core/test-result.html', context)
+    return render(request, 'core/test_result.html', context)
 
 def test_question_view(request):
     if request.method == 'POST':
