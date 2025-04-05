@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 import os
+from random import sample
 
 openai.api_key = settings.OPENAI_API_KEY
 
@@ -56,22 +57,29 @@ def test_textbook_view(request):
     return render(request, 'core/test_textbook.html', context)
 def test_creation_view(request):
     if request.method == 'POST':
-        # Get form data
-        subject_name = request.POST.get('subject')
-        grade = int(request.POST.get('grade'))
-        start_page = int(request.POST.get('start_page'))
-        end_page = int(request.POST.get('end_page'))
-        pdf_url = request.POST.get('pdf_url')
+        try:
+            # Get form data
+            pdf_url = request.POST.get('pdf_url')
+            start_page = int(request.POST.get('start_page', 0))
+            end_page = int(request.POST.get('end_page', 0))
 
-        # Get 10 random questions
-        questions = get_random_questions(10)
-        
-        # Store questions in session
-        request.session['questions'] = questions
-        request.session['current_question_index'] = 0
-        
-        # Redirect to first question
-        return redirect('test_question')
+            # Ensure all necessary data is present
+            if not pdf_url or start_page <= 0 or end_page <= 0 or start_page > end_page:
+                raise ValueError("Invalid form data")
+
+            # Get 10 random questions
+            questions = get_random_questions(10)
+
+            # Store questions in session
+            request.session['questions'] = questions
+            request.session['current_question_index'] = 0
+
+            # Redirect to first question
+            return redirect('test_question')
+
+        except (ValueError, TypeError) as e:
+            logger.error(f"Error in test_creation_view: {e}")
+            return redirect('test_textbook')
 
     return redirect('test_textbook')
         
@@ -103,27 +111,74 @@ def test_subject_view(request):
     return render(request, 'core/test_subject.html')
 
 def test_result_view(request):
-    return render(request, 'core/test_result.html')
+    results = request.session.get('results', [])
+    total_questions = len(results)
+    correct_answers = sum(1 for result in results if result['is_correct'])
+    wrong_answers_count = total_questions - correct_answers
+
+    context = {
+        'total_questions': total_questions,
+        'correct_answers': correct_answers,
+        'wrong_answers_count': wrong_answers_count,
+        'results': results
+    }
+
+    return render(request, 'core/test-result.html', context)
 
 def test_question_view(request):
     if request.method == 'POST':
-        # Get first question from predefined questions
-        questions = get_random_questions(10) # Placeholder function
-        first_question = questions[0]
+        # Get the questions from session
+        questions = request.session.get('questions', [])
+        current_question_index = request.session.get('current_question_index', 0)
 
-        # Store questions in session
+        # Check if the current question index is within the range of questions
+        if current_question_index < len(questions):
+            current_question = questions[current_question_index]
+            selected_answer = int(request.POST.get('answer'))
+            correct_answer = current_question['answer']
+
+            # Check if the selected answer is correct
+            is_correct = selected_answer == correct_answer
+
+            # Store the result in the session
+            if 'results' not in request.session:
+                request.session['results'] = []
+            request.session['results'].append({
+                'question': current_question['question'],
+                'selected_answer': selected_answer,
+                'correct_answer': correct_answer,
+                'is_correct': is_correct
+            })
+
+            # Move to the next question
+            request.session['current_question_index'] = current_question_index + 1
+
+            # Render the next question or show the results if there are no more questions
+            if current_question_index + 1 < len(questions):
+                next_question = questions[current_question_index + 1]
+                return render(request, 'core/test_question.html', {
+                    'question': next_question['question'],
+                    'answers': next_question['options'],
+                    'current_question_index': current_question_index + 2,
+                    'total_questions': len(questions)
+                })
+            else:
+                return redirect('test_result')
+        else:
+            return redirect('test_result')
+    else:
+        # If GET request, load and shuffle the questions
+        questions = sample(get_random_questions(10), 10)
         request.session['questions'] = questions
         request.session['current_question_index'] = 0
+        request.session['results'] = []
 
         return render(request, 'core/test_question.html', {
-            'question': first_question['question'],
-            'answers': first_question['options'],
+            'question': questions[0]['question'],
+            'answers': questions[0]['options'],
             'current_question_index': 1,
-            'correct_answer': first_question['answer']
+            'total_questions': len(questions)
         })
-
-    # If GET request, redirect to test list
-    return redirect('test_textbook')
 
 
 def test_pages_daysleft_view(request):
