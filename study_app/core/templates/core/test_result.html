@@ -7,197 +7,217 @@
     <title>BAi Ganio</title>
     <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
     <link rel="stylesheet" href="../static/core/css/test_question.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: #ffffff;
+            color: #3d0066;
+            font-size: 1rem;
+        }
+        .container {
+            max-width: 75rem;
+            margin: 0 auto;
+            padding: 1.25rem;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #3d0066;
+            color: #ffffff;
+            padding: 1rem 2rem;
+            border-radius: 0.625rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+        }
+        .header-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .header-streak {
+            display: flex;
+            align-items: center;
+        }
+        .header-streak .icon {
+            width: 2rem;
+            height: 2rem;
+            margin-right: 0.5rem;
+        }
+        .streak-number {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .main-content {
+            display: flex;
+            margin-top: 1.25rem;
+        }
+        .sidebar {
+            width: 15rem;
+            background-color: #3d0066;
+            padding: 1.25rem;
+            border-radius: 0.625rem;
+            margin-left: 3rem;
+            margin-right: 1.25rem;
+            box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+            height: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #ffffff;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.625rem;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        .nav-item:hover {
+            background-color: #c670ff;
+            transform: scale(1.02);
+        }
+        .nav-item:focus {
+            outline: 0.125rem solid #d6a800;
+            outline-offset: 0.25rem;
+        }
+        .nav-item:active {
+            transform: scale(0.98);
+        }
+        .nav-item.active {
+            background-color: #d6a800;
+            color: #3d0066;
+        }
+        .nav-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-right: 0.75rem;
+        }
+        .content {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+            flex-direction: column;
+            grid-gap: 1.25rem;
+        }
+        .results {
+            padding: 1.25rem;
+            background-color: #eec7fc;
+            border-radius: 0.625rem;
+            box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+        }
+        .results h2 {
+            font-size: 3rem;
+            color: #3d0066;
+        }
+        .results-summary {
+            margin-top: 1rem;
+            font-size: 1.75rem;
+            color: #3d0066;
+        }
+        .wrong-answers {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8d7da;
+            border-radius: 0.625rem;
+            color: #721c24;
+            font-size: 1.75rem; 
+        }
+        .answers-details h3 {
+            margin: 0 0 1rem;
+            font-size: 3rem;
+        }
+        .answers-details ul {
+            list-style-type: none;
+            padding: 0;
+            font-size: 1.75rem;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
 </head>
-<title>bAIganio - Test Result</title>
-<style>
-  body {
-    margin: 0;
-    font-family: 'Nunito', sans-serif;
-    background-color: #ffffff;
-    color: #3d0066;
-    font-size: 1rem;
-  }
-  .container {
-    max-width: 75rem;
-    margin: 0 auto;
-    padding: 1.25rem;
-  }
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #3d0066;
-    color: #ffffff;
-    padding: 1rem 2rem;
-    border-radius: 0.625rem;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-  }
-  .header-logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  .header-streak {
-    display: flex;
-    align-items: center;
-  }
-  .header-streak .icon {
-    width: 2rem;
-    height: 2rem;
-    margin-right: 0.5rem;
-  }
-  .streak-number {
-    font-size: 1.25rem;
-    font-weight: bold;
-  }
-  .main-content {
-    display: flex;
-    margin-top: 1.25rem;
-  }
-  .sidebar {
-    width: 15rem;
-    background-color: #3d0066;
-    padding: 1.25rem;
-    border-radius: 0.625rem;
-    margin-left: 3rem;
-    margin-right: 1.25rem;
-    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-    height: auto;
-    display: flex;
-    flex-direction: column;
-  }
-  .nav-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: #ffffff;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    border-radius: 0.625rem;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-  }
-  .nav-item:hover {
-    background-color: #c670ff;
-    transform: scale(1.02);
-  }
-  .nav-item:focus {
-    outline: 0.125rem solid #d6a800;
-    outline-offset: 0.25rem;
-  }
-  .nav-item:active {
-    transform: scale(0.98);
-  }
-  .nav-item.active {
-    background-color: #d6a800;
-    color: #3d0066;
-  }
-  .nav-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    margin-right: 0.75rem;
-  }
-  .content {
-    flex-grow: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    flex-direction: column;
-    grid-gap: 1.25rem;
-  }
-  .results {
-    padding: 1.25rem;
-    background-color: #eec7fc;
-    border-radius: 0.625rem;
-    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-  }
-  .results h2 {
-    font-size: 3rem;
-    color: #3d0066;
-  }
-    .results-summary {
-        margin-top: 1rem;
-        font-size: 1.75rem;
-        color: #3d0066;
-    }
-  .wrong-answers {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: #f8d7da;
-    border-radius: 0.625rem;
-    color: #721c24;
-    font-size: 1.75rem; 
-  }
-    .answers-details h3 {
-        margin: 0 0 1rem;
-        font-size: 3rem;
-    }
-    .answers-details ul {
-        list-style-type: none;
-        padding: 0;
-        font-size: 1.75rem;
-    }
-</style>
 <body>
 <div class="container">
-  <header class="header">
-    <div class="header-logo">bAIganio</div>
-    <div class="header-streak">
-      <img src="../../static/core/css/icons8-fire-48.png" alt="Flame Icon" class="nav-icon" />
-      <span class="streak-number">5</span>
-    </div>
-  </header>
-  <div class="main-content">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <ul class="nav-list">
-        <li>
-          <a href="{% url 'dashboard' %}" class="nav-item">
-            <img src="{% static 'core/css/home.png' %}?v=2" alt="Home Icon" class="nav-icon" />
-            <span>Home</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'ranking' %}" class="nav-item">
-            <img src="{% static 'core/css/ranking.png' %}?v=2" alt="Ranking Icon" class="nav-icon" />
-            <span>Ranking</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'test_textbook' %}" class="nav-item active">
-            <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon">
-            <span>Tests</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'profile' %}" class="nav-item">
-            <img src="{% static 'core/css/profile.png' %}?v=2" alt="Profile Icon" class="nav-icon" />
-            <span>Profile</span>
-          </a>
-        </li>
-      </ul>    </aside>    <section class="content">
-      <div class="results">
-        <h2>Test Results</h2>
-        <div class="results-summary">
-            <p>Total Questions: {{ total_questions }}</p>
-            <p>Correct Answers: {{ correct_answers }}</p>
-            <p>Wrong Answers: {{ wrong_answers_count }}</p>
+    <header class="header">
+        <div class="header-logo">bAIganio</div>
+        <div class="header-streak">
+            <img src="../../static/core/css/icons8-fire-48.png" alt="Flame Icon" class="nav-icon" />
+            <span class="streak-number">5</span>
         </div>
-        <div class="answers-details">
-            <h3>Answers Details</h3>
-            <ul>
-                {% for question, user_answer, correct_answer in wrong_answers %}
-                    <li>
-                        <strong>Question:</strong> {{ question }}<br>
-                        <strong>Your Answer:</strong> {{ user_answer }}<br>
-                        <strong>Correct Answer:</strong> {{ correct_answer }}
-                    </li>
-                {% endfor %}
+    </header>
+    <div class="main-content">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="nav-list">
+                <li>
+                    <a href="{% url 'dashboard' %}" class="nav-item">
+                        <img src="{% static 'core/css/home.png' %}?v=2" alt="Home Icon" class="nav-icon" />
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'ranking' %}" class="nav-item">
+                        <img src="{% static 'core/css/ranking.png' %}?v=2" alt="Ranking Icon" class="nav-icon" />
+                        <span>Ranking</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'test_textbook' %}" class="nav-item active">
+                        <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon">
+                        <span>Tests</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'profile' %}" class="nav-item">
+                        <img src="{% static 'core/css/profile.png' %}?v=2" alt="Profile Icon" class="nav-icon" />
+                        <span>Profile</span>
+                    </a>
+                </li>
             </ul>
-        </div>
+        </aside>
+        <section class="content">
+            <div class="results">
+                <h2>Test Results</h2>
+                <div class="results-summary">
+                    <p>Total Questions: {{ total_questions }}</p>
+                    <p>Correct Answers: {{ correct_answers }}</p>
+                    <p>Wrong Answers: {{ wrong_answers_count }}</p>
+                </div>
+                <div class="answers-details">
+                    <h3>Answers Details</h3>
+                    <ul>
+                        {% for result in results %}
+                        <li>
+                            <p><strong>Question:</strong> {{ result.question }}</p>
+                            <p><strong>Your Answer:</strong> {{ result.selected_answer }} 
+                                {% if result.is_correct %}
+                                <span class="correct">✔</span>
+                                {% else %}
+                                <span class="incorrect">✘</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Correct Answer:</strong> {{ result.correct_answer }}</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
 </body>
+</html>

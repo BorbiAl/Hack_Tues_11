@@ -23,7 +23,7 @@ urlpatterns = [
     path('test-grade/', test_grade_view, name='test_grade'),
     path('test-textbook/', test_textbook_view, name='test_textbook'),
     path('test-subject/', test_subject_view, name='test_subject'),
-    path('test-result/', test_result_view, name='test_result'),
+    path('test-result/<int:test_id>/', test_result_view, name='test_result'),
     path('test-question/', test_question_view, name='test_question'),
     path('test-pages-daysleft/', test_pages_daysleft_view, name='test_pages_daysleft'),
 ]
