@@ -1,4 +1,5 @@
 {% load static %}
+{% load cache %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -151,11 +152,12 @@
     </style>
 </head>
 <body>
+    {% cache 500 test_result_template %}
     <div class="container">
       <header class="header">
         <div class="header-logo">bAIganio</div>
         <div class="header-streak">
-          <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="icon" />
+          <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="icon">
           <span class="streak-number">5</span>
         </div>
       </header>
@@ -182,7 +184,7 @@
             </li>
             <li>
               <a href="{% url 'profile' %}" class="nav-item">
-                <img src="{% static 'core/css/profile.png' %}?v=2" alt="Profile Icon" class="nav-icon" />
+                <img src="{% static 'core/css/profile.png' %}?v=2" alt="Profile Icon" class="nav-icon">
                 <span>Profile</span>
               </a>
             </li>
@@ -216,7 +218,8 @@
                 </div>
             </div>
         </section>
+      </div>
     </div>
-</div>
+    {% endcache %}
 </body>
 </html>

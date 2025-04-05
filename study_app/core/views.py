@@ -3,7 +3,6 @@ import pdfplumber
 from langdetect import detect
 from transformers import pipeline as transformers_pipeline
 from django.shortcuts import render, redirect
-from django.utils.dateparse import parse_date
 from core.models import Test, Subject
 import json
 from .forms import CustomUserCreationForm
@@ -15,6 +14,8 @@ from django.conf import settings
 import os
 from random import sample
 from django.contrib.auth import login
+from django.contrib.auth import authenticate
+from django.contrib import messages
 
 openai.api_key = settings.OPENAI_API_KEY
 
@@ -124,6 +125,8 @@ def test_result_view(request):
 
     return render(request, 'core/test_result.html', context)
 
+
+from django.http import JsonResponse
 def test_question_view(request):
     if request.method == 'POST':
         # Get the questions from session
@@ -135,6 +138,7 @@ def test_question_view(request):
             current_question = questions[current_question_index]
             selected_answer = int(request.POST.get('answer'))
             correct_answer = current_question['answer']
+            correct_answer_text = current_question['options'][correct_answer]
 
             # Check if the selected answer is correct
             is_correct = selected_answer == correct_answer
@@ -146,25 +150,21 @@ def test_question_view(request):
                 'question': current_question['question'],
                 'selected_answer': selected_answer,
                 'correct_answer': correct_answer,
+                'correct_answer_text': correct_answer_text,
                 'is_correct': is_correct
             })
 
             # Move to the next question
             request.session['current_question_index'] = current_question_index + 1
 
-            # Render the next question or show the results if there are no more questions
-            if current_question_index + 1 < len(questions):
-                next_question = questions[current_question_index + 1]
-                return render(request, 'core/test_question.html', {
-                    'question': next_question['question'],
-                    'answers': next_question['options'],
-                    'current_question_index': current_question_index + 2,
-                    'total_questions': len(questions)
-                })
-            else:
-                return redirect('test_result')
+            # Return JSON response with the result
+            return JsonResponse({
+                'is_correct': is_correct,
+                'correct_answer': correct_answer,
+                'correct_answer_text': correct_answer_text
+            })
         else:
-            return redirect('test_result')
+            return JsonResponse({'error': 'No more questions available'}, status=400)
     else:
         # If GET request, load and shuffle the questions
         questions = sample(get_random_questions(10), 10)
@@ -201,8 +201,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from django.contrib.auth import authenticate
-from django.contrib import messages
+
 
 class CustomLoginView(LoginView):
     template_name = 'core/login.html'

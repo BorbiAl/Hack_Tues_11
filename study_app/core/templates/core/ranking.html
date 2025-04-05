@@ -1,4 +1,6 @@
 {% load static %}
+{% load cache %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -170,8 +172,8 @@
       justify-content: center;
       font-weight: bold;
       opacity: 0.6;
-      padding left: 10%;
-      padding right: 10%;
+      padding-left: 10%;
+      padding-right: 10%;
     }
 
     @media (max-width: 48rem) {
@@ -228,6 +230,7 @@
   </style>
 
 <body>
+  {% cache 500 ranking_template %}
   <div class="container">
     <header class="header">
       <div class="header-logo">bAIganio</div>
@@ -290,6 +293,7 @@
       </div>
     </div>
   </div>
+  {% endcache %}
 </body>
 
 </html>

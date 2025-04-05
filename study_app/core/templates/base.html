@@ -1,4 +1,5 @@
 {% load static %}
+{% load cache %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +10,7 @@
     <link rel="stylesheet" href="../static/core/base.css">
 </head>
 <body>
+    {% cache 500 base_template %}
     <div class="container">
       <header class="header">
         <div class="logo">bAIganio</div>
@@ -19,10 +21,10 @@
         <img src="../static/core/css/ganiolight.png" alt="ganioidea" />
         <div class="hero-buttons">
           <a href="{% url 'signup' %}" class="primary">Get Started</a>
-          <a href="{% url 'login' %}" class="secondary">Login   </a>
+          <a href="{% url 'login' %}" class="secondary">Login</a>
         </div>
-    </section>
-    <section class="features">
+      </section>
+      <section class="features">
         <div class="feature-card">
           <img src="../static/core/css/ganiocall.png" alt="ganiocall" />
           <h3>Bite-sized Lessons</h3>
@@ -45,5 +47,6 @@
         </p>
       </footer>
     </div>
+    {% endcache %}
   </body>
   </html>

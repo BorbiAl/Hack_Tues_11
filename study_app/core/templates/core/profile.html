@@ -1,7 +1,7 @@
 {% load static %}
+{% load cache %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -123,7 +123,7 @@
 
   .profile-card {
     background-color: #eec7fc;
-    width: 50rem;;
+    width: 50rem;
     border-radius: 0.625rem;
     box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
     text-align: center;
@@ -193,14 +193,13 @@
     }
   }
 </style>
-</head>
-
 <body>
+  {% cache 500 profile_template %}
   <div class="container">
     <header class="header">
       <div class="header-logo">bAIganio</div>
       <div class="header-streak">
-        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="nav-icon">
+        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="icon">
         <span class="streak-number">5</span>
       </div>
     </header>
@@ -246,6 +245,6 @@
         </div>
     </section>
   </div>
+  {% endcache %}
 </body>
-
 </html>
