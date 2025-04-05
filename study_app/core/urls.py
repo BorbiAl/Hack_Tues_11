@@ -26,7 +26,4 @@ urlpatterns = [
     path('test-result/<int:test_id>/', test_result_view, name='test_result'),
     path('test-question/', test_question_view, name='test_question'),
     path('test-pages-daysleft/', test_pages_daysleft_view, name='test_pages_daysleft'),
-]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

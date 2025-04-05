@@ -55,7 +55,6 @@ def test_textbook_view(request):
 
     return render(request, 'core/test_textbook.html', context)
 def test_creation_view(request):
-
     if request.method == 'POST':
         # Get form data
         subject_name = request.POST.get('subject')
@@ -64,53 +63,18 @@ def test_creation_view(request):
         end_page = int(request.POST.get('end_page'))
         pdf_url = request.POST.get('pdf_url')
 
-        # Validate subject
-        subject = Subject.objects.filter(name=subject_name).first()
-        if not subject:
-            subject = Subject.objects.create(name=subject_name)
-
-        # Download and process the PDF
-        pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_url))
-        try:
-            import pdfplumber
-            with pdfplumber.open(pdf_path) as pdf:
-                if start_page < 1 or end_page > len(pdf.pages) or start_page > end_page:
-                    raise ValueError("Invalid page range.")
-                selected_text = ""
-                for page_num in range(start_page - 1, end_page):
-                    selected_text += pdf.pages[page_num].extract_text()
-        except Exception as e:
-            return render(request, 'core/test_creation.html', {
-                'error': f"Error processing PDF: {str(e)}"
-            })
-
-        # Generate questions using OpenAI
-        try:
-            response = openai.Completion.create(
-                engine="text-davinci-003",
-                prompt=f"Generate 10 multiple-choice questions with 4 options each (mark correct answer with *) based on the following text. Format as JSON array with fields: question, answers (array of 4 strings), correct_answer (index 0-3):\n\n{selected_text}",
-                max_tokens=1500,
-                temperature=0.7
-            )
-            questions = json.loads(response.choices[0].text.strip())
-        except Exception as e:
-            return render(request, 'core/test_creation.html', {
-                'error': f"Error generating questions: {str(e)}"
-            })
-
-        # Save the test
-        test = Test.objects.create(
-            title=f"{subject_name} Grade {grade} Test",
-            subject=subject,
-            grade=grade,
-            question_data=json.dumps(questions) #Store as JSON string
-        )
-
-        # Redirect to the test-taking page
-        return redirect('take_test', test_id=test.id)
+        # Get 10 random questions
+        questions = get_random_questions(10)
+        
+        # Store questions in session
+        request.session['questions'] = questions
+        request.session['current_question_index'] = 0
+        
+        # Redirect to first question
+        return redirect('test_question')
 
     return redirect('test_textbook')
-
+        
 
 def take_test_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
@@ -134,8 +98,6 @@ def test_create_view(request):
 def test_grade_view(request):
     return render(request, 'core/test_grade.html')
 
-def test_textbook_view(request):
-    return render(request, 'core/test_textbook.html')
 
 def test_subject_view(request):
     return render(request, 'core/test_subject.html')

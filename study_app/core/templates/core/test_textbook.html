@@ -212,7 +212,7 @@
 
       <div class="textbook-container">
         <h2>Select a Textbook</h2>
-        <form method="POST" action="{% url 'test_question' %}" class="textbook-form">
+        <form method="POST" action="{% url 'test_creation' %}" class="textbook-form">
           {% csrf_token %}
           <label for="pdf_file">Choose a Textbook:</label>
           <!-- Debug output -->
@@ -223,7 +223,7 @@
           <select name="pdf_url" id="pdf_file" required {% if not files %}disabled{% endif %}>
             {% if files %}
               {% for file in files %}
-              <option value="{{ file.url }}">{{ file.name }}</option>
+              <option value="{{ file.url }}" {% if file.name == 'literature_6' %}selected{% endif %}>{{ file.name }}</option>
               {% endfor %}
             {% else %}
               <option value="">No textbooks found</option>
