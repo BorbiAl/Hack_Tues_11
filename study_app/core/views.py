@@ -3,19 +3,18 @@ import pdfplumber
 from langdetect import detect
 from transformers import pipeline as transformers_pipeline
 from django.shortcuts import render, redirect
-from django.core.exceptions import ValidationError
 from django.utils.dateparse import parse_date
-from django.contrib.auth import login
 from core.models import Test, Subject
 import json
 from .forms import CustomUserCreationForm
 from django.contrib.auth.views import LoginView
-from .models import Profile
+from .models import Profile, Test
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 import os
 from random import sample
+from django.contrib.auth import login
 
 openai.api_key = settings.OPENAI_API_KEY
 
@@ -35,7 +34,7 @@ def test_textbook_view(request):
     # Fetch all PDF files in the media directory and subdirectories
     for root, dirs, filenames in os.walk(media_path):
         logger.info(f"Scanning directory: {root}")
-        logger.info(f"Files found: {1}")
+    for root, _, filenames in os.walk(media_path):
         for file_name in filenames:
             if file_name.lower().endswith('.pdf'):
                 relative_path = os.path.relpath(os.path.join(root, file_name), media_path)
@@ -227,9 +226,6 @@ class CustomLoginView(LoginView):
 
 MAX_FILE_SIZE = 500 * 1024 * 1024
 
-from django.shortcuts import render
-from .models import Test
-
 def dashboard_view(request):
     tests = Test.objects.all()  # Fetch all tests
     context = {
@@ -265,9 +261,9 @@ def ranking_view(request):
         context = {
             'username': request.user.username,  # Pass the logged-in user's username
             'rankings': [
-                {'username': 'JohnDoe', 'score': 95},
-                {'username': 'JaneSmith', 'score': 90},
-                {'username': 'AliceBrown', 'score': 85},
+                {'username': 'Boris', 'score': 95},
+                {'username': 'Aleksa', 'score': 80},
+                {'username': 'Yoana', 'score': 75},
             ]
         }
         return render(request, 'core/ranking.html', context)
