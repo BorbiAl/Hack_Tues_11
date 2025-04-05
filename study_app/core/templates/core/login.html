@@ -1,5 +1,4 @@
 {% load static %}
-{% load cache %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -89,7 +88,6 @@ body {
 }
 </style>
 <body>
-  {% cache 500 login_template %}
   <div class="login-container">
     <h2>Log In</h2>
     <form method="post" action="{% url 'login' %}">
@@ -108,6 +106,5 @@ body {
   <div class="footer">
     <p>&copy; 2025 bAIganio. All rights reserved.</p>
   </div>
-  {% endcache %}
 </body>
 </html>

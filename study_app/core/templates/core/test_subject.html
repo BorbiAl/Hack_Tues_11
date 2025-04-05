@@ -1,0 +1,218 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAi Ganio</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
+    <link rel="stylesheet" href="../static/core/css/test_subject.css">
+</head>
+<title>bAIganio - Select Grade</title>
+
+<style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: 'Nunito', sans-serif;
+        background-color: #ffffff;
+        color: #3d0066;
+        font-size: 1rem;
+      }
+      .container {
+        max-width: 75rem;
+        margin: 0 auto;
+        padding: 1.25rem;
+      }
+      /* Header */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #3d0066;
+        color: #ffffff;
+        padding: 1rem 2rem;
+        border-radius: 0.625rem;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+      }
+      .header-logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .header-streak {
+        display: flex;
+        align-items: center;
+      }
+      .header-streak .icon {
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.5rem;
+      }
+      .streak-number {
+        font-size: 1.25rem;
+        font-weight: bold;
+      }
+      /* Main Content Layout */
+      .main-content {
+        display: flex;
+        margin-top: 1.25rem;
+      }
+      /* Sidebar Navigation */
+      .sidebar {
+        width: 15rem;
+        background-color: #3d0066;
+        padding: 1.25rem;
+        border-radius: 0.625rem;
+        margin-right: 1.25rem;
+        box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+      }
+      .nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #ffffff;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0.625rem;
+        transition: background-color 0.3s ease, transform 0.1s ease;
+      }
+      .nav-item:hover {
+        background-color: #c670ff;
+        transform: scale(1.02);
+      }
+      .nav-item:focus {
+        outline: 0.125rem solid #d6a800;
+        outline-offset: 0.25rem;
+      }
+      .nav-item:active {
+        transform: scale(0.98);
+      }
+      .nav-item.active {
+        background-color: #d6a800;
+        color: #3d0066;
+      }
+      .nav-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        margin-right: 0.75rem;
+      }
+      /* Content Area */
+      .content {
+        flex-grow: 1;
+        padding: 2rem;
+      }
+      .subject-select-card {
+        background-color: #eec7fc;
+        padding: 2rem;
+        border-radius: 0.625rem;
+        box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .subject-select-card h2 {
+        margin-top: 0;
+        font-size: 1.75rem;
+        color: #3d0066;
+      }
+      .subject-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .subject-button {
+        background-color: #3d0066;
+        color: #ffffff;
+        border: none;
+        border-radius: 0.625rem;
+        padding: 0.75rem 1.5rem;
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        min-width: 8rem;
+        text-align: center;
+      }
+      .subject-button:hover {
+        background-color: #2b004f;
+        transform: scale(1.02);
+      }
+      .subject-button:active {
+        transform: scale(0.98);
+      }
+      /* Responsive adjustments */
+      @media (max-width: 48rem) {
+        .main-content {
+          flex-direction: column;
+        }
+        .sidebar {
+          width: 100%;
+          margin-bottom: 1.25rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <div class="header-logo">bAIganio</div>
+        <div class="header-streak">
+          <img src="../../static/core/css/icons8-fire-48.png" alt="Flame Icon" class="nav-icon" />
+          <span class="streak-number">5</span>
+        </div>
+      </header>
+      <div class="main-content">
+        <aside class="sidebar">
+          <ul class="nav-list">
+            <li>
+              <a href="dashboard.html" class="nav-item">
+                <img src="../../static/core/css/home.png" alt="Home Icon" class="nav-icon" />
+                <span>Home</span>
+              </a>
+            </li>
+            <li>
+              <a href="ranking.html" class="nav-item">
+                <img src="../../static/core/css/ranking.png" alt="Ranking Icon" class="nav-icon" />
+                <span>Ranking</span>
+              </a>
+            </li>
+            <li>
+              <a href="take_test.html" class="nav-item active">
+                <img src="../../static/core/css/icons8-test-48.png" alt="Test Icon" class="nav-icon" />
+                <span>Tests</span>
+              </a>
+            </li>
+            <li>
+              <a href="profile.htm" class="nav-item">
+                <img src="../../static/core/css/profile.png" alt="Profile Icon" class="nav-icon" />
+                <span>Profile</span>
+              </a>
+            </li>
+          </ul>
+        </aside>
+        <section class="content">
+          <div class="subject-select-card card">
+            <h2>Choose a subject</h2>
+            <div class="subject-buttons">
+                <button class="subject-button" onclick="window.location.href='test_textbook.html'">Literature</button>
+              <button class="subject-button">Philosophy</button>
+              <button class="subject-button">History</button>
+              <button class="subject-button">Geography</button>
+              <button class="subject-button">Biology</button>
+              <button class="subject-button">Chemistry</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+  </html>
