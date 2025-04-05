@@ -200,7 +200,7 @@
     <aside class="sidebar">
       <ul class="nav-list">
         <li>
-          <a href="{% url 'dashboard' %}" class="nav-item active">
+          <a href="{% url 'dashboard' %}" class="nav-item">
             <img src="{% static 'core/css/home.png' %}?v=2" alt="Home Icon" class="nav-icon" />
             <span>Home</span>
           </a>
@@ -213,7 +213,7 @@
         </li>
         <li>
           <li>
-            <a href="{% url 'test_textbook' %}" class="nav-item">
+            <a href="{% url 'test_textbook' %}" class="nav-item active">
               <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon">
               <span>Tests</span>
             </a>
@@ -227,7 +227,7 @@
         </li>
       </ul>
     </aside>
-    
+
     <section class="content">
       <div class="test-framework-card card">
         <h2>Questions</h2>
