@@ -18,7 +18,7 @@ urlpatterns = [
     path('generate-test/', generate_test_view, name='generate_test'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('test-creation/', test_creation_view, name='test_creation'),
-    path('take-test/', take_test_view, name='take_test'),
+    path('take-test/<int:test_id>/', take_test_view, name='take_test'),
     path('test-create/', test_create_view, name='test_create'),
     path('test-grade/', test_grade_view, name='test_grade'),
     path('test-textbook/', test_textbook_view, name='test_textbook'),
@@ -26,4 +26,7 @@ urlpatterns = [
     path('test-result/', test_result_view, name='test_result'),
     path('test-question/', test_question_view, name='test_question'),
     path('test-pages-daysleft/', test_pages_daysleft_view, name='test_pages_daysleft'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
