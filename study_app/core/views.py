@@ -3,9 +3,6 @@ import pdfplumber
 from langdetect import detect
 from transformers import pipeline as transformers_pipeline
 from django.shortcuts import render, redirect
-from django.core.exceptions import ValidationError
-from django.utils.dateparse import parse_date
-from django.contrib.auth import login
 from core.models import Test, Subject
 import json
 from .forms import CustomUserCreationForm
@@ -16,6 +13,9 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 import os
 from random import sample
+from django.contrib.auth import login
+from django.contrib.auth import authenticate
+from django.contrib import messages
 
 openai.api_key = settings.OPENAI_API_KEY
 
@@ -123,8 +123,10 @@ def test_result_view(request):
         'results': results
     }
 
-    return render(request, 'core/test-result.html', context)
+    return render(request, 'core/test_result.html', context)
 
+
+from django.http import JsonResponse
 def test_question_view(request):
     if request.method == 'POST':
         logger.info("POST request received")
@@ -140,7 +142,7 @@ def test_question_view(request):
             current_question = questions[current_question_index]
             selected_answer = int(request.POST.get('answer'))
             correct_answer = current_question['answer']
-            logger.info(f"Selected answer: {selected_answer}, Correct answer: {correct_answer}")
+            correct_answer_text = current_question['options'][correct_answer]
 
             # Check if the selected answer is correct
             is_correct = selected_answer == correct_answer

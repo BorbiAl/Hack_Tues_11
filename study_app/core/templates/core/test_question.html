@@ -1,5 +1,4 @@
 {% load static %}
-{% load cache %}
 {% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
@@ -22,6 +21,7 @@
       margin: 0 auto;
       padding: 1.25rem;
     }
+
     .header {
       display: flex;
       justify-content: space-between;
@@ -52,10 +52,12 @@
       font-size: 1.25rem;
       font-weight: bold;
     }
+
     .main-content {
       display: flex;
       margin-top: 1.25rem;
     }
+
     .sidebar {
       width: 15rem;
       background-color: #3d0066;
@@ -68,11 +70,13 @@
       display: flex;
       flex-direction: column;
     }
+
     .nav-list {
       list-style: none;
       padding: 0;
       margin: 0;
     }
+
     .nav-item {
       display: flex;
       align-items: center;
@@ -83,26 +87,32 @@
       border-radius: 0.625rem;
       transition: background-color 0.3s ease, transform 0.1s ease;
     }
+
     .nav-item:hover {
       background-color: #c670ff;
       transform: scale(1.02);
     }
+
     .nav-item:focus {
       outline: 0.125rem solid #d6a800;
       outline-offset: 0.25rem;
     }
+
     .nav-item:active {
       transform: scale(0.98);
     }
+
     .nav-item.active {
       background-color: #d6a800;
       color: #3d0066;
     }
+
     .nav-icon {
       width: 1.5rem;
       height: 1.5rem;
       margin-right: 0.75rem;
     }
+
     .content {
       flex-grow: 1;
       display: grid;
@@ -110,6 +120,7 @@
       flex-direction: column;
       grid-gap: 1.25rem;
     }
+
     .test-framework-card {
       background-color: #eec7fc;
       width: 50rem;
@@ -121,6 +132,7 @@
       padding: 1.5rem;
       height: auto;
     }
+
     .test-framework-card h2 {
       margin-top: 0;
       font-size: 3rem;
@@ -171,12 +183,11 @@
   </style>
 </head>
 <body>
-  {% cache 500 test_question_template %}
   <div class="container">
     <header class="header">
       <div class="header-logo">bAIganio</div>
       <div class="header-streak">
-        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="icon">
+        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="icon" />
         <span class="streak-number">5</span>
       </div>
     </header>
@@ -203,34 +214,33 @@
           </li>
           <li>
             <a href="{% url 'profile' %}" class="nav-item">
-              <img src="{% static 'core/css/profile.png' %}?v=2" alt="Profile Icon" class="nav-icon">
+              <img src="{% static 'core/css/profile.png' %}?v=2" alt="Profile Icon" class="nav-icon" />
               <span>Profile</span>
             </a>
           </li>
         </ul>
       </aside>
-      <div class="content">
-        <div class="test-framework-card">
-          <h2>Question {{ current_question_index }} of {{ total_questions }}</h2>
-          {% if question %}
-            <p class="question">{{ question }}</p>
-            <form method="post" class="question-form">
-              {% csrf_token %}
-              <div class="answer-group">
-                {% for answer in answers %}
-                  <button type="submit" name="answer" value="{{ forloop.counter0 }}" class="answer-button">
-                    {{ forloop.counter|to_letter }}. {{ answer }}
-                  </button>
-                {% endfor %}
-              </div>
-            </form>
-          {% else %}
-            <p>No more questions available.</p>
-          {% endif %}
-        </div>
+    <div class="content">
+      <div class="test-framework-card">
+        <h2>Question {{ current_question_index }} of {{ total_questions }}</h2>
+        {% if question %}
+          <p class="question">{{ question }}</p>
+          <form method="post" class="question-form">
+            {% csrf_token %}
+            <div class="answer-group">
+              {% for answer in answers %}
+                <button type="submit" name="answer" value="{{ forloop.counter0 }}" class="answer-button">
+                  {{ forloop.counter|to_letter }}. {{ answer }}
+                </button>
+              {% endfor %}
+            </div>
+          </form>
+        {% else %}
+          <p>No more questions available.</p>
+        {% endif %}
       </div>
     </div>
   </div>
-  {% endcache %}
-</body>
+  </div>
+  </body>
 </html>
