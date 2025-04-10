@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,23 +35,23 @@
       z-index: 1000;
       box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
     }
-  
+
     .header-logo {
       font-size: 1.5rem;
       font-weight: bold;
     }
-  
+
     .header-streak {
       display: flex;
       align-items: center;
     }
-  
+
     .header-streak .icon {
       width: 2rem;
       height: 2rem;
       margin-right: 0.5rem;
     }
-  
+
     .streak-number {
       font-size: 1.25rem;
       font-weight: bold;
@@ -71,13 +72,13 @@
       margin-left: 2rem;
       box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
     }
-  
+
     .nav-list {
       list-style: none;
       padding: 0;
       margin: 0;
     }
-  
+
     .nav-item {
       display: flex;
       align-items: center;
@@ -88,26 +89,26 @@
       border-radius: 0.625rem;
       transition: background-color 0.3s ease, transform 0.1s ease;
     }
-  
+
     .nav-item:hover {
       background-color: #c670ff;
       transform: scale(1.02);
     }
-  
+
     .nav-item:focus {
       outline: 0.125rem solid #d6a800;
       outline-offset: 0.25rem;
     }
-  
+
     .nav-item:active {
       transform: scale(0.98);
     }
-  
+
     .nav-item.active {
       background-color: #d6a800;
       color: #3d0066;
     }
-  
+
     .nav-icon {
       width: 1.5rem;
       height: 1.5rem;
@@ -171,6 +172,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <header class="header">
@@ -215,32 +217,27 @@
         <form method="POST" action="{% url 'test_creation' %}" class="textbook-form">
           {% csrf_token %}
           <label for="pdf_file">Choose a Textbook:</label>
-          <!-- Debug output -->
-          <div style="display: none;">
-            Files data: {{ files|pprint }}
-          </div>
-          
           <select name="pdf_url" id="pdf_file" required {% if not files %}disabled{% endif %}>
-            {% if files %}
+              {% if files %}
               {% for file in files %}
               <option value="{{ file.url }}" {% if file.name == 'literature_6' %}selected{% endif %}>{{ file.name }}</option>
               {% endfor %}
-            {% else %}
+              {% else %}
               <option value="">No textbooks found</option>
-            {% endif %}
+              {% endif %}
           </select>
-          
-
+      
           <label for="start_page">Start Page:</label>
           <input type="number" name="start_page" id="start_page" min="1" required>
-
+      
           <label for="end_page">End Page:</label>
           <input type="number" name="end_page" id="end_page" min="1" required>
-
+      
           <button type="submit" {% if not files %}disabled{% endif %}>Generate Test</button>
-        </form>
+      </form>
       </div>
     </div>
   </div>
 </body>
+
 </html>

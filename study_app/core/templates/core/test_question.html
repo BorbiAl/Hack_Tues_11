@@ -225,16 +225,20 @@
         <h2>Question {{ current_question_index }} of {{ total_questions }}</h2>
         {% if question %}
           <p class="question">{{ question }}</p>
-          <form method="post" class="question-form">
+          <form method="POST">
             {% csrf_token %}
-            <div class="answer-group">
-              {% for answer in answers %}
-                <button type="submit" name="answer" value="{{ forloop.counter0 }}" class="answer-button">
-                  {{ forloop.counter|to_letter }}. {{ answer }}
-                </button>
-              {% endfor %}
+            <h2>Question {{ current_question_index }} of {{ total_questions }}</h2>
+            <p>{{ question }}</p>
+            <div>
+                {% for option in answers %}
+                <label>
+                    <input type="radio" name="selected_answer" value="{{ option }}" required>
+                    {{ option }}
+                </label><br>
+                {% endfor %}
             </div>
-          </form>
+            <button type="submit">Submit</button>
+        </form>
         {% else %}
           <p>No more questions available.</p>
         {% endif %}
