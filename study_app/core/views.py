@@ -331,55 +331,32 @@ def get_cached_model():
         )
     return _model_cache
 
+from django.http import JsonResponse
+
 def generate_test_view(request):
     if request.method == 'POST' and request.FILES.get('pdf_file'):
         try:
-            # Process PDF
+            # Process the PDF and generate the test as before...
             pdf_file = request.FILES['pdf_file']
+            start_page = int(request.POST.get('start_page', 1))
+            end_page = int(request.POST.get('end_page', 1))
+
+            # Example PDF processing and AI generation
             with pdfplumber.open(pdf_file) as pdf:
-                text = "".join(page.extract_text() for page in pdf.pages[:5])  # Limit to first 5 pages
+                text = "".join(page.extract_text() for page in pdf.pages[start_page - 1:end_page])
 
-            # Language detection
-            language = detect(text)
+            # Generate test using AI
+            generator = transformers_pipeline("text-generation", model="distilgpt2", device="cpu")
+            prompt = f"Generate a test in Bulgarian based on this text: {text[:500]}"
+            generated_test = generator(prompt, max_length=200)[0]['generated_text']
 
-            # Translation (if needed)
-            if language != "bg":
-                try:
-                    translator = transformers_pipeline(
-                        "translation_en_to_bg", 
-                        model="Helsinki-NLP/opus-mt-en-bg",
-                        device="cpu"
-                    )
-                    text = translator(text[:1000])[0]['translation_text']  # Limit input size
-                except Exception as e:
-                    return render(request, 'core/test_result.html', {
-                        'error': f"Translation failed: {str(e)}"
-                    })
-
-            # Use cached model for test generation
-            try:
-                generator = get_cached_model()
-
-                prompt = f"Create a test in Bulgarian based on: {text[:500]}"  # Limit prompt size
-                generated_test = generator(prompt)[0]['generated_text']
-
-                return render(request, 'core/test_result.html', {
-                    'test': generated_test
-                })
-
-            except Exception as e:
-                return render(request, 'core/test_result.html', {
-                    'error': f"Test generation failed: {str(e)}"
-                })
+            # Return response as JSON
+            return JsonResponse({"success": True, "test": generated_test})
 
         except Exception as e:
-            return render(request, 'core/test_result.html', {
-                'error': f"Processing failed: {str(e)}"
-            })
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
 
-    return render(request, 'core/test_result.html', {
-        'error': 'Invalid request method'
-    })
+    return JsonResponse({"success": False, "error": "Invalid request method or missing file"}, status=400)
 
 def get_random_questions(num_questions):
     # Placeholder function:  Replace with actual question retrieval logic
