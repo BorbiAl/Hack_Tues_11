@@ -7,22 +7,31 @@ class RAGModel:
 
     def generate_question_from_text(self, text):
         """
-        Generate a single question with 4 selectable answers from the input text.
-        :param text: The text to generate a question from.
-        :return: A dictionary with the question and 4 answers.
+        Generate one multiple-choice question with 4 selectable answers from the input text.
+        This function removes the prompt from the generated text, so only the resulting question is returned.
+        
+        :param text: The input text from which to generate the question.
+        :return: A dictionary with the question and its 4 options.
         """
         prompt = f"Generate one multiple-choice question with 4 options (1 correct) based on the following text:\n\n{text}"
         response = self.generator(prompt, max_length=300, num_return_sequences=1)
         generated_text = response[0]['generated_text']
-
-        # Parse response to extract question and answers
-        lines = generated_text.strip().split("\n")
+        
+        # Remove the prompt part from the generated text if it's included.
+        if generated_text.startswith(prompt):
+            generated_text = generated_text[len(prompt):].strip()
+        
+        # Further processing: Split the cleaned text into lines and ensure we have at least 5 lines 
+        # (first line for the question and next four for the selectable answers)
+        lines = [line.strip() for line in generated_text.split("\n") if line.strip()]
         if len(lines) >= 5:
             question = lines[0]
             options = lines[1:5]
             return {
                 'question': question,
-                'options': options
+                'options': options,
+                # If you want to mark the correct answer, you'll need additional parsing.
+                # For now, we'll leave that field out since the prompt doesn't return it explicitly.
             }
         else:
             return None
@@ -30,7 +39,7 @@ class RAGModel:
     def generate_questions_from_pages(self, extracted_texts):
         """
         Generate questions based on extracted texts from multiple pages.
-        :param extracted_texts: List of text from the pages.
+        :param extracted_texts: List of text segments extracted from each page.
         :return: A list of dictionaries with questions and answers.
         """
         questions = []
