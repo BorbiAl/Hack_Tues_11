@@ -1,156 +1,104 @@
 import openai
-import pdfplumber
-from langdetect import detect
-from transformers import pipeline as transformers_pipeline
+import PyPDF2
 from django.shortcuts import render, redirect
-from core.models import Test, Subject
-import json
-from .forms import CustomUserCreationForm
-from django.contrib.auth.views import LoginView
-from .models import Profile
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.views import LoginView
+from django.http import HttpResponse
+from transformers import pipeline as transformers_pipeline
+from .models import Test
+from .forms import CustomUserCreationForm
 import os
-from random import sample
-from django.contrib.auth import login
-from django.contrib.auth import authenticate
-from django.contrib import messages
-
-openai.api_key = settings.OPENAI_API_KEY
-
 import logging
+
+# Initialize logger
 logger = logging.getLogger(__name__)
 
+# OpenAI API Key
+openai.api_key = settings.OPENAI_API_KEY
+
+# Cached AI model
+_model_cache = None
+
+def get_cached_model():
+    global _model_cache
+    if _model_cache is None:
+        _model_cache = transformers_pipeline(
+            "text-generation",
+            model="distilgpt2",
+            device="cpu"
+        )
+    return _model_cache
+
 def test_textbook_view(request):
-    # Path to the media directory
+    """View to display available textbooks."""
     media_path = settings.MEDIA_ROOT
     files = []
 
-    # Log media path for debugging
-    logger.info(f"Media path: {media_path}")
-    logger.info(f"Directory exists: {os.path.exists(media_path)}")
-    logger.info(f"Directory contents: {os.listdir(media_path)}")
-
-    # Fetch all PDF files in the media directory and subdirectories
+    # Fetch all PDF files in the media directory
     for root, dirs, filenames in os.walk(media_path):
-        logger.info(f"Scanning directory: {root}")
-        logger.info(f"Files found: {1}")
         for file_name in filenames:
             if file_name.lower().endswith('.pdf'):
                 relative_path = os.path.relpath(os.path.join(root, file_name), media_path)
-                file_data = {
-                    'name': os.path.splitext(file_name)[0],  # Remove .pdf extension
+                files.append({
+                    'name': os.path.splitext(file_name)[0],
                     'url': f"{settings.MEDIA_URL}{relative_path.replace(os.sep, '/')}"
-                }
-                files.append(file_data)
-                logger.info(f"Found PDF file: {file_data}")
-            else:
-                logger.info(f"Skipping non-PDF file: {file_name}")
+                })
 
-    context = {
-        'files': sorted(files, key=lambda x: x['name'])  # Sort alphabetically
-    }
-
-    logger.info(f"Files being passed to template: {context['files']}")
-
+    context = {'files': sorted(files, key=lambda x: x['name'])}
     return render(request, 'core/test_textbook.html', context)
 
-        
-
-def take_test_view(request, test_id):
-    test = get_object_or_404(Test, id=test_id)
-    if request.method == 'POST':
-        # Process submitted answers (not implemented here)
-        return redirect('test_result', test_id=test.id)
-
-    return render(request, 'core/take_test.html', {'test': test})
-
-@login_required
-def profile_view(request):
-    tests = Test.objects.all()  # Fetch all tests or filter as needed
-    context = {
-        'username': request.user.username,  # Pass the logged-in user's username
-        'tests': tests,  # Pass the tests queryset
-    }
-    return render(request, 'core/profile.html', context)
-def test_create_view(request):
-    return render(request, 'core/test_create.html')
-
-from django.core.exceptions import ValidationError
-
 def test_creation_view(request):
+    """View to generate test questions from a selected PDF."""
     if request.method == 'POST':
         try:
-            # Get form data
             pdf_url = request.POST.get('pdf_url')
             start_page = int(request.POST.get('start_page', 0))
             end_page = int(request.POST.get('end_page', 0))
 
-            # Ensure all necessary data is present
             if not pdf_url or start_page <= 0 or end_page <= 0 or start_page > end_page:
                 raise ValueError("Invalid form data")
 
-            # Validate the file extension
-            if not pdf_url.lower().endswith('.pdf'):
-                raise ValidationError("The uploaded file is not a valid PDF.")
-
-            # Extract text from the PDF
             pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_url))
-            try:
-                with pdfplumber.open(pdf_path) as pdf:
-                    if start_page > len(pdf.pages) or end_page > len(pdf.pages):
-                        raise ValueError("Page range exceeds the number of pages in the PDF.")
-                    extracted_text = "".join(
-                        pdf.pages[page_num].extract_text() for page_num in range(start_page - 1, end_page)
-                    )
-            except Exception as e:
-                logger.error(f"Error opening PDF: {e}")
-                return redirect('test_textbook')  # Redirect back to textbook selection if PDF fails
+            with open(pdf_path, 'rb') as pdf_file:
+                pdf_reader = PyPDF2.PdfReader(pdf_file)
+                if start_page > len(pdf_reader.pages) or end_page > len(pdf_reader.pages):
+                    raise ValueError("Page range exceeds the number of pages in the PDF.")
+                extracted_text = "".join(
+                    pdf_reader.pages[page_num].extract_text() for page_num in range(start_page - 1, end_page)
+                )
 
             # Generate questions using AI
-            try:
-                generator = get_cached_model()  # Use the cached AI model
-                prompt = f"Generate 10 multiple-choice questions with 4 options each (1 correct) based on the following text:\n\n{extracted_text[:1000]}"
-                response = generator(prompt, max_length=1500, num_return_sequences=1)
-                generated_questions = response[0]['generated_text']
+            generator = get_cached_model()
+            prompt = f"Generate 10 multiple-choice questions with 4 options each (1 correct) based on the following text:\n\n{extracted_text[:1000]}"
+            response = generator(prompt, max_length=1500, num_return_sequences=1)
+            generated_questions = response[0]['generated_text']
 
-                # Parse the generated questions into a structured format
-                questions = parse_generated_questions(generated_questions)
+            # Parse the generated questions
+            questions = parse_generated_questions(generated_questions)
+            if not questions:
+                raise ValueError("No questions were generated by the AI model.")
 
-                if not questions:
-                    raise ValueError("No questions were generated by the AI model.")
+            # Store questions in session
+            request.session['questions'] = questions
+            request.session['current_question_index'] = 0
 
-                # Store questions in session
-                request.session['questions'] = questions
-                request.session['current_question_index'] = 0
+            return redirect('test_question')
 
-                # Redirect to the first question
-                return redirect('test_question')
-
-            except Exception as e:
-                logger.error(f"Error generating questions: {e}")
-                return redirect('test_textbook')  # Redirect back to textbook selection if AI fails
-
-        except (ValueError, TypeError, ValidationError) as e:
+        except Exception as e:
             logger.error(f"Error in test_creation_view: {e}")
-            return redirect('test_textbook')  # Redirect back to textbook selection on error
+            return redirect('test_textbook')
 
-    return redirect('test_textbook')  # Redirect back to textbook selection if not POST
-
-def test_grade_view(request):
-    return render(request, 'core/test_grade.html')
+    return redirect('test_textbook')
 
 def parse_generated_questions(generated_text):
-    """
-    Parse the AI-generated text into a structured format.
-    Each question should have a question, options, and the correct answer.
-    """
+    """Parse AI-generated text into structured questions."""
     questions = []
     for block in generated_text.split("\n\n"):
         lines = block.split("\n")
         if len(lines) < 5:
-            continue  # Skip invalid blocks
+            continue
         question = lines[0]
         options = lines[1:5]
         correct_answer = lines[5].split(":")[1].strip() if len(lines) > 5 else None
@@ -161,27 +109,9 @@ def parse_generated_questions(generated_text):
         })
     return questions
 
-def test_subject_view(request):
-    return render(request, 'core/test_subject.html')
-
-def test_result_view(request):
-    results = request.session.get('results', [])
-    total_questions = len(results)
-    correct_answers = sum(1 for result in results if result['is_correct'])
-    wrong_answers_count = total_questions - correct_answers
-
-    context = {
-        'total_questions': total_questions,
-        'correct_answers': correct_answers,
-        'wrong_answers_count': wrong_answers_count,
-        'results': results
-    }
-
-    return render(request, 'core/test_result.html', context)
-
 def test_question_view(request):
+    """View to display and handle test questions."""
     if request.method == 'POST':
-        # Process the submitted answer
         questions = request.session.get('questions', [])
         current_question_index = request.session.get('current_question_index', 0)
 
@@ -204,14 +134,12 @@ def test_question_view(request):
             # Move to the next question
             request.session['current_question_index'] = current_question_index + 1
 
-            # Redirect to the next question or results page
             if current_question_index + 1 < len(questions):
                 return redirect('test_question')
             else:
                 return redirect('test_result')
 
     else:
-        # Display the current question
         questions = request.session.get('questions', [])
         current_question_index = request.session.get('current_question_index', 0)
 
@@ -226,32 +154,33 @@ def test_question_view(request):
         else:
             return redirect('test_result')
 
+def test_result_view(request):
+    """View to display test results."""
+    results = request.session.get('results', [])
+    total_questions = len(results)
+    correct_answers = sum(1 for result in results if result['is_correct'])
+    wrong_answers_count = total_questions - correct_answers
 
-def test_pages_daysleft_view(request):
-    return render(request, 'core/test_pages_daysleft.html')
-def home_view(request):
-    return render(request, 'base.html')
+    context = {
+        'total_questions': total_questions,
+        'correct_answers': correct_answers,
+        'wrong_answers_count': wrong_answers_count,
+        'results': results
+    }
+    return render(request, 'core/test_result.html', context)
 
-def signup_view(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            Profile.objects.create(user=user)
-            login(request, user)
-            return redirect('dashboard')
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'core/signup.html', {'form': form})
-
-import logging
-
-logger = logging.getLogger(__name__)
-
-from django.contrib.auth import authenticate
-from django.contrib import messages
+@login_required
+def profile_view(request):
+    """View to display user profile and tests."""
+    tests = Test.objects.all()
+    context = {
+        'username': request.user.username,
+        'tests': tests,
+    }
+    return render(request, 'core/profile.html', context)
 
 class CustomLoginView(LoginView):
+    """Custom login view."""
     template_name = 'core/login.html'
 
     def form_valid(self, form):
@@ -260,56 +189,41 @@ class CustomLoginView(LoginView):
         user = authenticate(username=username, password=password)
 
         if user is not None:
-            logger.info(f"User {username} successfully logged in.")
             login(self.request, user)
             return super().form_valid(form)
         else:
-            logger.warning(f"Failed login attempt for username: {username}")
-            messages.error(self.request, 'Invalid username or password')
-            return self.form_invalid(form)
+            return HttpResponse("<h1>Invalid username or password</h1>")
 
     def get_success_url(self):
         return '/dashboard/'
 
-MAX_FILE_SIZE = 500 * 1024 * 1024
+def signup_view(request):
+    """View to handle user signup."""
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('dashboard')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'core/signup.html', {'form': form})
 
-from django.shortcuts import render
-from .models import Test
+def home_view(request):
+    """Home view."""
+    return render(request, 'base.html')
 
 def dashboard_view(request):
-    tests = Test.objects.all()  # Fetch all tests
-    context = {
-        'tests': tests,
-        'username': request.user.username
-    }
-    return render(request, 'core/dashboard.html', context)
-
-def test_list_view(request):
-    tests = Test.objects.all()  # Fetch all tests
-    selected_test_id = request.GET.get('test_id')  # Get the selected test ID from the query parameters
-    selected_test = None
-    questions = None
-
-    if selected_test_id:
-        selected_test = get_object_or_404(Test, id=selected_test_id)
-        questions = json.loads(selected_test.question_data) #Load JSON string
-
-    return render(request, 'core/test_list.html', {
-        'tests': tests,
-        'selected_test': selected_test,
-        'questions': questions,
-    })
-
-
-
-def test_list_view(request):
-    subjects = Subject.objects.prefetch_related('tests').all()
-    return render(request, 'core/test_list.html', {'subjects': subjects})
-
+    """Dashboard view."""
+    if request.user.is_authenticated:
+        return render(request, 'core/dashboard.html')
+    else:
+        return redirect('login')
+    
 def ranking_view(request):
     if request.method == 'GET':
         context = {
-            'username': request.user.username,  # Pass the logged-in user's username
+            'username': request.user.username,
             'rankings': [
                 {'username': 'JohnDoe', 'score': 95},
                 {'username': 'JaneSmith', 'score': 90},
@@ -317,151 +231,3 @@ def ranking_view(request):
             ]
         }
         return render(request, 'core/ranking.html', context)
-
-# Global variable for cached model
-_model_cache = None
-
-def get_cached_model():
-    global _model_cache
-    if _model_cache is None:
-        _model_cache = transformers_pipeline(
-            "text-generation",
-            model="distilgpt2",
-            device="cpu"
-        )
-    return _model_cache
-
-from django.http import JsonResponse
-
-def generate_test_view(request):
-    if request.method == 'POST' and request.FILES.get('pdf_file'):
-        try:
-            # Process the PDF and generate the test as before...
-            pdf_file = request.FILES['pdf_file']
-            start_page = int(request.POST.get('start_page', 1))
-            end_page = int(request.POST.get('end_page', 1))
-
-            # Example PDF processing and AI generation
-            with pdfplumber.open(pdf_file) as pdf:
-                text = "".join(page.extract_text() for page in pdf.pages[start_page - 1:end_page])
-
-            # Generate test using AI
-            generator = transformers_pipeline("text-generation", model="distilgpt2", device="cpu")
-            prompt = f"Generate a test in Bulgarian based on this text: {text[:500]}"
-            generated_test = generator(prompt, max_length=200)[0]['generated_text']
-
-            # Return response as JSON
-            return JsonResponse({"success": True, "test": generated_test})
-
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)}, status=500)
-
-    return JsonResponse({"success": False, "error": "Invalid request method or missing file"}, status=400)
-
-def get_random_questions(num_questions):
-    # Placeholder function:  Replace with actual question retrieval logic
-    # This should fetch questions from a database or other source.
-    # For now, it returns a dummy list of questions.
-    LITERATURE_QUESTIONS = [
-    {
-        'question': 'Кой е главният герой в разказа „Косачи" на Елин Пелин?',
-        'options': ['Станчо', 'Благолажът', 'Иван', 'Дядо Йото'],
-        'answer': 1
-    },
-    {
-        'question': 'Какво разказва Благолажът на косачите?',
-        'options': ['Истории за героични битки', 'Легенди за съкровища', 'Забавни истории и любовни разкази', 'Приказки за животни'],
-        'answer': 2
-    },
-    {
-        'question': 'Каква роля играе природата в разказа „Косачи"?',
-        'options': ['Създава тайнствена атмосфера', 'Представя страховете на героите', 'Описва селското общество', 'Подчертава чувствата на героите'],
-        'answer': 3
-    },
-    {
-        'question': 'Кое изкуство е най-силно застъпено в „Косачи"?',
-        'options': ['Живопис', 'Танц', 'Изкуството на словото', 'Музиката'],
-        'answer': 2
-    },
-    {
-        'question': 'Какъв е Благолажът като човек?',
-        'options': ['Силен и мълчалив', 'Весел и разговорлив', 'Срамежлив и затворен', 'Учен и строг'],
-        'answer': 1
-    },
-    {
-        'question': 'Какъв е ефектът от песента, която героите пеят в края на „Косачи"?',
-        'options': ['Подчертава тъгата им', 'Разкрива вътрешния им гняв', 'Изразява единството им', 'Показва недоволство от живота'],
-        'answer': 2
-    },
-    {
-        'question': 'Кой е авторът на стихотворението „Художник"?',
-        'options': ['Христо Смирненски', 'Иван Вазов', 'Веселин Ханчев', 'Гео Милев'],
-        'answer': 2
-    },
-    {
-        'question': 'Какво рисува детето в стихотворението „Художник"?',
-        'options': ['Картина с природата', 'Мечтания свят', 'Домашни животни', 'Битки и войни'],
-        'answer': 1
-    },
-    {
-        'question': 'Какви са чувствата на детето към рисуването в стихотворението „Художник"?',
-        'options': ['Страх и несигурност', 'Безразличие', 'Радост и вдъхновение', 'Тъга и скука'],
-        'answer': 2
-    },
-    {
-        'question': 'С какви средства е изразено изкуството в стихотворението „Художник"?',
-        'options': ['С гатанки', 'С песни', 'С багри и четка', 'С народни приказки'],
-        'answer': 2
-    },
-    {
-        'question': 'Какво символизира четката в стихотворението?',
-        'options': ['Оръжие', 'Природа', 'Творческа свобода', 'Труд'],
-        'answer': 2
-    },
-    {
-        'question': 'Какво е основното послание на стихотворението „Художник"?',
-        'options': ['Изкуството ни носи радост и свобода', 'Трудът е по-важен от мечтите', 'Детството е време за игри', 'Всеки трябва да стане художник'],
-        'answer': 0
-    },
-    {
-        'question': 'В кой роман се намира откъсът „Представлението"?',
-        'options': ['„Гераците"', '„Под игото"', '„Бай Ганьо"', '„Немили-недраги"'],
-        'answer': 1
-    },
-    {
-        'question': 'Какво представление гледат героите в откъса?',
-        'options': ['Народен танц', 'Оперета', 'Театрална постановка', 'Цирково шоу'],
-        'answer': 2
-    },
-    {
-        'question': 'Как се чувстват зрителите по време на представлението?',
-        'options': ['Безразлични', 'Натъжени', 'Вдъхновени и развълнувани', 'Отегчени'],
-        'answer': 2
-    },
-    {
-        'question': 'Каква е целта на представлението според Вазов?',
-        'options': ['Да покаже чуждестранна култура', 'Да създаде комична ситуация', 'Да обедини народа чрез изкуството', 'Да насърчи децата да учат'],
-        'answer': 2
-    },
-    {
-        'question': 'Как героите приемат участието си в театъра?',
-        'options': ['С досада', 'С гордост и ентусиазъм', 'С неразбиране', 'С неувереност'],
-        'answer': 1
-    },
-    {
-        'question': 'Кой герой организира представлението в Бяла черква?',
-        'options': ['Чорбаджи Марко', 'Бай Марко', 'Кириак Стефчов', 'Кандов'],
-        'answer': 3
-    },
-    {
-        'question': 'Какво показва сцената с представлението за българите под османско владичество?',
-        'options': ['Загуба на идентичност', 'Липса на културен живот', 'Желание за изразяване чрез изкуството', 'Страх от промяна'],
-        'answer': 2
-    },
-    {
-        'question': 'Каква е връзката между трите произведения в раздела „Човекът и изкуството"?',
-        'options': ['Във всички се говори за любовта', 'Във всички присъства тема за свобода', 'Изкуството е представено като важна част от човешкия живот', 'Всички са написани през 19 век'],
-        'answer': 2
-    }
-]
-    return LITERATURE_QUESTIONS[:num_questions]

@@ -4,24 +4,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultDiv = document.getElementById("result");
 
     form.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent the form from reloading the page
-        loadingIndicator.style.display = "block"; // Show the loading indicator
+        event.preventDefault(); // Stop the page from refreshing
 
-        const formData = new FormData(form); // Capture form data
+        loadingIndicator.style.display = "block"; // Show loading indicator
+
+        const formData = new FormData(form); // Collect form data
 
         try {
             const response = await fetch(form.action, {
                 method: "POST",
                 body: formData,
                 headers: {
-                    "X-CSRFToken": document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // Include CSRF token
+                    "X-CSRFToken": document.querySelector('input[name="csrfmiddlewaretoken"]').value, // CSRF Token
                 },
             });
 
             if (response.ok) {
-                const data = await response.json();
+                const data = await response.json(); // Parse JSON response
                 if (data.success) {
-                    resultDiv.innerHTML = `<pre>${data.test}</pre>`; // Display the test
+                    // Show the generated test/questions
+                    resultDiv.innerHTML = `<pre>${data.test}</pre>`;
                 } else {
                     resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
                 }
@@ -32,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Error:", error);
             resultDiv.innerHTML = `<p>An unexpected error occurred.</p>`;
         } finally {
-            loadingIndicator.style.display = "none"; // Hide the loading indicator
+            loadingIndicator.style.display = "none"; // Hide loading indicator
         }
     });
 });
