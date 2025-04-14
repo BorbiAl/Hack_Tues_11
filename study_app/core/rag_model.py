@@ -11,9 +11,9 @@ class RAGModel:
         This function removes the prompt from the generated text, so only the resulting question is returned.
         
         :param text: The input text from which to generate the question.
-        :return: A dictionary with the question and its 4 options.
+        :return: A dictionary with the question and its 4 options in Bulgarian.
         """
-        prompt = f"Generate one multiple-choice question with 4 options (1 correct) based on the following text:\n\n{text}"
+        prompt = f"Generate one multiple-choice question with 4 options (1 correct) based on the following text in Bulgarian:\n\n{text}"
         response = self.generator(prompt, max_length=300, num_return_sequences=1)
         generated_text = response[0]['generated_text']
         
@@ -30,8 +30,6 @@ class RAGModel:
             return {
                 'question': question,
                 'options': options,
-                # If you want to mark the correct answer, you'll need additional parsing.
-                # For now, we'll leave that field out since the prompt doesn't return it explicitly.
             }
         else:
             return None

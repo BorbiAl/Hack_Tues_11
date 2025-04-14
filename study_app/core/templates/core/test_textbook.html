@@ -8,12 +8,59 @@
   <title>BAi Ganio - Textbook Selection</title>
   <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
   <link rel="stylesheet" href="{% static 'core/css/test_textbook.css' %}">
+
   <style>
     body {
       margin: 0;
       font-family: 'Nunito', sans-serif;
       background-color: #ffffff;
       color: #3d0066;
+    }
+
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .loading-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-content p {
+      font-size: 1.5rem;
+      margin: 0;
     }
 
     .container {
@@ -214,30 +261,127 @@
 
       <div class="textbook-container">
         <h2>Select a Textbook</h2>
-        <form method="POST" action="{% url 'test_creation' %}" class="textbook-form">
+        <form class="textbook-form" id="test-form" method="POST">
           {% csrf_token %}
           <label for="pdf_file">Choose a Textbook:</label>
           <select name="pdf_url" id="pdf_file" required {% if not files %}disabled{% endif %}>
-              {% if files %}
-              {% for file in files %}
-              <option value="{{ file.url }}" {% if file.name == 'literature_6' %}selected{% endif %}>{{ file.name }}</option>
-              {% endfor %}
-              {% else %}
-              <option value="">No textbooks found</option>
-              {% endif %}
+            {% if files %}
+            {% for file in files %}
+            <option value="{{ file.url }}">{{ file.name }}
+            </option>
+            {% endfor %}
+            {% else %}
+            <option value="">No textbooks found</option>
+            {% endif %}
           </select>
-      
+
           <label for="start_page">Start Page:</label>
           <input type="number" name="start_page" id="start_page" min="1" required>
-      
+
           <label for="end_page">End Page:</label>
           <input type="number" name="end_page" id="end_page" min="1" required>
-      
+
           <button type="submit" {% if not files %}disabled{% endif %}>Generate Test</button>
-      </form>
+        </form>
       </div>
     </div>
   </div>
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p>Прави се теста...</p>
+    </div>
+  </div>
+
+
+  <script>
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const form = document.querySelector('.textbook-form');
+
+    form.addEventListener('submit', function () {
+      loadingOverlay.style.display = 'flex'; // Show the overlay
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector('.textbook-form');
+      const loadingOverlay = document.getElementById('loading-overlay');
+      const questionContainer = document.getElementById('generated-questions');
+
+      // Get CSRF token from cookie
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const startPage = document.getElementById('start_page').value;
+        const endPage = document.getElementById('end_page').value;
+        const pdfUrl = document.getElementById('pdf_file').value;
+
+        loadingOverlay.style.display = 'flex';
+
+        fetch('/generate-questions/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: JSON.stringify({
+            pdf_url: pdfUrl,
+            start_page: startPage,
+            end_page: endPage,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            loadingOverlay.style.display = 'none';
+
+            if (data.questions && data.questions.length > 0) {
+              questionContainer.innerHTML = ''; // Clear any previous questions
+
+              data.questions.forEach((q, index) => {
+                const questionBlock = document.createElement('div');
+                questionBlock.classList.add('test-framework-card');
+
+                const questionHtml = `
+              <h2>Question ${index + 1}</h2>
+              <p class="question">${q.question}</p>
+              <div class="answer-group">
+                ${q.answers.map(
+                  (answer) => `
+                  <button class="answer-button">${answer}</button>
+                `
+                ).join('')}
+              </div>
+            `;
+
+                questionBlock.innerHTML = questionHtml;
+                questionContainer.appendChild(questionBlock);
+              });
+            } else {
+              questionContainer.innerHTML = `<p style="color: red;">No questions generated. Try different pages.</p>`;
+            }
+          })
+          .catch((error) => {
+            loadingOverlay.style.display = 'none';
+            console.error('Error:', error);
+            questionContainer.innerHTML = `<p style="color: red;">An error occurred. Please try again.</p>`;
+          });
+      });
+    });
+
+  </script>
 </body>
 
 </html>

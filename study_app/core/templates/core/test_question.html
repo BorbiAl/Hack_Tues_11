@@ -227,17 +227,15 @@
           <p class="question">{{ question }}</p>
           <form method="POST">
             {% csrf_token %}
-            <h2>Question {{ current_question_index }} of {{ total_questions }}</h2>
-            <p>{{ question }}</p>
-            <div>
+            <div class="answer-group">
                 {% for option in answers %}
-                <label>
+                <label class="answer-button">
                     <input type="radio" name="selected_answer" value="{{ option }}" required>
                     {{ option }}
-                </label><br>
+                </label>
                 {% endfor %}
             </div>
-            <button type="submit">Submit</button>
+            <button class="answer-button" type="submit">Submit</button>
         </form>
         {% else %}
           <p>No more questions available.</p>
