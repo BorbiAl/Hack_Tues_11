@@ -2,7 +2,18 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
@@ -43,6 +54,8 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    streak = models.IntegerField(default=0)
+    last_test_date = models.DateField(null=True, blank=True) 
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -73,3 +86,29 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question_text
+    
+class TestTextbook(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+
+    def __str__(self):
+        return self.title
+
+class TestQuestion(models.Model):
+    textbook = models.ForeignKey(TestTextbook, on_delete=models.CASCADE, related_name='questions')
+    question_text = models.TextField()
+
+    def __str__(self):
+        return self.question_text
+
+class Rag(models.Model):
+    # Link each textbook with its corresponding Rag instance.
+    textbook = models.OneToOneField(TestTextbook, on_delete=models.CASCADE, related_name='rag')
+    # Additional fields related to the Rag model can be added here.
+
+    def get_questions(self):
+        # Retrieve questions via the textbook relationship.
+        return self.textbook.questions.all()
+
+    def __str__(self):
+        return f"Rag for {self.textbook.title}"
