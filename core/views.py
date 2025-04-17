@@ -1,5 +1,4 @@
 from django.http import JsonResponse
-from .rag_model import RAGModel
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -14,8 +13,11 @@ import openai
 import PyPDF2
 import json
 from django.shortcuts import get_object_or_404
-from .models import TestTextbook, Rag
 from django.views.decorators.csrf import csrf_exempt
+import pytesseract
+from pdf2image import convert_from_path
+from PIL import Image 
+from PyPDF2 import PdfReader
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -23,16 +25,6 @@ logger = logging.getLogger(__name__)
 # OpenAI API Key
 openai.api_key = settings.OPENAI_API_KEY
 
-def get_rag_model():
-    global rag_model
-    if rag_model is None:
-        rag_model = RAGModel()
-    return rag_model
-
-def get_rag_model():
-    """Initialize or return the RAG model."""
-    # Add retrieval and generation pipeline logic here
-    pass
 
 
 def test_textbook_view(request):
@@ -266,11 +258,14 @@ def home_view(request):
 
 def dashboard_view(request):
     """Dashboard view."""
+    
     if request.user.is_authenticated:
+        is_first_login = request.user.last_login is None
         context = {
             'username': request.user.username,
             'tests': Test.objects.all(),
             'streak': request.user.profile.streak if request.user.is_authenticated else 0,
+            'is_first_login': is_first_login,
         }
         return render(request, 'core/dashboard.html', context)
     else:
@@ -289,39 +284,74 @@ def ranking_view(request):
         }
         return render(request, 'core/ranking.html', context)
     
+
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
 @csrf_exempt
 def generate_questions(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            print("Received data:", data)  # Debug print (check your server logs)
             pdf_url = data.get('pdf_url')
             start_page = data.get('start_page')
             end_page = data.get('end_page')
-            
+
             if not (pdf_url and start_page and end_page):
-                return JsonResponse({"error": "Missing required fields"}, status=400)
-            
+                return JsonResponse({"error": "Липсват задължителни полета."}, status=400)
+
             # Load PDF content from the provided URL
             pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_url))
-            with open(pdf_path, 'rb') as pdf_file:
-                pdf_reader = PyPDF2.PdfReader(pdf_file)
-                if start_page > len(pdf_reader.pages) or end_page > len(pdf_reader.pages):
-                    return JsonResponse({"error": "Page range exceeds the number of pages in the PDF."}, status=400)
+            if not os.path.exists(pdf_path):
+                return JsonResponse({"error": "PDF файлът не е намерен."}, status=404)
 
-                # Extract text from the specified pages
-                extracted_texts = [
-                    pdf_reader.pages[page_num].extract_text()
-                    for page_num in range(start_page - 1, end_page)
-                ]
+            # Extract text from PDF pages
+            extracted_texts = []
+            pdf_reader = PdfReader(pdf_path)
+            for page_num in range(start_page - 1, end_page):
+                page = pdf_reader.pages[page_num]
+                text = page.extract_text()
+                if text.strip():  # If text is extracted successfully
+                    extracted_texts.append(text)
+                else:
+                    # If no text is extracted, use OCR on the page image
+                    images = convert_from_path(pdf_path, first_page=page_num + 1, last_page=page_num + 1, dpi=300)
+                    for image in images:
+                        ocr_text = pytesseract.image_to_string(image, lang='bul')  # Use Bulgarian language for OCR
+                        extracted_texts.append(ocr_text)
 
-            # Use the RAG model to generate questions from the extracted tex
-            questions = rag_model.generate_questions_from_pages(extracted_texts)
+            # Combine extracted text into a single prompt
+            combined_text = "\n".join(extracted_texts).strip()
+
+            if not combined_text:
+                return JsonResponse({"error": "No text could be extracted from the selected pages. Please try different pages."}, status=400)
+
+            prompt = (
+                "Ти си AI, който генерира въпроси с множество отговори от текст. "
+                "Като използваш следното съдържание, генерирай списък от въпроси с четири опции за отговор, "
+                "и посочи правилния отговор за всеки въпрос:\n\n"
+                f"{combined_text}\n\n"
+                "Форматирай отговора си като JSON масив от обекти, където всеки обект съдържа "
+                "'question' (въпрос), 'options' (списък от четири стринга) и 'answer' (правилният отговор)."
+            )
+
+            # Use OpenAI API to generate questions
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "Ти си полезен асистент."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=1500,
+                temperature=0.7
+            )
+
+            questions = json.loads(response['choices'][0]['message']['content'])
 
             if not questions:
-                return JsonResponse({"error": "No questions were generated by the RAG model."}, status=400)
+                return JsonResponse({"error": "OpenAI не успя да генерира въпроси."}, status=400)
             return JsonResponse({"questions": questions})
         except Exception as e:
-            return JsonResponse({"error": "Something went wrong", "details": str(e)}, status=500)
+            return JsonResponse({"error": "Възникна грешка.", "details": str(e)}, status=500)
     else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
+        return JsonResponse({"error": "Невалиден метод на заявка."}, status=400)
