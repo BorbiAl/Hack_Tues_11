@@ -1,27 +1,28 @@
 {% load static %}
-{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BAi Ganio - Test Question</title>
-  <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
-  <link rel="stylesheet" href="{% static 'core/css/test_question.css' %}">
+  <title>BAi Ganio</title>
+  <link rel="icon" type="image/x-icon" href="../core/css/icons8-idea.svg">
+  <link rel="stylesheet" href="{% static 'core/css/ranking.css' %}">
+
   <style>
     body {
       margin: 0;
       font-family: 'Nunito', sans-serif;
       background-color: #ffffff;
       color: #3d0066;
-      font-size: 1rem;
     }
+  
     .container {
       max-width: 75rem;
       margin: 0 auto;
       padding: 1.25rem;
     }
-
+  
     .header {
       display: flex;
       justify-content: space-between;
@@ -35,29 +36,34 @@
       z-index: 1000;
       box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
     }
+  
     .header-logo {
       font-size: 1.5rem;
       font-weight: bold;
     }
+  
     .header-streak {
       display: flex;
       align-items: center;
     }
+  
     .header-streak .icon {
       width: 2rem;
       height: 2rem;
       margin-right: 0.5rem;
     }
+  
     .streak-number {
       font-size: 1.25rem;
       font-weight: bold;
     }
-
+  
     .main-content {
       display: flex;
       margin-top: 1.25rem;
+      flex-direction: row;
     }
-
+  
     .sidebar {
       width: 15rem;
       background-color: #3d0066;
@@ -66,17 +72,14 @@
       margin-left: 3rem;
       margin-right: 1.25rem;
       box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-      height: auto;
-      display: flex;
-      flex-direction: column;
     }
-
+  
     .nav-list {
       list-style: none;
       padding: 0;
       margin: 0;
     }
-
+  
     .nav-item {
       display: flex;
       align-items: center;
@@ -87,162 +90,206 @@
       border-radius: 0.625rem;
       transition: background-color 0.3s ease, transform 0.1s ease;
     }
-
+  
     .nav-item:hover {
       background-color: #c670ff;
       transform: scale(1.02);
     }
-
+  
     .nav-item:focus {
       outline: 0.125rem solid #d6a800;
       outline-offset: 0.25rem;
     }
-
+  
     .nav-item:active {
       transform: scale(0.98);
     }
-
+  
     .nav-item.active {
       background-color: #d6a800;
       color: #3d0066;
     }
-
+  
     .nav-icon {
       width: 1.5rem;
       height: 1.5rem;
       margin-right: 0.75rem;
     }
-
+  
     .content {
       flex-grow: 1;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-      flex-direction: column;
+      flex-direction: row;
       grid-gap: 1.25rem;
     }
+  
 
-    .test-framework-card {
+    .ranking-card {
       background-color: #eec7fc;
-      width: 50rem;
+      width: 50rem;;
       border-radius: 0.625rem;
       box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
       text-align: center;
+      height: 25rem;
       display: grid;
       margin-right: 1.25rem;
-      padding: 1.5rem;
-      height: auto;
+      
     }
 
-    .test-framework-card h2 {
-      margin-top: 0;
+    .ranking-card h2 {
+      margin: 0 0 1rem;
       font-size: 3rem;
-      color: #3d0066;
     }
-    .question {
+
+    .ranking-card h3 {
+      margin: 0.5rem 0;
       font-size: 1.75rem;
-      margin: 1.5rem 0;
     }
-    .answer-group {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin: 0 1.5rem 0 1.5rem;
-      padding: 0.5rem;
-      justify-content: center;
+
+    .ranking-card p {
+      margin-bottom: 1.25rem;
+      font-size: 1.75rem;
     }
-    .answer-button {
-      background-color: #3d0066;
-      color: #ffffff;
-      border: none;
-      border-radius: 0.625rem;
-      padding: 1rem;
-      font-size: 1.25rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      margin-bottom: 0.75rem;
-      justify-content: center;
+
+    .leaderboard-list {
+      list-style: none;
+      margin: 0;
+      padding: 2rem;
+      font-size: 1.125rem;
+    }
+
+    .leaderboard-item {
       display: flex;
       align-items: center;
+      background-color: #d6a800;
+      color: #3d0066;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.625rem;
+      justify-content: center;
+      font-weight: bold;
+      opacity: 0.6;
+      padding-left: 10%;
+      padding-right: 10%;
     }
-    .answer-button:hover {
-      background-color: #2b004f;
-      transform: scale(1.02);
-    }
-    .answer-button:active {
-      transform: scale(0.98);
-    }
+
     @media (max-width: 48rem) {
       .main-content {
-        flex-direction: column;
+        flex-direction: row;
       }
+
       .sidebar {
         width: 100%;
         margin-bottom: 1.25rem;
       }
+
+      .footer {
+        text-align: center;
+        padding: 1.25rem;
+        background-color: #3d0066;
+        color: #ffffff;
+        border-radius: 0.625rem;
+      }
+
+      .footer a {
+        color: #ffffff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 1.25rem;
+        background-color: #3d0066;
+        color: #ffffff;
+        border-radius: 0.625rem;
+      }
+
+      .username {
+        color: #d6a800;
+      }
+
+      .footer a {
+        color: #ffffff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer a:hover {
+        color: #d6a800;
+      }
+
+      .footer a:hover {
+        color: #d6a800;
+      }
+
     }
   </style>
-</head>
+
 <body>
   <div class="container">
     <header class="header">
       <div class="header-logo">bAIganio</div>
       <div class="header-streak">
         <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="icon" />
-        <span class="streak-number">5</span>
+          <span class="streak-number">{{ streak }}</span>
       </div>
     </header>
+
     <div class="main-content">
+
       <aside class="sidebar">
         <ul class="nav-list">
           <li>
             <a href="{% url 'dashboard' %}" class="nav-item">
+
               <img src="{% static 'core/css/home.png' %}?v=2" alt="Home Icon" class="nav-icon">
               <span>Home</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'ranking' %}" class="nav-item">
+            <a href="{% url 'ranking' %}" class="nav-item active">
+
               <img src="{% static 'core/css/ranking.png' %}?v=2" alt="Ranking Icon" class="nav-icon">
               <span>Ranking</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'test_textbook' %}" class="nav-item active">
+            <a href="{% url 'test_textbook' %}" class="nav-item">
               <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon">
               <span>Tests</span>
             </a>
           </li>
-          <li>
             <a href="{% url 'profile' %}" class="nav-item">
+
               <img src="{% static 'core/css/profile.png' %}?v=2" alt="Profile Icon" class="nav-icon" />
               <span>Profile</span>
             </a>
           </li>
         </ul>
       </aside>
-    <div class="content">
-      <div class="test-framework-card">
-        <h2>Question {{ current_question_index }} of {{ total_questions }}</h2>
-        {% if question %}
-          <p class="question">{{ question }}</p>
-          <form method="POST">
-            {% csrf_token %}
-            <div class="answer-group">
-                {% for option in answers %}
-                <label class="answer-button">
-                    <input type="radio" name="selected_answer" value="{{ option }}" required>
-                    {{ option }}
-                </label>
-                {% endfor %}
-            </div>
-            <button class="answer-button" type="submit">Submit</button>
-        </form>
-        {% else %}
-          <p>No more questions available.</p>
-        {% endif %}
+
+
+      <div class="ranking-container">
+        <div class="ranking-card">
+          <h2>Welcome, <span class="username">{{ username }}</span>!</h2>
+          <div class="leaderboard">
+            <h3>Leaderboard</h3>
+            <ul class="leaderboard-list">
+              {% for ranking in rankings %}
+              <li class="leaderboard-item">
+                <span class="rank">{{ forloop.counter }}.</span>
+                <span class="username">{{ ranking.username }}</span>
+                <span class="score">{{ ranking.score }} points</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  </div>
-  </body>
+</body>
+
 </html>
