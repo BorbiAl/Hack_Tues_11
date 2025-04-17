@@ -13,8 +13,6 @@ import logging
 import openai
 import PyPDF2
 import json
-from django.shortcuts import get_object_or_404
-from .models import TestTextbook, Rag
 from django.views.decorators.csrf import csrf_exempt
 
 # Initialize logger
@@ -41,7 +39,7 @@ def test_textbook_view(request):
     files = []
 
     # Fetch all PDF files in the media directory
-    for root, _, filenames in os.walk(media_path):
+    for root, dirs, filenames in os.walk(media_path):
         for file_name in filenames:
             if file_name.lower().endswith('.pdf'):
                 relative_path = os.path.relpath(os.path.join(root, file_name), media_path)
@@ -50,7 +48,7 @@ def test_textbook_view(request):
                     'url': f"{settings.MEDIA_URL}{relative_path.replace(os.sep, '/')}"
                 })
 
-    context = {'files': sorted(files, key=lambda x: x['name'])}     
+    context = {'files': sorted(files, key=lambda x: x['name'])}
     return render(request, 'core/test_textbook.html', context)
 
 
@@ -71,40 +69,22 @@ def parse_generated_questions(generated_text):
         })
     return questions
 
-def test_question_view(request, textbook_id):
-    """View to display and handle test questions loaded from Rag questions."""
-    # Retrieve the textbook and its associated Rag instance
-    textbook = get_object_or_404(TestTextbook, id=textbook_id)
-    rag = get_object_or_404(Rag, textbook=textbook)
-    
-    # Load the questions from the Rag instance. Assume the TestQuestion model
-    # contains 'question_text', 'answer', and 'options' attributes.
-    questions_qs = rag.get_questions()
-    questions = []
-    for q in questions_qs:
-        questions.append({
-            'question': q.question_text,
-            'answer': q.answer,         # Ensure your model has this field
-            'options': q.options,       # Ensure your model has this field (list or similar structure)
-        })
-
-    # If the session hasn't been initialized with questions, do so once.
-    if 'questions' not in request.session:
-        request.session['questions'] = questions
-        request.session['current_question_index'] = 0
-        request.session['results'] = []
-    
+def test_question_view(request):
+    """View to display and handle test questions using minimal session writes."""
+    # Retrieve questions and current index once, to minimize session access.
+    questions = request.session.get('questions', [])
     current_question_index = request.session.get('current_question_index', 0)
-    session_questions = request.session.get('questions', questions)
 
     if request.method == 'POST':
-        # Process the submitted answer.
+        # Get the selected answer from POST data
         selected_answer = request.POST.get('selected_answer', '')
-        current_question = session_questions[current_question_index]
+
+        # Get the current question once, and compute correctness.
+        current_question = questions[current_question_index]
         correct_answer = current_question.get('answer', '')
         is_correct = (selected_answer == correct_answer)
 
-        # Record the result with minimal session data
+        # Append only minimal data to results (avoid duplicating full question text/options)
         results = request.session.get('results', [])
         results.append({
             'selected_answer': selected_answer,
@@ -112,29 +92,29 @@ def test_question_view(request, textbook_id):
         })
         request.session['results'] = results
 
-        # Increment the current question index.
+        # Increment and update current question index in session
         current_question_index += 1
         request.session['current_question_index'] = current_question_index
 
-        # Redirect to the next question or the test result view.
-        if current_question_index < len(session_questions):
-            return redirect('test_question', textbook_id=textbook_id)
+        # Redirect based on whether there are more questions
+        if current_question_index < len(questions):
+            return redirect('test_question')
         else:
-            return redirect('test_result', textbook_id=textbook_id)
+            return redirect('test_result')
 
     else:
-        # GET request: display the current question.
-        if current_question_index < len(session_questions):
-            current_question = session_questions[current_question_index]
+        # If it's a GET request, display the current question
+        if current_question_index < len(questions):
+            current_question = questions[current_question_index]
             context = {
                 'question': current_question.get('question', ''),
                 'answers': current_question.get('options', []),
                 'current_question_index': current_question_index + 1,
-                'total_questions': len(session_questions),
+                'total_questions': len(questions)
             }
             return render(request, 'core/test_question.html', context)
         else:
-            return redirect('test_result', textbook_id=textbook_id)
+            return redirect('test_result')
 
 def test_creation_view(request):
     """View to generate test questions from a selected PDF."""
@@ -180,31 +160,8 @@ def test_creation_view(request):
 
     return redirect('test_textbook')
 
-from datetime import date
-
 def test_result_view(request):
     """View to display test results."""
-    if request.user.is_authenticated:
-        profile = request.user.profile
-        today = date.today()
-    
-        if profile.last_test_date == today:
-            profile.streak += 1  # Increment streak
-        else:
-            # Check if the streak is not continuous (last test date is not today)
-            if profile.last_test_date != today:
-                if (today - profile.last_test_date).days == 1:
-                    pass
-                else:
-                    # Reset streak to 0 if it's not the next day
-                    profile.streak = 0
-            else:
-                profile.streak = 1  # Reset streak to 1 for a new day
-
-        # Update the last test date
-        profile.last_test_date = today
-        profile.save()
-
     results = request.session.get('results', [])
     total_questions = len(results)
     correct_answers = sum(1 for result in results if result['is_correct'])
@@ -214,8 +171,7 @@ def test_result_view(request):
         'total_questions': total_questions,
         'correct_answers': correct_answers,
         'wrong_answers_count': wrong_answers_count,
-        'results': results,
-        'streak': request.user.profile.streak if request.user.is_authenticated else 0,
+        'results': results
     }
     return render(request, 'core/test_result.html', context)
 
@@ -226,7 +182,6 @@ def profile_view(request):
     context = {
         'username': request.user.username,
         'tests': tests,
-        'streak': request.user.profile.streak if request.user.is_authenticated else 0,
     }
     return render(request, 'core/profile.html', context)
 
@@ -270,7 +225,6 @@ def dashboard_view(request):
         context = {
             'username': request.user.username,
             'tests': Test.objects.all(),
-            'streak': request.user.profile.streak if request.user.is_authenticated else 0,
         }
         return render(request, 'core/dashboard.html', context)
     else:
@@ -284,44 +238,17 @@ def ranking_view(request):
                 {'username': 'JohnDoe', 'score': 95},
                 {'username': 'JaneSmith', 'score': 90},
                 {'username': 'AliceBrown', 'score': 85},
-            ],
-            'streak': request.user.profile.streak if request.user.is_authenticated else 0,
+            ]
         }
         return render(request, 'core/ranking.html', context)
     
-@csrf_exempt
 def generate_questions(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            print("Received data:", data)  # Debug print (check your server logs)
-            pdf_url = data.get('pdf_url')
-            start_page = data.get('start_page')
-            end_page = data.get('end_page')
-            
-            if not (pdf_url and start_page and end_page):
-                return JsonResponse({"error": "Missing required fields"}, status=400)
-            
-            # Load PDF content from the provided URL
-            pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_url))
-            with open(pdf_path, 'rb') as pdf_file:
-                pdf_reader = PyPDF2.PdfReader(pdf_file)
-                if start_page > len(pdf_reader.pages) or end_page > len(pdf_reader.pages):
-                    return JsonResponse({"error": "Page range exceeds the number of pages in the PDF."}, status=400)
-
-                # Extract text from the specified pages
-                extracted_texts = [
-                    pdf_reader.pages[page_num].extract_text()
-                    for page_num in range(start_page - 1, end_page)
-                ]
-
-            # Use the RAG model to generate questions from the extracted tex
+            extracted_texts = data.get('texts', [])
             questions = rag_model.generate_questions_from_pages(extracted_texts)
-
-            if not questions:
-                return JsonResponse({"error": "No questions were generated by the RAG model."}, status=400)
-            return JsonResponse({"questions": questions})
+            return JsonResponse({'questions': questions})
         except Exception as e:
-            return JsonResponse({"error": "Something went wrong", "details": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
