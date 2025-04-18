@@ -58,6 +58,7 @@ optax==0.2.4
 orbax-checkpoint==0.11.10
 packaging==24.2
 pandas==2.2.3
+pdf2image==1.17.0
 pdfminer.six==20250327
 pdfplumber==0.11.6
 pillow==11.2.1
@@ -72,6 +73,7 @@ Pygments==2.19.1
 PyMySQL==1.1.1
 PyPDF2==3.0.1
 pypdfium2==4.30.1
+pytesseract==0.3.13
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 pytz==2025.2

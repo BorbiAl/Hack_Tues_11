@@ -12,7 +12,6 @@ urlpatterns = [
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('test-textbook/', views.test_textbook_view, name='test_textbook'),
     path('test-result/', views.test_result_view, name='test_result'),
-    path('test-creation/', views.test_creation_view, name='test_creation'),
     path('test-question/', views.test_question_view, name='test_question'),
     path('generate-questions/', views.generate_questions, name='generate_questions'),
 ]
