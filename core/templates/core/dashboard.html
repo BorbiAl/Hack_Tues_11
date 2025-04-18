@@ -307,7 +307,11 @@
       <section class="content">
         <div class="welcome-card card">
           <h2>Hi, <span class="username">{{ username }}</span>!</h2>
-          <p>Welcome back! Let's continue your learning journey.</p>
+          {% if is_first_login %}
+            <p>Welcome! Let's start your learning journey.</p>
+          {% else %}
+            <p>Welcome back! Let's continue your learning journey</p>
+          {% endif %}
       </div>
         <div class="course-card card">
           <h3>Geography Exam</h3>
