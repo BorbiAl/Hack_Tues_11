@@ -1,126 +1,142 @@
 body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-    background-color: #d792ff;
-    color: #1a1a1a;
+  font-family: 'Nunito', sans-serif;
+  background-color: #ffffff;
+  color: #3d0066;
+  margin: 0;
+  padding: 0;
 }
 
-header {
-    background: #dfb7f7;
-    padding: 2rem;
-    font-size: 2rem;
-    border-bottom: 5px solid #b08ad9;
-    border-radius: 0 0 2rem 2rem;
+.container {
+  max-width: 100rem;
+  margin: auto;
+  padding: rem;
+}
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #3d0066;
+  color: #ffffff;
+  padding: 1rem 2rem;
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: bold;
 }
 
 .hero {
-    background: #c071f2;
-    padding: 6rem;
-    border-radius: 3rem;
-    margin: 2rem;
+  text-align: center;
+  padding: 6.25rem 1.25rem;
+  background-color: #eec7fc;
+  margin-top: 1.25rem;
 }
 
-.hero-content {
-    max-width: 600px;
-    margin: auto;
+.hero h1 {
+  padding-top: 1rem;
+  font-size: 3rem;
+  margin-bottom: 0.625rem;
+  color: #3d0066;
+  justify-content: center;
 }
 
-.buttons button {
-    padding: 1rem 2rem;
-    margin: 1rem;
-    cursor: pointer;
-    border: none;
-    font-size: 1.2rem;
-    border-radius: 2rem;
-    transition: all 0.3s ease;
+.hero p {
+  font-size: 1.25rem;
+  color: #c670ff;
+  margin-bottom: 1.25rem;
 }
 
-.primary {
-    background: #1900ff;
-    color: white;
-    border: none;
+.hero img {
+  justify-content: center;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 1.25rem;
 }
 
-.primary:hover {
-    background: #1400cc;
+.hero-buttons {
+  display: flex;
+  justify-content: center;
+  padding-left: 6rem;
+  padding-right: 10rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  gap: 8rem;
 }
 
-.secondary {
-    background: white;
-    color: #1900ff;
-    border: solid #1900ff;
+.primary, .secondary {
+  background: #f8e16f;
+  color: #3d0066;
+  padding: 1rem 2rem;
+  font-size: 1.25rem;
+  border-radius: 2rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  background-color: #f8e16f;
+  color: #3d0066;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  background-image: linear-gradient(135deg, #f8e16f, #ffe047);
+  animation: pulse 2s infinite;
+  width: 12rem; /* Ensures both buttons have the same width */
+  text-align: center;
 }
 
-.secondary:hover {
-    background: #1900ff;
-    color: white;
+.primary:hover, .secondary:hover {
+  font-size: 1.5rem;
+  background: #ffffff;
+  color: #3d0066;
+  animation-play-state: paused;
+  background-image: none;
+  transform: scale(1.1);
 }
 
-.subjects {
-    padding: 4rem;
-    background: white;
-    border-radius: 2rem;
-    margin: 2rem;
-    display: flex;
-    justify-content: flex-end;  /* Align the subjects to the right */
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
-.subject-list {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
+.features {
+  display: flex;
+  justify-content: space-around;
+  margin: 3.125rem 0;
 }
 
-.subject-card {
-    background: #f8f8ff;
-    width: 6rem;
-    height: 6rem;
-    text-align: center;
-    font-size: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 2rem;
-    transition: transform 0.3s ease;
+.feature-card {
+  background-color: #ffffff;
+  padding: 1.25rem;
+  border: 1px solid #eec7fc;
+  border-radius: 0.625rem;
+  text-align: center;
+  box-shadow: 0.125rem 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+  width: 30%;
+  color: #3d0066;
 }
 
-.subject-card:hover {
-    transform: scale(1.1);
+.feature-card img {
+  width: 7rem;
+  height: 8rem;
+  margin-bottom: 1rem;
 }
 
-.contact {
-    background: #d792ff;
-    padding: 4rem;
-    border-radius: 3rem;
-    margin: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Align the input fields to the left */
+.footer {
+  text-align: center;
+  padding: 1.25rem;
+  background-color: #3d0066;
+  color: #ffffff;
+  border-radius: 0.625rem;
 }
 
-form input, form textarea {
-    display: block;
-    width: 90%;
-    margin: 1rem auto;
-    padding: 1rem;
-    border: solid #d4d4d4;
-    border-radius: 1rem;
-    font-size: 1rem;
+.footer a {
+  color: #ffffff;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-form button {
-    background: #4f28ff;
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: 2rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-form button:hover {
-    background: #3a1bbb;
+.footer a:hover {
+  color: #ffe047;
 }

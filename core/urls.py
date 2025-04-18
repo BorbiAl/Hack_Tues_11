@@ -14,8 +14,8 @@ urlpatterns = [
     path('test-result/', views.test_result_view, name='test_result'),
     path('test-question/', views.test_question_view, name='test_question'),
     path('generate-questions/', views.generate_questions, name='generate_questions'),
-    path('api/saved-tests/', views.SavedTestsView.as_view(), name='saved_tests'),
-    path('api/save-test/', views.SaveTestView.as_view(), name='save_test'),
+    path('save-test/', views.save_test, name='save_test'),
+    path('saved-tests/', views.get_saved_tests, name='get_saved_tests'),
 ]
  
 if settings.DEBUG:

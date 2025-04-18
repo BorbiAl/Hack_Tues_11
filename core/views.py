@@ -333,41 +333,45 @@ def generate_questions(request):
         logger.exception("Unhandled error in generate_questions")
         return JsonResponse({"error": "Възникна грешка.", "details": str(e)}, status=500)
 
-@method_decorator(login_required, name='dispatch')
-class SavedTestsView(View):
-    def get(self, request):
-        try:
-            month = int(request.GET.get('month', datetime.now().month))
-            year = int(request.GET.get('year', datetime.now().year))
-            tests = Test.objects.filter(
-                user=request.user,
-                date__month=month,
-                date__year=year
-            ).values('date', 'subject')
-            return JsonResponse({'tests': list(tests)}, status=200)
-        except Exception as e:
-            return JsonResponse({'error': 'Failed to fetch saved tests.', 'details': str(e)}, status=500)
-
 @method_decorator(csrf_exempt, name='dispatch')
-@method_decorator(login_required, name='dispatch')
-class SaveTestView(View):
-    def post(self, request):
-        try:
-            data = json.loads(request.body)
-            date = data.get('date')
-            subject = data.get('subject')
+@login_required
+def save_test(request):
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        date = data.get('date')
+        subject_name = data.get('subject')
 
-            if not date or not subject:
-                return JsonResponse({'error': 'Both "date" and "subject" are required.'}, status=400)
+        # Get or create the subject
+        subject, _ = Subject.objects.get_or_create(name=subject_name)
 
-            # Parse and validate the date
-            try:
-                test_date = datetime.strptime(date, "%d/%m/%Y").date()
-            except ValueError:
-                return JsonResponse({'error': 'Invalid date format. Use "DD/MM/YYYY".'}, status=400)
+        # Save the test for the current user
+        test, created = Test.objects.get_or_create(
+            user=request.user,
+            date=date,
+            defaults={'subject': subject}
+        )
 
-            # Save the test
-            test = Test.objects.create(user=request.user, date=test_date, subject=subject)
-            return JsonResponse({'date': test.date.strftime("%d/%m/%Y"), 'subject': test.subject}, status=201)
-        except Exception as e:
-            return JsonResponse({'error': 'Failed to save the test.', 'details': str(e)}, status=500)
+        if not created:
+            test.subject = subject
+            test.save()
+
+        return JsonResponse({'message': 'Test saved successfully', 'date': date, 'subject': subject.name})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@login_required
+def get_saved_tests(request):
+    month = request.GET.get('month')
+    year = request.GET.get('year')
+
+    if not month or not year:
+        return JsonResponse({'error': 'Month and year are required'}, status=400)
+
+    tests = Test.objects.filter(
+        user=request.user,
+        date__year=year,
+        date__month=month
+    ).values('date', 'subject__name')
+
+    return JsonResponse({'tests': list(tests)})
