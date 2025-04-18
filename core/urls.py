@@ -14,7 +14,9 @@ urlpatterns = [
     path('test-result/', views.test_result_view, name='test_result'),
     path('test-question/', views.test_question_view, name='test_question'),
     path('generate-questions/', views.generate_questions, name='generate_questions'),
+    path('api/saved-tests/', views.SavedTestsView.as_view(), name='saved_tests'),
+    path('api/save-test/', views.SaveTestView.as_view(), name='save_test'),
 ]
-
+ 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

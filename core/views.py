@@ -18,6 +18,11 @@ import pytesseract
 from pdf2image import convert_from_path
 from PIL import Image 
 from PyPDF2 import PdfReader
+from datetime import datetime
+from django.views.decorators.http import require_POST
+from django.utils.timezone import make_aware
+from django.utils.decorators import method_decorator
+from django.views import View
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -328,3 +333,41 @@ def generate_questions(request):
         logger.exception("Unhandled error in generate_questions")
         return JsonResponse({"error": "Възникна грешка.", "details": str(e)}, status=500)
 
+@method_decorator(login_required, name='dispatch')
+class SavedTestsView(View):
+    def get(self, request):
+        try:
+            month = int(request.GET.get('month', datetime.now().month))
+            year = int(request.GET.get('year', datetime.now().year))
+            tests = Test.objects.filter(
+                user=request.user,
+                date__month=month,
+                date__year=year
+            ).values('date', 'subject')
+            return JsonResponse({'tests': list(tests)}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': 'Failed to fetch saved tests.', 'details': str(e)}, status=500)
+
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(login_required, name='dispatch')
+class SaveTestView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            date = data.get('date')
+            subject = data.get('subject')
+
+            if not date or not subject:
+                return JsonResponse({'error': 'Both "date" and "subject" are required.'}, status=400)
+
+            # Parse and validate the date
+            try:
+                test_date = datetime.strptime(date, "%d/%m/%Y").date()
+            except ValueError:
+                return JsonResponse({'error': 'Invalid date format. Use "DD/MM/YYYY".'}, status=400)
+
+            # Save the test
+            test = Test.objects.create(user=request.user, date=test_date, subject=subject)
+            return JsonResponse({'date': test.date.strftime("%d/%m/%Y"), 'subject': test.subject}, status=201)
+        except Exception as e:
+            return JsonResponse({'error': 'Failed to save the test.', 'details': str(e)}, status=500)

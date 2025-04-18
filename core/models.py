@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth.models import User
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -18,7 +17,7 @@ def save_user_profile(sender, instance, **kwargs):
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
         if not username:
-            raise ValueError("The Username field must be set")
+            raise ValueError('The Username field must be set')
         user = self.model(username=username, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -27,12 +26,6 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, username, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError("Superuser must have is_staff=True.")
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError("Superuser must have is_superuser=True.")
-
         return self.create_user(username, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -49,7 +42,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
-
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
@@ -59,6 +51,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+    
 
 
 class Subject(models.Model):
@@ -69,14 +62,16 @@ class Subject(models.Model):
 
 
 class Test(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=255)
     subject = models.ForeignKey('Subject', on_delete=models.CASCADE, related_name='tests')
-    grade = models.IntegerField()  # Grade (1 to 12)
-    question_data = models.JSONField(default=list)  # Store questions as JSON
-    created_at = models.DateTimeField(auto_now_add=True)  # Automatically set when the object is created
+    grade = models.IntegerField()
+    question_data = models.JSONField(default=list) 
+    created_at = models.DateTimeField(auto_now_add=True)  
+    date = models.DateField()
 
     def __str__(self):
-        return self.title
+        return f"({self.subject} on {self.date})"
 
 class Question(models.Model):
     test = models.ForeignKey(Test, related_name='question_set', on_delete=models.CASCADE)  # Renamed related_name
