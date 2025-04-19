@@ -9,6 +9,7 @@
   <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
   <link rel="stylesheet" href="{% static 'core/css/test_textbook.css' %}">
 </head>
+
 <body>
   <div class="container">
     <header class="header">
@@ -103,58 +104,81 @@
     });
   </script>
   <script>
+    // Define the getCookie function first
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("test-form"); // Corrected ID
+      const form = document.getElementById("test-form");
+      const loadingOverlay = document.getElementById("loading-overlay");
 
-  if (!form) {
-    console.error("Form with ID 'test-form' not found.");
-    return;
-  }
+      if (!form || !loadingOverlay) {
+        console.error("Required elements not found.");
+        return;
+      }
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
 
-    const pdfFilename = document.getElementById("pdf_file").value;
-    const startPage = parseInt(document.getElementById("start_page").value);
-    const endPage = parseInt(document.getElementById("end_page").value);
+        const pdfFilename = document.getElementById("pdf_file").value;
+        const startPage = parseInt(document.getElementById("start_page").value);
+        const endPage = parseInt(document.getElementById("end_page").value);
 
-    if (!pdfFilename || isNaN(startPage) || isNaN(endPage)) {
-      alert("Моля, попълнете всички полета правилно.");
-      return;
-    }
+        if (!pdfFilename || isNaN(startPage) || isNaN(endPage)) {
+          alert("Моля, попълнете всички полета правилно.");
+          return;
+        }
 
-    fetch("/generate-questions/", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    pdf_filename: pdfFilename,
-    start_page: startPage,
-    end_page: endPage,
-  }),
-})
-  .then((res) => {
-    console.log("Raw response:", res); // Log the raw response
-    return res.json(); // Attempt to parse as JSON
-  })
-  .then((data) => {
-    if (data.error) {
-      alert("Грешка: " + data.error);
-    } else {
-      // Save question to sessionStorage
-      sessionStorage.setItem("generatedQuestion", data.question);
-      // Redirect to test_question.html
-      window.location.href = "/test-question/";
-    }
-  })
-  .catch((err) => {
-    console.error("Error:", err);
-    alert("Възникна проблем при заявката.");
-  });
-  });
-});
-</script>
+        // Show the loading overlay when the form is submitted
+        loadingOverlay.style.display = "flex";
+
+        fetch("/generate-questions/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: JSON.stringify({
+            pdf_filename: pdfFilename,
+            start_page: startPage,
+            end_page: endPage,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("Backend response:", data);
+
+            if (data.question) { // Corrected: Access the 'question' property
+              // Save questions in sessionStorage
+              sessionStorage.setItem("generatedQuestion", JSON.stringify(data)); // Store the entire response
+              window.location.href = "/test-question/";
+            } else {
+              alert("Не бяха генерирани въпроси.");
+            }
+          })
+          .catch((err) => {
+            console.error("Error:", err);
+            alert("Възникна проблем при заявката.");
+          })
+          .finally(() => {
+            // Hide the loading overlay after the request is complete
+            loadingOverlay.style.display = "none";
+          });
+      });
+    });
+  </script>
 
 </body>
 

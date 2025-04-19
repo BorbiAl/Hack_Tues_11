@@ -10,16 +10,16 @@
   <link rel="stylesheet" href="{% static 'core/css/test_question.css' %}">
 </head>
 <body>
-  <div class="app-container">  <!-- Renamed container -->
-    <header class="app-header">  <!-- Renamed header -->
+  <div class="app-container">
+    <header class="app-header">
       <div class="header-logo">bAIganio</div>
       <div class="header-streak">
-        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="streak-icon" /> <!-- Renamed icon -->
-          <span class="streak-number">{{ streak }}</span>
+        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="streak-icon" />
+        <span class="streak-number">{{ streak }}</span>
       </div>
     </header>
     <div class="main-content">
-      <aside class="app-sidebar">  <!-- Renamed sidebar -->
+      <aside class="app-sidebar">
         <ul class="nav-list">
           <li>
             <a href="{% url 'dashboard' %}" class="nav-item">
@@ -47,81 +47,99 @@
           </li>
         </ul>
       </aside>
-    <div class="content">
-      <div class="test-framework-card"></div>
-      <div id="question-container">  <!-- More descriptive ID -->
-        <!-- Question will be dynamically inserted here -->
-      </div>
-      <script>
-        document.addEventListener("DOMContentLoaded", function () {
-          const container = document.getElementById("question-container");
-          const raw = sessionStorage.getItem("generatedQuestion");
-      
-          console.log("Raw question from sessionStorage:", raw); // Debugging
-      
-          if (!raw) {
-            container.innerHTML = "<p>Няма наличен въпрос.</p>";
-            return;
-          }
-      
-          // Parse the question block
-          const lines = raw.trim().split("\n");
-          let questionText = "";
-          let answers = [];
-          let correct = "";
-      
-          lines.forEach(line => {
-            if (line.startsWith("Въпрос:")) {
-              questionText = line.replace("Въпрос:", "").trim();
-            } else if (/^[АБВГ]\)/.test(line)) { // Corrected regex here
-              answers.push(line.trim());
-            } else if (line.startsWith("Правилен отговор:")) {
-              correct = line.replace("Правилен отговор:", "").trim();
-            }
-          });
-      
-          console.log("Question Text:", questionText); // Debugging
-          console.log("Answers:", answers); // Debugging
-          console.log("Correct Answer:", correct); // Debugging
-      
-          // Render it into the page
-          let html = `<h2 class="question-title">Тест въпрос</h2><p class="question-text">${questionText}</p><form id="question-form">`;
-      
-          answers.forEach((answer, i) => {
-            html += `
-                <label class="answer-option">
-                  <input type="radio" name="selected_answer" value="${answer[0]}" required>
-                  ${answer}
-                </label>
-              `;
-          });
-      
-          html += `<button class="submit-button" type="submit">Потвърди</button></form>`;
-      
-          container.innerHTML = html;
-      
-          // Handle answer submission
-          document.getElementById("question-form").addEventListener("submit", function (e) {
-            e.preventDefault();
-            const selected = document.querySelector('input[name="selected_answer"]:checked').value;
-      
-            if (selected === correct) {
-              alert("Правилен отговор! 🔥");
-              // optionally: increase streak or redirect
-            } else {
-              alert("Грешен отговор 😢 Правилният беше: " + correct);
-            }
-      
-            // Optionally clear sessionStorage or load next question
-            sessionStorage.removeItem("generatedQuestion");
-            window.location.href = "/test-textbook/"; // or next question
-          });
-        });
-      </script>
-      
+      <div class="content">
+        <div class="test-framework-card"></div>
+        <div id="question-container">
+          <!-- Question will be dynamically inserted here -->
+        </div>
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            const container = document.getElementById("question-container");
+            const rawResponse = sessionStorage.getItem("generatedQuestion");
 
+            console.log("Raw response from sessionStorage:", rawResponse);
+
+            if (!rawResponse) {
+              container.innerHTML = "<p>Няма наличен въпрос.</p>";
+              return;
+            }
+
+            try {
+              const response = JSON.parse(rawResponse);
+              const questionsText = response.question; // Extract the question string
+              const questions = questionsText.split(/\n(?=Въпрос:)/g); // Split into individual questions
+              console.log("Parsed questions count:", questions.length);
+              questions.forEach((q, i) => console.log(`Q${i + 1}:\n`, q));
+              let currentQuestionIndex = 0;
+
+              function renderQuestion(index) {
+                if (index >= questions.length) {
+                  container.innerHTML = "<p>Тестът приключи!</p>";
+                  sessionStorage.removeItem("generatedQuestion");
+                  window.location.href = "{% url 'test_result' %}"; // Redirect
+                  return;
+                }
+
+                const questionBlock = questions[index];
+                const lines = questionBlock.split('\n');
+
+                let questionText = "";
+                let answers = [];
+                let correct = "";
+
+                lines.forEach(line => {
+                  if (line.startsWith("Въпрос:")) {
+                    questionText = line.substring("Въпрос:".length).trim();
+                  } else if (/^[АБВГ]\)/.test(line)) {
+                    answers.push(line.trim());
+                  } else if (line.startsWith("Правилен отговор:")) {
+                    correct = line.substring("Правилен отговор:".length).trim();
+                  }
+                });
+
+                console.log("Question Text:", questionText);
+                console.log("Answers:", answers);
+                console.log("Correct Answer:", correct);
+
+                let html = `<h2 class="question-title">Тест въпрос ${index + 1}</h2><p class="question-text">${questionText}</p><form id="question-form">`;
+
+                answers.forEach((answer) => {
+                  html += `
+                    <label class="answer-option">
+                      <input type="radio" name="selected_answer" value="${answer[0]}" required>
+                      ${answer}
+                    </label>
+                  `;
+                });
+
+                html += `<button class="submit-button" type="submit">Потвърди</button></form>`;
+                container.innerHTML = html;
+
+                document.getElementById("question-form").addEventListener("submit", function (e) {
+                  e.preventDefault();
+                  const selected = document.querySelector('input[name="selected_answer"]:checked').value;
+
+                  if (selected === correct[0]) {
+                    alert("Правилен отговор! 🔥");
+                  } else {
+                    alert("Грешен отговор 😢 Правилният беше: " + correct);
+                  }
+
+                  currentQuestionIndex++;
+                  renderQuestion(currentQuestionIndex);
+                });
+              }
+
+              renderQuestion(currentQuestionIndex); // Start with the first question
+
+            } catch (error) {
+              console.error("Error parsing JSON:", error);
+              container.innerHTML = "<p>Грешка при обработката на въпросите.</p>";
+            }
+          });
+        </script>
+      </div>
     </div>
   </div>
-  </div>
-  </body>
+</body>
 </html>
