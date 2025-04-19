@@ -8,191 +8,18 @@
   <title>BAi Ganio - Test Question</title>
   <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
   <link rel="stylesheet" href="{% static 'core/css/test_question.css' %}">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Nunito', sans-serif;
-      background-color: #ffffff;
-      color: #3d0066;
-      font-size: 1rem;
-    }
-    .container {
-      max-width: 75rem;
-      margin: 0 auto;
-      padding: 1.25rem;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #3d0066;
-      color: #ffffff;
-      padding: 1rem 2rem;
-      border-radius: 0.625rem;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-    }
-    .header-logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-    .header-streak {
-      display: flex;
-      align-items: center;
-    }
-    .header-streak .icon {
-      width: 2rem;
-      height: 2rem;
-      margin-right: 0.5rem;
-    }
-    .streak-number {
-      font-size: 1.25rem;
-      font-weight: bold;
-    }
-
-    .main-content {
-      display: flex;
-      margin-top: 1.25rem;
-    }
-
-    .sidebar {
-      width: 15rem;
-      background-color: #3d0066;
-      padding: 1.25rem;
-      border-radius: 0.625rem;
-      margin-left: 3rem;
-      margin-right: 1.25rem;
-      box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-      height: auto;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .nav-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-      color: #ffffff;
-      padding: 0.75rem 1rem;
-      margin-bottom: 1rem;
-      border-radius: 0.625rem;
-      transition: background-color 0.3s ease, transform 0.1s ease;
-    }
-
-    .nav-item:hover {
-      background-color: #c670ff;
-      transform: scale(1.02);
-    }
-
-    .nav-item:focus {
-      outline: 0.125rem solid #d6a800;
-      outline-offset: 0.25rem;
-    }
-
-    .nav-item:active {
-      transform: scale(0.98);
-    }
-
-    .nav-item.active {
-      background-color: #d6a800;
-      color: #3d0066;
-    }
-
-    .nav-icon {
-      width: 1.5rem;
-      height: 1.5rem;
-      margin-right: 0.75rem;
-    }
-
-    .content {
-      flex-grow: 1;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-      flex-direction: column;
-      grid-gap: 1.25rem;
-    }
-
-    .test-framework-card {
-      background-color: #eec7fc;
-      width: 50rem;
-      border-radius: 0.625rem;
-      box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-      text-align: center;
-      display: grid;
-      margin-right: 1.25rem;
-      padding: 1.5rem;
-      height: auto;
-    }
-
-    .test-framework-card h2 {
-      margin-top: 0;
-      font-size: 3rem;
-      color: #3d0066;
-    }
-    .question {
-      font-size: 1.75rem;
-      margin: 1.5rem 0;
-    }
-    .answer-group {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin: 0 1.5rem 0 1.5rem;
-      padding: 0.5rem;
-      justify-content: center;
-    }
-    .answer-button {
-      background-color: #3d0066;
-      color: #ffffff;
-      border: none;
-      border-radius: 0.625rem;
-      padding: 1rem;
-      font-size: 1.25rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      margin-bottom: 0.75rem;
-      justify-content: center;
-      display: flex;
-      align-items: center;
-    }
-    .answer-button:hover {
-      background-color: #2b004f;
-      transform: scale(1.02);
-    }
-    .answer-button:active {
-      transform: scale(0.98);
-    }
-    @media (max-width: 48rem) {
-      .main-content {
-        flex-direction: column;
-      }
-      .sidebar {
-        width: 100%;
-        margin-bottom: 1.25rem;
-      }
-    }
-  </style>
 </head>
 <body>
-  <div class="container">
-    <header class="header">
+  <div class="app-container">  <!-- Renamed container -->
+    <header class="app-header">  <!-- Renamed header -->
       <div class="header-logo">bAIganio</div>
       <div class="header-streak">
-        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="icon" />
+        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="streak-icon" /> <!-- Renamed icon -->
           <span class="streak-number">{{ streak }}</span>
       </div>
     </header>
     <div class="main-content">
-      <aside class="sidebar">
+      <aside class="app-sidebar">  <!-- Renamed sidebar -->
         <ul class="nav-list">
           <li>
             <a href="{% url 'dashboard' %}" class="nav-item">
@@ -221,26 +48,78 @@
         </ul>
       </aside>
     <div class="content">
-      <div class="test-framework-card">
-        <h2>Question {{ current_question_index }} of {{ total_questions }}</h2>
-        {% if question %}
-          <p class="question">{{ question }}</p>
-          <form method="POST">
-            {% csrf_token %}
-            <div class="answer-group">
-                {% for option in answers %}
-                <label class="answer-button">
-                    <input type="radio" name="selected_answer" value="{{ option }}" required>
-                    {{ option }}
-                </label>
-                {% endfor %}
-            </div>
-            <button class="answer-button" type="submit">Submit</button>
-        </form>
-        {% else %}
-          <p>No more questions available.</p>
-        {% endif %}
+      <div class="test-framework-card"></div>
+      <div id="question-container">  <!-- More descriptive ID -->
+        <!-- Question will be dynamically inserted here -->
       </div>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          const container = document.getElementById("question-container");
+          const raw = sessionStorage.getItem("generatedQuestion");
+      
+          console.log("Raw question from sessionStorage:", raw); // Debugging
+      
+          if (!raw) {
+            container.innerHTML = "<p>Няма наличен въпрос.</p>";
+            return;
+          }
+      
+          // Parse the question block
+          const lines = raw.trim().split("\n");
+          let questionText = "";
+          let answers = [];
+          let correct = "";
+      
+          lines.forEach(line => {
+            if (line.startsWith("Въпрос:")) {
+              questionText = line.replace("Въпрос:", "").trim();
+            } else if (/^[АБВГ]\)/.test(line)) { // Corrected regex here
+              answers.push(line.trim());
+            } else if (line.startsWith("Правилен отговор:")) {
+              correct = line.replace("Правилен отговор:", "").trim();
+            }
+          });
+      
+          console.log("Question Text:", questionText); // Debugging
+          console.log("Answers:", answers); // Debugging
+          console.log("Correct Answer:", correct); // Debugging
+      
+          // Render it into the page
+          let html = `<h2 class="question-title">Тест въпрос</h2><p class="question-text">${questionText}</p><form id="question-form">`;
+      
+          answers.forEach((answer, i) => {
+            html += `
+                <label class="answer-option">
+                  <input type="radio" name="selected_answer" value="${answer[0]}" required>
+                  ${answer}
+                </label>
+              `;
+          });
+      
+          html += `<button class="submit-button" type="submit">Потвърди</button></form>`;
+      
+          container.innerHTML = html;
+      
+          // Handle answer submission
+          document.getElementById("question-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const selected = document.querySelector('input[name="selected_answer"]:checked').value;
+      
+            if (selected === correct) {
+              alert("Правилен отговор! 🔥");
+              // optionally: increase streak or redirect
+            } else {
+              alert("Грешен отговор 😢 Правилният беше: " + correct);
+            }
+      
+            // Optionally clear sessionStorage or load next question
+            sessionStorage.removeItem("generatedQuestion");
+            window.location.href = "/test-textbook/"; // or next question
+          });
+        });
+      </script>
+      
+
     </div>
   </div>
   </div>
