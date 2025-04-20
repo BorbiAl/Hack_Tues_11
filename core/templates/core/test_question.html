@@ -2,6 +2,7 @@
 {% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
   <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
   <link rel="stylesheet" href="{% static 'core/css/test_question.css' %}">
 </head>
+
 <body>
   <div class="app-container">
     <header class="app-header">
@@ -48,98 +50,119 @@
         </ul>
       </aside>
       <div class="content">
-        <div class="test-framework-card"></div>
-        <div id="question-container">
-          <!-- Question will be dynamically inserted here -->
+        <div class="test-framework-card">
+          <div id="question-container">
+            <!-- Question will be dynamically inserted here -->
+          </div>
+        </div>
+        <div id="custom-alert" class="custom-alert hidden">
+          <div class="custom-alert-box">
+            <p id="alert-message"></p>
+            <button onclick="closeCustomAlert()">OK</button>
+          </div>
         </div>
         <script>
           document.addEventListener("DOMContentLoaded", function () {
             const container = document.getElementById("question-container");
-            const rawResponse = sessionStorage.getItem("generatedQuestion");
+            const raw = sessionStorage.getItem("generatedQuestion");
 
-            console.log("Raw response from sessionStorage:", rawResponse);
-
-            if (!rawResponse) {
+            if (!raw) {
               container.innerHTML = "<p>Няма наличен въпрос.</p>";
               return;
             }
 
+            let data;
             try {
-              const response = JSON.parse(rawResponse);
-              const questionsText = response.question; // Extract the question string
-              const questions = questionsText.split(/\n(?=Въпрос:)/g); // Split into individual questions
-              console.log("Parsed questions count:", questions.length);
-              questions.forEach((q, i) => console.log(`Q${i + 1}:\n`, q));
-              let currentQuestionIndex = 0;
+              data = JSON.parse(raw);
+            } catch (err) {
+              container.innerHTML = "<p>Грешка при зареждане на въпросите.</p>";
+              return;
+            }
 
-              function renderQuestion(index) {
-                if (index >= questions.length) {
-                  container.innerHTML = "<p>Тестът приключи!</p>";
-                  sessionStorage.removeItem("generatedQuestion");
-                  window.location.href = "{% url 'test_result' %}"; // Redirect
-                  return;
-                }
+            const questionsText = data.question;
+            const questionBlocks = questionsText.split(/\n(?=Въпрос:)/g);
+            let currentIndex = 0;
+            let results = [];
 
-                const questionBlock = questions[index];
-                const lines = questionBlock.split('\n');
+            function showAlert(message, callback) {
+              document.getElementById("alert-message").textContent = message;
+              document.getElementById("custom-alert").classList.remove("hidden");
 
-                let questionText = "";
-                let answers = [];
-                let correct = "";
+              document.querySelector("#custom-alert button").onclick = () => {
+                document.getElementById("custom-alert").classList.add("hidden");
+                if (callback) callback();
+              };
+            }
 
-                lines.forEach(line => {
-                  if (line.startsWith("Въпрос:")) {
-                    questionText = line.substring("Въпрос:".length).trim();
-                  } else if (/^[АБВГ]\)/.test(line)) {
-                    answers.push(line.trim());
-                  } else if (line.startsWith("Правилен отговор:")) {
-                    correct = line.substring("Правилен отговор:".length).trim();
-                  }
-                });
+            function closeCustomAlert() {
+              document.getElementById("custom-alert").classList.add("hidden");
+            }
 
-                console.log("Question Text:", questionText);
-                console.log("Answers:", answers);
-                console.log("Correct Answer:", correct);
-
-                let html = `<h2 class="question-title">Тест въпрос ${index + 1}</h2><p class="question-text">${questionText}</p><form id="question-form">`;
-
-                answers.forEach((answer) => {
-                  html += `
-                    <label class="answer-option">
-                      <input type="radio" name="selected_answer" value="${answer[0]}" required>
-                      ${answer}
-                    </label>
-                  `;
-                });
-
-                html += `<button class="submit-button" type="submit">Потвърди</button></form>`;
-                container.innerHTML = html;
-
-                document.getElementById("question-form").addEventListener("submit", function (e) {
-                  e.preventDefault();
-                  const selected = document.querySelector('input[name="selected_answer"]:checked').value;
-
-                  if (selected === correct[0]) {
-                    alert("Правилен отговор! 🔥");
-                  } else {
-                    alert("Грешен отговор 😢 Правилният беше: " + correct);
-                  }
-
-                  currentQuestionIndex++;
-                  renderQuestion(currentQuestionIndex);
-                });
+            function renderQuestion(index) {
+              if (index >= questionBlocks.length) {
+                sessionStorage.setItem("results", JSON.stringify(results));
+                sessionStorage.removeItem("generatedQuestion");
+                window.location.href = "{% url 'test_result' %}";
+                return;
               }
 
-              renderQuestion(currentQuestionIndex); // Start with the first question
+              const block = questionBlocks[index];
+              const lines = block.trim().split('\n');
 
-            } catch (error) {
-              console.error("Error parsing JSON:", error);
-              container.innerHTML = "<p>Грешка при обработката на въпросите.</p>";
+              let questionText = "";
+              let answers = [];
+              let correctAnswer = "";
+
+              lines.forEach(line => {
+                if (line.startsWith("Въпрос:")) {
+                  questionText = line.replace("Въпрос:", "").trim();
+                } else if (/^[АБВГ]\)/.test(line)) {
+                  answers.push(line.trim());
+                } else if (line.startsWith("Правилен отговор:")) {
+                  correctAnswer = line.replace("Правилен отговор:", "").trim();
+                }
+              });
+
+              let html = `<h2 class="question-title">Въпрос ${index + 1}</h2>`;
+              html += `<p class="question-text">${questionText}</p>`;
+              html += `<form id="question-form">`;
+
+              answers.forEach(ans => {
+                html += `
+                  <label class="answer-option">
+                    <input type="radio" name="selected_answer" value="${ans[0]}" required> ${ans}
+                  </label>
+                `;
+              });
+              html += `</form>`;
+
+              container.innerHTML = html;
+
+              const form = document.getElementById("question-form");
+                form.addEventListener("change", function () {
+                const selected = form.selected_answer.value;
+
+                const isCorrect = selected === correctAnswer;
+                results.push({
+                  question: questionText,
+                  selected,
+                  correct: correctAnswer,
+                  is_correct: isCorrect
+                });
+
+                showAlert(isCorrect ? "Правилен отговор! 🔥" : `Грешен отговор 😢 Правилният беше: ${correctAnswer}`, () => {
+                  currentIndex++;
+                  renderQuestion(currentIndex);
+                });
+                });
             }
+
+            renderQuestion(currentIndex);
           });
         </script>
       </div>
     </div>
   </div>
 </body>
+
 </html>

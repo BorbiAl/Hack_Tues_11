@@ -159,6 +159,11 @@
           .then((res) => res.json())
           .then((data) => {
             console.log("Backend response:", data);
+            if (data.questions && data.questions.length > 0) {
+              console.log("Generated questions:", data.questions);
+            } else {
+              console.log("No questions were generated.");
+            }
 
             if (data.question) { // Corrected: Access the 'question' property
               // Save questions in sessionStorage

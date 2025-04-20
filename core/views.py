@@ -5,91 +5,75 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
-from .models import Test, Subject  # Ensure Subject is imported
+from django.core.cache import cache
+from django.core.paginator import Paginator
+from .models import Test, Subject
 from .forms import CustomUserCreationForm
 import os
 import logging
 import openai
-from openai import OpenAI
 import json
 from datetime import date
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from PyPDF2 import PdfReader  
+from PyPDF2 import PdfReader
 import fitz
-from PIL import Image, ImageEnhance  
-import pytesseract  
-from .models import Subject 
+from PIL import Image
+import pytesseract
 from pdf2image import convert_from_path
+from openai import OpenAI
+from .utils import parse_generated_questions
+from concurrent.futures import ThreadPoolExecutor
+from nltk.tokenize import sent_tokenize
 from django.core.cache import cache
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from io import BytesIO
+import nltk
 
+nltk.download('punkt_tab')
 
 # Initialize logger
-logger = logging.getLogger(__name__) 
+logger = logging.getLogger(__name__)
 
 # OpenAI API Key
-openai.api_key = settings.OPENAI_API_KEY
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=settings.OPENAI_API_KEY,
+)
 
 
 def test_textbook_view(request):
-    """View to display available textbooks."""
+    """View to display available textbooks with caching."""
     media_path = settings.MEDIA_ROOT
-    files = []
+    files = cache.get('textbook_files')
 
-    # Fetch all PDF files in the media directory
-    for root, _, filenames in os.walk(media_path):
-        for file_name in filenames:
-            if file_name.lower().endswith('.pdf'):
-                relative_path = os.path.relpath(os.path.join(root, file_name), media_path)
-                files.append({
-                    'name': os.path.splitext(file_name)[0],
-                    'url': f"{settings.MEDIA_URL}{relative_path.replace(os.sep, '/')}"
-                })
+    if not files:
+        files = []
+        for root, _, filenames in os.walk(media_path):
+            for file_name in filenames:
+                if file_name.lower().endswith('.pdf'):
+                    relative_path = os.path.relpath(os.path.join(root, file_name), media_path)
+                    files.append({
+                        'name': os.path.splitext(file_name)[0],
+                        'url': f"{settings.MEDIA_URL}{relative_path.replace(os.sep, '/')}"
+                    })
+        cache.set('textbook_files', files, timeout=60 * 60)  # Cache for 1 hour
 
     context = {'files': sorted(files, key=lambda x: x['name'])}
     return render(request, 'core/test_textbook.html', context)
 
 
-def parse_generated_questions(generated_text):
-    """Parse AI-generated text into structured questions."""
-    questions = []
-    for block in generated_text.split("\n\n"):
-        lines = block.split("\n")
-        if len(lines) < 5:
-            continue
-        question = lines[0]
-        options = lines[1:5]
-        correct_answer = lines[5].split(":")[1].strip() if len(lines) > 5 else None
-        questions.append({
-            'question': question,
-            'options': options,
-            'answer': correct_answer
-        })
-    return questions
-
-
 @csrf_exempt
 def test_question_view(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            questions = data.get('questions', [])
-            # Save or process the questions as needed
-            request.session['questions'] = questions
-            return JsonResponse({"message": "Questions received successfully."})
-        except Exception as e:
-            return JsonResponse({"error": "Failed to process questions.", "details": str(e)}, status=500)
-    elif request.method == 'GET':
-        # Render the test_question page for GET requests
-        questions = request.session.get('questions', [])
-        return render(request, 'core/test_question.html', {'questions': questions})
-    else:
-        return JsonResponse({"error": "Invalid request method."}, status=405)
+    """View to display the generated question."""
+    question = request.session.get('generatedQuestion', None)
+
+    if not question:
+        return render(request, 'core/test_question.html', {'error': 'No question found. Please generate a test first.'})
+
+    return render(request, 'core/test_question.html', {'question': question})
+
 
 def test_result_view(request):
-    """View to display test results."""
+    """View to display test results with optimized streak calculation."""
     if request.user.is_authenticated:
         profile = request.user.profile
         today = date.today()
@@ -100,6 +84,7 @@ def test_result_view(request):
             profile.streak += 1
         else:
             profile.streak = 1
+
         profile.last_test_date = today
         profile.save()
 
@@ -120,8 +105,8 @@ def test_result_view(request):
 
 @login_required
 def profile_view(request):
-    """View to display user profile and tests."""
-    tests = Test.objects.all()
+    """View to display user profile and tests with optimized queries."""
+    tests = Test.objects.select_related('subject').all()
     context = {
         'username': request.user.username,
         'tests': tests,
@@ -196,42 +181,10 @@ def ranking_view(request):
         }
         return render(request, 'core/ranking.html', context)
 
-def summarize_text(text):
-    """Summarize text using OpenAI API."""
-    if not text:
-        return {'error': 'Text is required'}
-
-    prompt = f"Summarize the following text to maximum 3000 tokens:\n{text}"
-
-    try:
-        # Remove this line as OpenAI is already initialized with `openai.api_key`
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
-            max_tokens=3000
-        )
-        summary = response.choices[0].message.content.strip()
-        return {'summary': summary}
-    except Exception as e:
-        return {'error': f'OpenAI API error: {str(e)}'}
-
-def preprocess_and_ocr(image_bytes):
-    image = Image.open(BytesIO(image_bytes)).convert('L')  # Correct usage of BytesIO
-    image = ImageEnhance.Contrast(image).enhance(1.5)
-    image = ImageEnhance.Sharpness(image).enhance(1.5)
-    return pytesseract.image_to_string(image, lang='bul', config='--psm 6')
-
-def extract_images_with_fitz(pdf_path, start_page, end_page):
-    doc = fitz.open(pdf_path)
-    images = []
-    for i in range(start_page - 1, end_page):
-        pix = doc.load_page(i).get_pixmap(dpi=100)
-        images.append(pix.tobytes("png"))
-    return images
 
 @csrf_exempt
 def generate_questions(request):
+    """Generate questions with optimized text extraction and parallel processing."""
     if request.method != 'POST':
         return JsonResponse({'error': 'POST request required'}, status=400)
 
@@ -244,48 +197,55 @@ def generate_questions(request):
         return JsonResponse({'error': 'Invalid input data'}, status=400)
 
     pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_filename))
+
     if not os.path.exists(pdf_path):
         return JsonResponse({'error': 'PDF file not found'}, status=404)
 
     try:
-        # Step 1: Extract images from pages with Fitz (fast)
-        images_bytes = extract_images_with_fitz(pdf_path, start_page, end_page)
-
-        # Step 2: Run OCR on images in parallel
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            texts = list(executor.map(preprocess_and_ocr, images_bytes))
-
-        # Step 3: Summarize and generate questions
-        questions = []
-        for i, text in enumerate(texts):
-            summarized = summarize_text(text[:2000]).get('summary', '')
-            prompt = (
-                "Прочети следния текст и създай въпроси с 4 възможни отговора (само един правилен), като питаш за самата информация ако предположиш, че читателят не е чел текста. \n"
-                "Форматът да бъде:\n"
-                "Въпрос: <тук въпросът>\nА) <отговор 1>\nБ) <отговор 2>\nВ) <отговор 3>\nГ) <отговор 4>\nПравилен отговор: <буква>\n\n"
-                f"{summarized}"
-            )
-            client = OpenAI(api_key=settings.OPENAI_API_KEY)  # Ensure OpenAI client is initialized correctly
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.5,
-                max_tokens=600,
-            )
-            if response.choices and response.choices[0].message:
-                questions.extend(parse_generated_questions(response.choices[0].message.content.strip()))
-            if len(questions) >= 10:
-                break
-
-        return JsonResponse({'questions': questions[:10]})
-
+        images = convert_from_path(pdf_path, first_page=start_page, last_page=end_page)
     except Exception as e:
-        return JsonResponse({'error': f'Error: {str(e)}'}, status=500)
+        return JsonResponse({'error': f'PDF to image conversion failed: {str(e)}'}, status=500)
+
+    def process_page(img):
+        return pytesseract.image_to_string(img, lang='bul')
+
+    with ThreadPoolExecutor() as executor:
+        results = executor.map(process_page, images)
+
+    extracted_text = '\n'.join(results)
+
+    def truncate_text(text, max_sentences=10):
+        sentences = sent_tokenize(text)
+        return ' '.join(sentences[:max_sentences])
+
+    prompt = (
+        "Прочети следния текст и създай поне 6 въпроса с 4 възможни отговора (само един правилен), като не използваш изрази от типа на 'от текста'.\n"
+        "Форматът да бъде:\n"
+        "Въпрос: <тук въпросът>\n"
+        "А) <отговор 1>\n"
+        "Б) <отговор 2>\n"
+        "В) <отговор 3>\n"
+        "Г) <отговор 4>\n"
+        "Правилен отговор: <буква>\n\n"
+        f"Текст:\n{truncate_text(extracted_text)}"
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model="mistralai/mistral-small-3.1-24b-instruct:free",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+        )
+        result = response.choices[0].message.content.strip()
+    except Exception as e:
+        return JsonResponse({'error': f'OpenAI API error: {str(e)}'}, status=500)
+
+    return JsonResponse({'question': result})
 
 
-
-@login_required 
+@login_required
 def save_test(request):
+    """Save user tests."""
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -295,10 +255,8 @@ def save_test(request):
             if not date or not subject_name:
                 return JsonResponse({'error': 'Date and subject are required'}, status=400)
 
-            # Get or create the subject
             subject, _ = Subject.objects.get_or_create(name=subject_name)
 
-            # Save the test for the current user
             test, created = Test.objects.get_or_create(
                 user=request.user,
                 date=date,
@@ -318,7 +276,7 @@ def save_test(request):
 
 @login_required
 def get_saved_tests(request):
-    """Fetch saved tests for the current user."""
+    """Fetch paginated saved tests for the current user."""
     month = request.GET.get('month')
     year = request.GET.get('year')
 
@@ -334,4 +292,8 @@ def get_saved_tests(request):
         date__month=month
     ).values('date', 'subject__name')
 
-    return JsonResponse({'tests': list(tests)})
+    paginator = Paginator(tests, 10)  # Show 10 tests per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    return JsonResponse({'tests': list(page_obj), 'has_next': page_obj.has_next()})
