@@ -1,0 +1,234 @@
+body {
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+    background-color: #ffffff;
+    color: #3d0066;
+}
+
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.loading-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-content p {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.container {
+    max-width: 75rem;
+    margin: 0 auto;
+    padding: 1.25rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3d0066;
+    color: #ffffff;
+    padding: 1rem 2rem;
+    border-radius: 0.625rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+}
+
+.header-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.header-streak {
+    display: flex;
+    align-items: center;
+}
+
+.header-streak .icon {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.5rem;
+}
+
+.streak-number {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.main-content {
+    display: flex;
+    margin-top: 1.25rem;
+    gap: 1.5rem;
+}
+
+.sidebar {
+    width: 12rem;
+    background-color: #3d0066;
+    padding: 1.25rem;
+    border-radius: 0.625rem;
+    margin-right: 2rem;
+    margin-left: 2rem;
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.625rem;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.nav-item:hover {
+    background-color: #c670ff;
+    transform: scale(1.02);
+}
+
+.nav-item:focus {
+    outline: 0.125rem solid #d6a800;
+    outline-offset: 0.25rem;
+}
+
+.nav-item:active {
+    transform: scale(0.98);
+}
+
+.nav-item.active {
+    background-color: #d6a800;
+    color: #3d0066;
+}
+
+.nav-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.75rem;
+}
+
+.textbook-container {
+    flex: 1;
+    background-color: #eec7fc;
+    padding: 2rem;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+}
+
+.textbook-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.textbook-form label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.textbook-form select,
+.textbook-form input {
+    padding: 0.75rem;
+    border: 1px solid #3d0066;
+    border-radius: 0.375rem;
+    background-color: white;
+}
+
+.textbook-form button {
+    padding: 0.75rem;
+    background-color: #d6a800;
+    color: #3d0066;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.textbook-form button:hover {
+    background-color: #ffce1f;
+}
+
+#generated-questions {
+    margin-top: 2rem;
+}
+
+.test-framework-card {
+    background-color: #fff;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.375rem;
+}
+
+.answer-button {
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    background-color: #d6a800;
+    color: #3d0066;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.answer-button:hover {
+    background-color: #ffce1f;
+}
+
+@media (max-width: 48rem) {
+    .main-content {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        margin-bottom: 1.25rem;
+    }
+}

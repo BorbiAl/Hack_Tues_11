@@ -1,35 +1,36 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
-from .models import Test
+from .models import Test, Subject  # Ensure Subject is imported
 from .forms import CustomUserCreationForm
 import os
 import logging
 import openai
-import PyPDF2
+from openai import OpenAI
 import json
-from django.shortcuts import get_object_or_404
+from datetime import date
 from django.views.decorators.csrf import csrf_exempt
-import pytesseract
-from pdf2image import convert_from_path
-from PIL import Image 
-from PyPDF2 import PdfReader
-from datetime import datetime
-from django.views.decorators.http import require_POST
-from django.utils.timezone import make_aware
 from django.utils.decorators import method_decorator
-from django.views import View
+from PyPDF2 import PdfReader  
+import fitz
+from PIL import Image, ImageEnhance  
+import pytesseract  
+from .models import Subject 
+from pdf2image import convert_from_path
+from django.core.cache import cache
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from io import BytesIO
+
 
 # Initialize logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) 
 
 # OpenAI API Key
 openai.api_key = settings.OPENAI_API_KEY
-
 
 
 def test_textbook_view(request):
@@ -47,7 +48,7 @@ def test_textbook_view(request):
                     'url': f"{settings.MEDIA_URL}{relative_path.replace(os.sep, '/')}"
                 })
 
-    context = {'files': sorted(files, key=lambda x: x['name'])}     
+    context = {'files': sorted(files, key=lambda x: x['name'])}
     return render(request, 'core/test_textbook.html', context)
 
 
@@ -68,91 +69,37 @@ def parse_generated_questions(generated_text):
         })
     return questions
 
-def test_question_view(request, textbook_id):
-    """View to display and handle test questions loaded from Rag questions."""
-    # Retrieve the textbook and its associated Rag instance
-    textbook = get_object_or_404(TestTextbook, id=textbook_id)
-    rag = get_object_or_404(Rag, textbook=textbook)
-    
-    # Load the questions from the Rag instance. Assume the TestQuestion model
-    # contains 'question_text', 'answer', and 'options' attributes.
-    questions_qs = rag.get_questions()
-    questions = []
-    for q in questions_qs:
-        questions.append({
-            'question': q.question_text,
-            'answer': q.answer,         # Ensure your model has this field
-            'options': q.options,       # Ensure your model has this field (list or similar structure)
-        })
 
-    # If the session hasn't been initialized with questions, do so once.
-    if 'questions' not in request.session:
-        request.session['questions'] = questions
-        request.session['current_question_index'] = 0
-        request.session['results'] = []
-    
-    current_question_index = request.session.get('current_question_index', 0)
-    session_questions = request.session.get('questions', questions)
-
+@csrf_exempt
+def test_question_view(request):
     if request.method == 'POST':
-        # Process the submitted answer.
-        selected_answer = request.POST.get('selected_answer', '')
-        current_question = session_questions[current_question_index]
-        correct_answer = current_question.get('answer', '')
-        is_correct = (selected_answer == correct_answer)
-
-        # Record the result with minimal session data
-        results = request.session.get('results', [])
-        results.append({
-            'selected_answer': selected_answer,
-            'is_correct': is_correct
-        })
-        request.session['results'] = results
-
-        # Increment the current question index.
-        current_question_index += 1
-        request.session['current_question_index'] = current_question_index
-
-        # Redirect to the next question or the test result view.
-        if current_question_index < len(session_questions):
-            return redirect('test_question', textbook_id=textbook_id)
-        else:
-            return redirect('test_result', textbook_id=textbook_id)
-
+        try:
+            data = json.loads(request.body)
+            questions = data.get('questions', [])
+            # Save or process the questions as needed
+            request.session['questions'] = questions
+            return JsonResponse({"message": "Questions received successfully."})
+        except Exception as e:
+            return JsonResponse({"error": "Failed to process questions.", "details": str(e)}, status=500)
+    elif request.method == 'GET':
+        # Render the test_question page for GET requests
+        questions = request.session.get('questions', [])
+        return render(request, 'core/test_question.html', {'questions': questions})
     else:
-        # GET request: display the current question.
-        if current_question_index < len(session_questions):
-            current_question = session_questions[current_question_index]
-            context = {
-                'question': current_question.get('question', ''),
-                'answers': current_question.get('options', []),
-                'current_question_index': current_question_index + 1,
-                'total_questions': len(session_questions),
-            }
-            return render(request, 'core/test_question.html', context)
-        else:
-            return redirect('test_result', textbook_id=textbook_id)
+        return JsonResponse({"error": "Invalid request method."}, status=405)
 
 def test_result_view(request):
     """View to display test results."""
     if request.user.is_authenticated:
         profile = request.user.profile
         today = date.today()
-    
-        if profile.last_test_date == today:
-            profile.streak += 1  # Increment streak
-        else:
-            # Check if the streak is not continuous (last test date is not today)
-            if profile.last_test_date != today:
-                if (today - profile.last_test_date).days == 1:
-                    pass
-                else:
-                    # Reset streak to 0 if it's not the next day
-                    profile.streak = 0
-            else:
-                profile.streak = 1  # Reset streak to 1 for a new day
 
-        # Update the last test date
+        if profile.last_test_date == today:
+            profile.streak += 1
+        elif profile.last_test_date and (today - profile.last_test_date).days == 1:
+            profile.streak += 1
+        else:
+            profile.streak = 1
         profile.last_test_date = today
         profile.save()
 
@@ -170,6 +117,7 @@ def test_result_view(request):
     }
     return render(request, 'core/test_result.html', context)
 
+
 @login_required
 def profile_view(request):
     """View to display user profile and tests."""
@@ -180,6 +128,7 @@ def profile_view(request):
         'streak': request.user.profile.streak if request.user.is_authenticated else 0,
     }
     return render(request, 'core/profile.html', context)
+
 
 class CustomLoginView(LoginView):
     """Custom login view."""
@@ -199,6 +148,7 @@ class CustomLoginView(LoginView):
     def get_success_url(self):
         return '/dashboard/'
 
+
 def signup_view(request):
     """View to handle user signup."""
     if request.method == 'POST':
@@ -211,13 +161,14 @@ def signup_view(request):
         form = CustomUserCreationForm()
     return render(request, 'core/signup.html', {'form': form})
 
+
 def home_view(request):
     """Home view."""
     return render(request, 'base.html')
 
+
 def dashboard_view(request):
     """Dashboard view."""
-    
     if request.user.is_authenticated:
         is_first_login = request.user.last_login is None
         context = {
@@ -229,8 +180,10 @@ def dashboard_view(request):
         return render(request, 'core/dashboard.html', context)
     else:
         return redirect('login')
-    
+
+
 def ranking_view(request):
+    """View to display rankings."""
     if request.method == 'GET':
         context = {
             'username': request.user.username,
@@ -242,131 +195,138 @@ def ranking_view(request):
             'streak': request.user.profile.streak if request.user.is_authenticated else 0,
         }
         return render(request, 'core/ranking.html', context)
-    
 
+def summarize_text(text):
+    """Summarize text using OpenAI API."""
+    if not text:
+        return {'error': 'Text is required'}
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    prompt = f"Summarize the following text to maximum 3000 tokens:\n{text}"
+
+    try:
+        # Remove this line as OpenAI is already initialized with `openai.api_key`
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=3000
+        )
+        summary = response.choices[0].message.content.strip()
+        return {'summary': summary}
+    except Exception as e:
+        return {'error': f'OpenAI API error: {str(e)}'}
+
+def preprocess_and_ocr(image_bytes):
+    image = Image.open(BytesIO(image_bytes)).convert('L')  # Correct usage of BytesIO
+    image = ImageEnhance.Contrast(image).enhance(1.5)
+    image = ImageEnhance.Sharpness(image).enhance(1.5)
+    return pytesseract.image_to_string(image, lang='bul', config='--psm 6')
+
+def extract_images_with_fitz(pdf_path, start_page, end_page):
+    doc = fitz.open(pdf_path)
+    images = []
+    for i in range(start_page - 1, end_page):
+        pix = doc.load_page(i).get_pixmap(dpi=100)
+        images.append(pix.tobytes("png"))
+    return images
 
 @csrf_exempt
 def generate_questions(request):
     if request.method != 'POST':
-        return JsonResponse({"error": "Невалиден метод на заявка."}, status=400)
+        return JsonResponse({'error': 'POST request required'}, status=400)
 
     try:
         data = json.loads(request.body)
-        pdf_url = data.get('pdf_url')
-        start_page = data.get('start_page')
-        end_page = data.get('end_page')
+        pdf_filename = data.get('pdf_filename')
+        start_page = int(data['start_page'])
+        end_page = int(data['end_page'])
+    except (KeyError, ValueError):
+        return JsonResponse({'error': 'Invalid input data'}, status=400)
 
-        logger.debug(f"Request data: {data}")
+    pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_filename))
+    if not os.path.exists(pdf_path):
+        return JsonResponse({'error': 'PDF file not found'}, status=404)
 
-        if not (pdf_url and start_page is not None and end_page is not None):
-            return JsonResponse({"error": "Липсват задължителни полета."}, status=400)
+    try:
+        # Step 1: Extract images from pages with Fitz (fast)
+        images_bytes = extract_images_with_fitz(pdf_path, start_page, end_page)
 
-        # Resolve file path
-        pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_url))
-        if not os.path.exists(pdf_path):
-            return JsonResponse({"error": "PDF файлът не е намерен."}, status=404)
+        # Step 2: Run OCR on images in parallel
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            texts = list(executor.map(preprocess_and_ocr, images_bytes))
 
-        extracted_texts = []
+        # Step 3: Summarize and generate questions
+        questions = []
+        for i, text in enumerate(texts):
+            summarized = summarize_text(text[:2000]).get('summary', '')
+            prompt = (
+                "Прочети следния текст и създай въпроси с 4 възможни отговора (само един правилен), като питаш за самата информация ако предположиш, че читателят не е чел текста. \n"
+                "Форматът да бъде:\n"
+                "Въпрос: <тук въпросът>\nА) <отговор 1>\nБ) <отговор 2>\nВ) <отговор 3>\nГ) <отговор 4>\nПравилен отговор: <буква>\n\n"
+                f"{summarized}"
+            )
+            client = OpenAI(api_key=settings.OPENAI_API_KEY)  # Ensure OpenAI client is initialized correctly
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.5,
+                max_tokens=600,
+            )
+            if response.choices and response.choices[0].message:
+                questions.extend(parse_generated_questions(response.choices[0].message.content.strip()))
+            if len(questions) >= 10:
+                break
 
-        # Read text from pages if extractable, fallback to OCR otherwise
-        pdf_reader = PdfReader(pdf_path)
-        for page_num in range(start_page - 1, end_page):
-            try:
-                page = pdf_reader.pages[page_num]
-                text = page.extract_text()
-                if text and text.strip():
-                    extracted_texts.append(text.strip())
-                    continue
-            except Exception as e:
-                logger.warning(f"Failed to extract text from page {page_num + 1}: {e}")
-
-            # Fallback to OCR if text extraction fails or returns empty
-            try:
-                images = convert_from_path(pdf_path, first_page=page_num + 1, last_page=page_num + 1, dpi=300)
-                for image in images:
-                    ocr_text = pytesseract.image_to_string(image, lang='bul')
-                    extracted_texts.append(ocr_text.strip())
-            except Exception as e:
-                logger.error(f"OCR failed on page {page_num + 1}: {e}")
-                continue
-
-        combined_text = "\n".join(extracted_texts).strip()
-
-        if not combined_text:
-            return JsonResponse({"error": "Не беше извлечен текст от посочените страници."}, status=400)
-
-        logger.debug(f"Extracted combined text: {combined_text[:1000]}")
-        prompt = (
-            "Ти си AI, който генерира въпроси с множество отговори от текст. "
-            "Като използваш следното съдържание, генерирай списък от въпроси с четири опции за отговор, "
-            "и посочи правилния отговор за всеки въпрос:\n\n"
-            f"{combined_text}\n\n"
-            "Форматирай отговора си като JSON масив от обекти, където всеки обект съдържа "
-            "'question' (въпрос), 'options' (списък от четири стринга) и 'answer' (правилният отговор)."
-        )
-
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "Ти си полезен асистент."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=1500,
-            temperature=0.7
-        )
-
-        content = response['choices'][0]['message']['content']
-        try:
-            questions = json.loads(content)
-        except json.JSONDecodeError:
-            logger.error("Failed to parse OpenAI response as JSON.")
-            return JsonResponse({"error": "OpenAI отговорът не може да бъде обработен."}, status=500)
-
-        request.session['questions'] = questions
-        request.session['current_question_index'] = 0
-
-        return JsonResponse({"questions": questions})
+        return JsonResponse({'questions': questions[:10]})
 
     except Exception as e:
-        logger.exception("Unhandled error in generate_questions")
-        return JsonResponse({"error": "Възникна грешка.", "details": str(e)}, status=500)
+        return JsonResponse({'error': f'Error: {str(e)}'}, status=500)
 
-@method_decorator(csrf_exempt, name='dispatch')
-@login_required
+
+
+@login_required 
 def save_test(request):
     if request.method == 'POST':
-        import json
-        data = json.loads(request.body)
-        date = data.get('date')
-        subject_name = data.get('subject')
+        try:
+            data = json.loads(request.body)
+            date = data.get('date')
+            subject_name = data.get('subject')
 
-        # Get or create the subject
-        subject, _ = Subject.objects.get_or_create(name=subject_name)
+            if not date or not subject_name:
+                return JsonResponse({'error': 'Date and subject are required'}, status=400)
 
-        # Save the test for the current user
-        test, created = Test.objects.get_or_create(
-            user=request.user,
-            date=date,
-            defaults={'subject': subject}
-        )
+            # Get or create the subject
+            subject, _ = Subject.objects.get_or_create(name=subject_name)
 
-        if not created:
-            test.subject = subject
-            test.save()
+            # Save the test for the current user
+            test, created = Test.objects.get_or_create(
+                user=request.user,
+                date=date,
+                defaults={'subject': subject}
+            )
 
-        return JsonResponse({'message': 'Test saved successfully', 'date': date, 'subject': subject.name})
+            if not created:
+                test.subject = subject
+                test.save()
+
+            return JsonResponse({'message': 'Test saved successfully', 'date': date, 'subject': subject.name})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
+
 @login_required
 def get_saved_tests(request):
+    """Fetch saved tests for the current user."""
     month = request.GET.get('month')
     year = request.GET.get('year')
 
-    if not month or not year:
-        return JsonResponse({'error': 'Month and year are required'}, status=400)
+    try:
+        month = int(month)
+        year = int(year)
+    except (TypeError, ValueError):
+        return JsonResponse({'error': 'Month and year must be integers'}, status=400)
 
     tests = Test.objects.filter(
         user=request.user,
