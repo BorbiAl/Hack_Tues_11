@@ -88,7 +88,12 @@ def test_result_view(request):
         profile.last_test_date = today
         profile.save()
 
-    results = request.session.get('results', [])
+    # Getting results from the session
+    results = request.session.get('results', None)
+    if not results:
+        return render(request, 'core/test_result.html', {'error': 'No results found. Please complete the test first.'})
+
+    # Calculate stats
     total_questions = len(results)
     correct_answers = sum(1 for result in results if result['is_correct'])
     wrong_answers_count = total_questions - correct_answers
@@ -101,7 +106,6 @@ def test_result_view(request):
         'streak': request.user.profile.streak if request.user.is_authenticated else 0,
     }
     return render(request, 'core/test_result.html', context)
-
 
 @login_required
 def profile_view(request):
