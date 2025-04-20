@@ -8,7 +8,6 @@
   <title>bAIganio - profile</title>
 </head>
 <style>
-
   body {
     margin: 0;
     font-family: 'Nunito', sans-serif;
@@ -46,7 +45,8 @@
     align-items: center;
   }
 
-  .header-streak .icon {
+  .header-streak .icon,
+  .nav-icon {
     width: 2rem;
     height: 2rem;
     margin-right: 0.5rem;
@@ -108,180 +108,212 @@
     color: #3d0066;
   }
 
-  .nav-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    margin-right: 0.75rem;
-  }
-
   .content {
     flex-grow: 1;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
     grid-gap: 1.25rem;
   }
 
   .profile-card {
     background-color: #eec7fc;
-    width: 50rem;;
+    width: 50rem;
     border-radius: 0.625rem;
     box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
     text-align: center;
-    height: 25rem;
-    display: grid;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     margin-right: 1.25rem;
   }
 
   .profile-card h2 {
-    margin-top: 0;
-    font-size: 3rem;
+    font-size: 2.5rem;
+    margin: 0 0 1.5rem;
     color: #3d0066;
-    text-align: center;
-    margin-bottom: 1.5rem;
   }
 
+  .profile-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+  }
+
+  .profile-details {
+    flex: 2;
+    text-align: left;
+    padding-left: 1.5rem;
+  }
+
+  .profile-photo {
+    flex: 1;
+    text-align: center;
+  }
+
+  .profile-card img {
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+    border: 0.125rem solid #3d0066;
+    margin: 1.5rem auto;
+  }
+  .profile-photo input {
+    display: none;
+}
+
   .profile-info p {
-    font-size: 1.75rem;
-    margin: 0.5rem 0;
+    font-size: 1.5rem;
     color: #3d0066;
+    margin: 0.25rem 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .profile-info button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #3d0066;
+    font-size: 1.5rem;
+    margin-left: 0.5rem;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+  }
+
+  .profile-info button img {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .profile-info button:hover img {
+    transform: scale(1.1);
   }
 
   .profile-actions {
     display: flex;
     justify-content: space-around;
-    margin-top: 2rem;
-  }
-
-  .profile-actions button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border: none;
-    border-radius: 0.375rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
     margin-top: 2.75rem;
   }
 
-  .profile-actions .edit-btn {
-    background-color: #d6a800;
-    color: #3d0066;
-  }
-
-  .profile-actions .edit-btn:hover {
-    background-color: #ffce1f;
-  }
-
-  .edit-profile {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    border: 0.625rem solid rgb(39, 0, 49);
-    border-radius: 0.625rem;
-    z-index: 10;
-    background-color: #eec7fc;
-    width: 45rem;
-    max-width: 90%;
-    height: 25rem;
-    max-height: 90%;
-  }
-
-  .edit-profile.active {
-    display: block;
-    transform: translate(-50%, -50%) scale(1);
-    transition: transform 0.3s ease;
-  }
-
-  .edit-profile-header {
-    display: flex;
-    padding-right: 1.25rem;
-    padding-left: 1.25rem;
-    padding-top: 0rem;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 0.625rem 0.625rem 0 0;
-    
-  }
-
-  .edit-profile-header h2 {
-    font-size: 2rem;
-    color: #3d0066;
-    margin: 0;
-    padding-left: 1.25rem;
-    
-  }
-
-  .edit-profile-header .close-btn {
-    background-color: transparent;
-    background: none;
-    outline: none;
-    border: none;
-    font-size: 2rem;
-    color: #3d0066;
-    cursor: pointer;
-    padding-top: 0rem;
-    margin: 1rem;
-    transition: color 0.3s ease;
-    padding-right: 1.25rem;
-  }
-
-  .edit-profile-header .close-btn:hover {
-    color: #ffce1f;
-  }
-
-  .edit-profile-body {
-    font-size: 1.5rem;
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #eec7fc;
-    border-radius: 0 0 0.625rem 0.625rem;
-  }
-
-  .edit-profile-body button {
-    background-color: #ffffff;
-    color: #3d0066;
-    border: 2px solid #3d0066;
+  .profile-actions button {
+    gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 0.375rem;
+    font-size: 0.5rem;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    margin-top: 1rem;
   }
 
-  .edit-profile-body button:hover {
+.log-out-btn {
+  background-color: #3d0066; /* Dark purple */
+  color: #ffffff; /* White text */
+  border: 2px solid #3d0066;
+  font-size: 0.5rem;
+  height: 3.5rem;
+  width: 7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+  .log-out-btn:hover {
     background-color: #3d0066;
     color: #ffffff;
   }
 
-  #overlay{
+  .delete-account-btn {
+    background-color: #3d0066; /* Dark purple */
+    color: #ffffff; /* White text */
+    border: 2px solid #3d0066;
+    font-size: 0.5rem;
+    height: 3.5rem;
+    width: 7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+
+  .delete-account-btn:hover {
+    background-color: #3d0066;
+    color: #ffffff;
+    transform: scale(1.02);
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 0.625rem;
+    width: 30rem;
+    padding: 1.25rem;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  }
+  
+  .modal.active {
+    display: block;
+  }
+  
+  .modal-content h2 {
+    margin-top: 0;
+    font-size: 2rem;
+  }
+  
+  .modal-content input {
+    width: 90%;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 0.25rem solid #ccc;
+    border-radius: 0.375rem;
+  }
+  
+  .modal-content button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #3d0066;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+  }
+  
+  .modal-content button:hover {
+    background-color: #3d0066;
+  }
+  
+  .close-btn {
+    float: right;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+  }
+
+  .close-btn:hover {
+    color: #ffce1f;
+  }
+  
+  #overlay {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    background-color: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 1000;
   }
-
+  
   #overlay.active {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .profile-actions .log-out-btn {
-    background-color: #ffffff;
-    color: #3d0066;
-    border: 2px solid #3d0066;
-  }
-
-  .profile-actions .log-out-btn:hover {
-    background-color: #3d0066;
-    color: #ffffff;
+    display: block;
   }
 
   @media (max-width: 48rem) {
@@ -295,6 +327,7 @@
     }
   }
 </style>
+
 
 </head>
 
@@ -340,64 +373,132 @@
         <div class="profile-card card">
           <h2>Profile Details</h2>
           <div class="profile-info">
-            <p><strong></strong> {{ username }}</p>
-            <div class="profile-actions">
-              <button class="edit-btn">Edit Profile</button>
-              <div class="edit-profile" id="edit-profile">
-                <div class = "edit-profile-header">
-                  <h2>Edit Profile</h2>
-                  <button class="close-btn">&times;</button>
-                </div>
-                <div class = "edit-profile-body">
-                 <button class="change-name">Change name</button>
-                  <button class="change-username">Change username</button>
-                  <button class="change-password">Change password</button>
-                  <button class="change-profilephoto">Change profile photo</button>
-                </div>
-              </div>
-              <div id = "overlay"></div>
-              <button class="log-out-btn">Log out</button>
+            <div class="profile-photo">
+              <img src="{% static 'core/css/blank-profile-picture.png' %}" id="profile-pic" alt="Profile Photo">
+              <input type="file" accept="image/*" id="input-file">
             </div>
+            <div id="overlay"></div>
+
+            <div class="profile-details">
+              <p>Name: {{ user.first_name }} {{ user.last_name }}
+                <button class="open-name-modal">
+                  <img src="{% static 'core/css/icons8-pencil-drawing-96.png' %}" alt="Edit Icon">
+                </button>
+              </p>
+              <p>Username: {{ user.username }}
+                <button class="open-username-modal">
+                  <img src="{% static 'core/css/icons8-pencil-drawing-96.png' %}" alt="Edit Icon">
+                </button>
+              </p>
+              <p> Password: <span id="password"> {{ user.password }} </span>
+                <button class="open-password-modal">
+                  <img src="{% static 'core/css/icons8-pencil-drawing-96.png' %}" alt="Edit Icon">
+                </button>
+              </p>
+            </div>
+
+            <!-- Change Name Modal -->
+            <div id="change-name" class="modal">
+              <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Change Name</h2>
+                <form method="POST">
+                  {% csrf_token %}
+                  <input type="text" name="first_name" placeholder="First name" required>
+                  <input type="text" name="last_name" placeholder="Last name" required>
+                  <button type="submit">Save</button>
+                </form>
+              </div>
+            </div>
+            
+            <!-- Change Username Modal -->
+            <div id="change-username" class="modal">
+              <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Change Username</h2>
+                <form method="POST">
+                  {% csrf_token %}
+                  <input type="text" name="username" placeholder="New username" required>
+                  <button type="submit">Save</button>
+                </form>
+              </div>
+            </div>
+            
+            <!-- Change Password Modal -->
+            <div id="change-password" class="modal">
+              <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2>Change Password</h2>
+                <form method="POST">
+                  {% csrf_token %}
+                  <input type="password" name="old_password" placeholder="Old password" required>
+                  <input type="password" name="new_password1" placeholder="New password" required>
+                  <input type="password" name="new_password2" placeholder="Confirm new password" required>
+                  <button type="submit">Save</button>
+                </form>
+              </div>
+            </div>
+          
+          <div style="flex-grow: 1;"></div>
+          
+          <div>
+            <button class="log-out-btn">Log out</button>
           </div>
-        </div>
+          <div>
+            <button class="delete-account-btn">Delete Account</button>
+          </div>
     </section>
   </div>
 
   <script>
-    const openEditBtns = document.querySelectorAll('.edit-btn');
-    const closeEditBtns = document.querySelectorAll('.close-btn');
-    const overlay = document.querySelector('#overlay');
-    const editProfile = document.querySelector('.edit-profile');
-    
-    openEditBtns.forEach(button => {
-      button.addEventListener('click', () => {
-        openEditProfile(editProfile);
-      });
-    });
-    
-    closeEditBtns.forEach(button => {
-      button.addEventListener('click', () => {
-        closeEditProfile(editProfile);
-      });
-    });
-    
-    overlay.addEventListener('click', () => {
-      closeEditProfile(editProfile);
-    });
-    
-    function openEditProfile(editProfile) {
-      if (!editProfile) return;
-      editProfile.classList.add('active');
-      overlay.classList.add('active');
-    }
-    
-    function closeEditProfile(editProfile) {
-      if (!editProfile) return;
-      editProfile.classList.remove('active');
-      overlay.classList.remove('active');
-    }
-  </script>
-  
-</body>
+    const p = document.getElementById("password");
+      const masked = '⁎'.repeat(10);
+      p.textContent = masked; 
 
+    let profilePic = document.getElementById("profile-pic");
+    let inputfile = document.getElementById("input-file");
+  
+    profilePic.addEventListener("click", function() {
+      inputfile.click();
+    });
+
+    inputfile.onchange = function() {
+      profilePic.src = URL.createObjectURL(inputfile.files[0]);
+    };
+
+
+
+
+
+    const overlay = document.getElementById('overlay');
+  const modals = {
+    name: document.getElementById('change-name'),
+    username: document.getElementById('change-username'),
+    password: document.getElementById('change-password')
+  };
+
+  // Отваряне на модали
+  document.querySelector('.open-name-modal')?.addEventListener('click', () => openModal(modals.name));
+  document.querySelector('.open-username-modal')?.addEventListener('click', () => openModal(modals.username));
+  document.querySelector('.open-password-modal')?.addEventListener('click', () => openModal(modals.password));
+
+  // Функция за отваряне
+  function openModal(modal) {
+    modal.classList.add('active');
+    overlay.classList.add('active');
+  }
+
+  // Затваряне на всички модали
+  document.querySelectorAll('.close-btn').forEach(btn => {
+    btn.addEventListener('click', closeModals);
+  });
+  overlay.addEventListener('click', closeModals);
+
+  function closeModals() {
+    Object.values(modals).forEach(modal => modal.classList.remove('active'));
+    overlay.classList.remove('active');
+  }
+</script>
+
+</body>
 </html>
