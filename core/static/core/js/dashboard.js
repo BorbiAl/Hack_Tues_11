@@ -1,9 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
   const calendar = document.getElementById("calendar");
+  if (!calendar) {
+    console.error("Calendar element not found. Ensure an element with ID 'calendar' exists in the HTML.");
+    return;
+  }
   const subjectContainer = document.getElementById("subject-container");
   const selectedDateSpan = document.getElementById("selected-date");
   const saveSubjectButton = document.getElementById("save-subject");
   const subjectSelect = document.getElementById("subject-select");
+  const closeMenuButton = document.getElementById("close-menu"); // Add a close button
   let selectedDayCell = null;
   let selectedCellDate = null;
 
@@ -13,12 +18,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     calendar.innerHTML = "";
 
-    const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Normalize today's date for comparison
-
 
     // Add cells for each day of the month
     for (let day = 1; day <= daysInMonth; day++) {
@@ -45,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Update the selected date in the menu
           selectedDateSpan.textContent = `${day}/${month + 1}/${year}`;
-          subjectContainer.style.display = "block";
+          subjectContainer.style.display = "block"; // Show the menu
           saveSubjectButton.disabled = false;
         });
       }
@@ -106,11 +109,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const result = await response.json();
       alert(`Test saved for ${result.date} with subject ${result.subject}`);
-      subjectContainer.style.display = "none";
+      subjectContainer.style.display = "none"; // Hide the menu after saving
     } catch (error) {
       console.error("Error saving test:", error);
       alert("An error occurred while saving the test.");
     }
+  });
+
+  // Close the menu when the close button is clicked
+  closeMenuButton.addEventListener("click", function () {
+    subjectContainer.style.display = "none";
+    if (selectedDayCell) {
+      selectedDayCell.classList.remove("selected");
+    }
+    selectedDayCell = null;
+    selectedCellDate = null;
   });
 
   // Initial render
