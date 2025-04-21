@@ -33,6 +33,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    first_name = models.CharField(max_length=100, blank=True)
+    last_name = models.CharField(max_length=100, blank=True)
 
     objects = CustomUserManager()
 
@@ -45,9 +47,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True, default='default.jpg')
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True, default='.../static/core/css/blank-profile-picture.png')
     streak = models.IntegerField(default=0)
     last_test_date = models.DateField(null=True, blank=True)
+    first_name = models.CharField(max_length=100, blank=True)
+    last_name = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -55,7 +59,7 @@ class Profile(models.Model):
 
 
 class Subject(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name

@@ -123,6 +123,10 @@ body {
     color: #3d0066;
   }
 
+  .name{
+    width: 30rem;
+  }
+
   .profile-info {
     display: flex;
     align-items: center;

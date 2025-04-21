@@ -14,8 +14,12 @@ urlpatterns = [
     path('test-result/', views.test_result_view, name='test_result'),
     path('test-question/', views.test_question_view, name='test_question'),
     path('generate-questions/', views.generate_questions, name='generate_questions'),
-    path('save-test/', views.save_test, name='save_test'),
-    path('saved-tests/', views.get_saved_tests, name='get_saved_tests'),
+    path('save-subject/', views.save_subject, name='save_subject'),
+    path('saved-tests/', views.saved_tests, name='saved_tests'),
+    path('change-password/', views.change_password, name='change_password'),
+    path('change-name/', views.change_name, name='change_name'),
+    path('change-username/', views.change_username, name='change_username'),
+    path('delete-account/', views.delete_account, name='delete_account'),
 ]
  
 if settings.DEBUG:

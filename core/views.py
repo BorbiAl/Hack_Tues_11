@@ -7,13 +7,16 @@ from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
 from django.core.cache import cache
 from django.core.paginator import Paginator
-from .models import Test, Subject
+from .models import Test, Subject, Question
 from .forms import CustomUserCreationForm
 import os
+from django.utils.dateformat import format as date_format
 import logging
 import openai
 import json
-from datetime import date
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from datetime import date, timedelta 
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from PyPDF2 import PdfReader
@@ -31,7 +34,7 @@ import nltk
 nltk.download('punkt_tab')
 
 # Initialize logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) 
 
 # OpenAI API Key
 client = OpenAI(
@@ -71,39 +74,89 @@ def test_question_view(request):
 
     return render(request, 'core/test_question.html', {'question': question})
 
+def save_test_results(request):
+    """Save test results to session."""
+    # Assuming 'results' is a list of dictionaries like: [{"question": ..., "selected": ..., "correct": ..., "is_correct": ...}]
+    results = request.POST.get('results')  # Make sure you are passing results from the frontend as a JSON object
+    request.session['results'] = results
+    request.session.modified = True
+    return JsonResponse({'status': 'Results saved successfully'}, status=200)
+
+import json
+from datetime import date
+from django.shortcuts import render
+from .models import Test, Question
 
 def test_result_view(request):
-    """View to display test results with optimized streak calculation."""
+    """View to display test results using session data or saved test questions, preserving streak logic."""
     if request.user.is_authenticated:
         profile = request.user.profile
         today = date.today()
 
-        if profile.last_test_date == today:
-            profile.streak += 1
-        elif profile.last_test_date and (today - profile.last_test_date).days == 1:
+        if profile.last_test_date is None:
+            profile.streak = 1
+        elif profile.last_test_date == today:
+            pass
+        elif (today - profile.last_test_date).days == 1:
             profile.streak += 1
         else:
             profile.streak = 1
 
         profile.last_test_date = today
         profile.save()
+    else:
+        return render(request, 'core/test_result.html', {'error': 'User not authenticated.'})
 
-    # Getting results from the session
-    results = request.session.get('results', None)
+    # Try to get results from session
+    results_json = request.session.get('results', None)
+    if results_json:
+        try:
+            results = json.loads(results_json)
+            total_questions = len(results)
+            correct_answers = sum(1 for result in results if result['is_correct'])
+            wrong_answers_count = total_questions - correct_answers
+        except Exception:
+            results = None
+    else:
+        results = None
+
+    # If no results in session, fallback to fetching from database
     if not results:
-        return render(request, 'core/test_result.html', {'error': 'No results found. Please complete the test first.'})
+        test = Test.objects.filter(user=request.user).order_by('-date').first()
+        if not test:
+            return render(request, 'core/test_result.html', {'error': 'No test found for user.'})
 
-    # Calculate stats
-    total_questions = len(results)
-    correct_answers = sum(1 for result in results if result['is_correct'])
-    wrong_answers_count = total_questions - correct_answers
+        questions = Question.objects.filter(test=test)
+
+        results = []
+        correct_answers = 0
+        for question in questions:
+            selected_answer = None
+            for item in test.question_data:
+                if item.get('question') == question.question_text:
+                    selected_answer = item.get('selected')
+                    break
+
+            is_correct = (selected_answer == question.correct_answer)
+            if is_correct:
+                correct_answers += 1
+
+            results.append({
+                'question': question.question_text,
+                'selected': selected_answer,
+                'correct': question.correct_answer,
+                'is_correct': is_correct,
+            })
+
+        total_questions = len(results)
+        wrong_answers_count = total_questions - correct_answers
 
     context = {
         'total_questions': total_questions,
         'correct_answers': correct_answers,
         'wrong_answers_count': wrong_answers_count,
         'results': results,
-        'streak': request.user.profile.streak if request.user.is_authenticated else 0,
+        'streak': profile.streak,
     }
     return render(request, 'core/test_result.html', context)
 
@@ -156,19 +209,35 @@ def home_view(request):
     return render(request, 'base.html')
 
 
+@login_required
 def dashboard_view(request):
-    """Dashboard view."""
-    if request.user.is_authenticated:
-        is_first_login = request.user.last_login is None
-        context = {
-            'username': request.user.username,
-            'tests': Test.objects.all(),
-            'streak': request.user.profile.streak if request.user.is_authenticated else 0,
-            'is_first_login': is_first_login,
-        }
-        return render(request, 'core/dashboard.html', context)
+    user = request.user
+    today = date.today()
+
+    upcoming_tests = Test.objects.filter(user=user, date__gte=today).order_by('date')
+
+    if upcoming_tests.exists():
+        next_test = upcoming_tests.first()
+        
+        # Shift the test by 1 day for display
+        display_date = next_test.date + timedelta(days=1)
+        formatted_date = date_format(display_date, 'j F Y')  # e.g. "26 April 2025"
+        
+        soonest_test = f"Test for {next_test.subject.name} on {formatted_date}"
+        days_left = (display_date - today).days
     else:
-        return redirect('login')
+        soonest_test = "No upcoming tests scheduled"
+        days_left = "∞"
+
+    context = {
+        'username': user.username,
+        'soonest_test': soonest_test,
+        'days_left': days_left,
+        'streak': user.profile.streak if hasattr(user, 'profile') else 0,
+        'is_first_login': user.last_login is None,
+    }
+
+    return render(request, 'core/dashboard.html', context)
 
 
 def ranking_view(request):
@@ -246,58 +315,199 @@ def generate_questions(request):
 
     return JsonResponse({'question': result})
 
-
 @login_required
-def save_test(request):
-    """Save user tests."""
+@csrf_exempt  # If CSRF middleware is enabled, remove this and use CSRF token in the frontend
+def save_subject(request):
     if request.method == 'POST':
         try:
+            logger.debug("save_subject view called")
             data = json.loads(request.body)
+            logger.debug(f"Request body: {data}")  # Log the entire request body
             date = data.get('date')
-            subject_name = data.get('subject')
+            subject_name = data.get('subject')  # subject is passed as a name
 
             if not date or not subject_name:
-                return JsonResponse({'error': 'Date and subject are required'}, status=400)
+                logger.warning("Missing date or subject")
+                return JsonResponse({'error': 'Missing date or subject'}, status=400)
 
-            subject, _ = Subject.objects.get_or_create(name=subject_name)
+            # Ensure the subject exists in the database
+            try:
+                subject = Subject.objects.get(name=subject_name)
+                logger.debug(f"Found subject: {subject}")
+            except Subject.DoesNotExist:
+                logger.warning(f"Subject not found: {subject_name}")
+                return JsonResponse({'error': 'Subject not found'}, status=400)
 
-            test, created = Test.objects.get_or_create(
-                user=request.user,
-                date=date,
-                defaults={'subject': subject}
-            )
+            # Create the Test object
+            try:
+                test = Test.objects.create(
+                    user=request.user,
+                    date=date,
+                    subject=subject,  # Use the actual Subject object
+                    grade=0,  # Default grade
+                    question_data=[]  # Default empty questions
+                )
+                logger.info(f"Test created: {test}")
+                return JsonResponse({'date': test.date, 'subject': test.subject.name})
 
-            if not created:
-                test.subject = subject
-                test.save()
+            except Exception as e:
+                logger.error(f"Error creating test: {str(e)}")
+                return JsonResponse({'error': str(e)}, status=400)
 
-            return JsonResponse({'message': 'Test saved successfully', 'date': date, 'subject': subject.name})
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON: {str(e)}")
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            # Log the error for debugging
+            logger.error(f"Error saving test: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-    return JsonResponse({'error': 'Invalid request'}, status=400)
-
-
-@login_required
-def get_saved_tests(request):
-    """Fetch paginated saved tests for the current user."""
+def saved_tests(request):
+    logger.debug("saved_tests view called")  # Log entry point
+    user = request.user
     month = request.GET.get('month')
     year = request.GET.get('year')
+
+    if not month or not year:
+        logger.warning("Month or year missing")
+        return JsonResponse({'error': 'Month and year are required'}, status=400)
 
     try:
         month = int(month)
         year = int(year)
-    except (TypeError, ValueError):
-        return JsonResponse({'error': 'Month and year must be integers'}, status=400)
 
-    tests = Test.objects.filter(
-        user=request.user,
-        date__year=year,
-        date__month=month
-    ).values('date', 'subject__name')
+    except Exception as e:
+        logger.exception("Invalid month or year")  # Log the full exception
+        return JsonResponse({'error': 'INVALID MONTH OR YEAR'}, status=400)
 
-    paginator = Paginator(tests, 10)  # Show 10 tests per page
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
+    try:
+        tests = Test.objects.filter(user=user, date__month=month, date__year=year).order_by('-date')
+        tests_data = []
+        for test in tests:
+            subject_name = test.subject.name if test.subject else "No Subject"  # Handle missing subject
+            tests_data.append({
+                'subject': subject_name,
+                'date': test.date.strftime('%Y-%m-%d'),
+            })
 
-    return JsonResponse({'tests': list(page_obj), 'has_next': page_obj.has_next()})
+        return JsonResponse({'tests': tests_data})
+    except Exception as e:
+        logger.exception("Error processing tests")
+        return JsonResponse({'error': str(e)}, status=500)  # Return 500 for server errors
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+User = get_user_model()
+from django.core.exceptions import ValidationError
+
+@csrf_exempt
+def change_password(request):
+    """View to handle password change."""
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User is not authenticated'}, status=401)
+
+        try:
+            data = json.loads(request.body)
+            new_password = data.get('new_password')
+            confirm_password = data.get('confirm_password')
+        except Exception:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        if new_password != confirm_password:
+            return JsonResponse({'error': 'Passwords do not match'}, status=400)
+
+        if len(new_password) < 8:  # Example: Password should be at least 8 characters
+            return JsonResponse({'error': 'Password too short. Minimum length is 8 characters.'}, status=400)
+
+        user = request.user
+        user.set_password(new_password)
+        user.save()
+
+        update_session_auth_hash(request, user)  # Keep user logged in after password change
+
+        return JsonResponse({'success': True, 'redirect_url': '/profile/'})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+def change_username(request):
+    """View to handle username change."""
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User is not authenticated'}, status=401)
+
+        try:
+            data = json.loads(request.body)
+            logger.debug(f"change_username received data: {data}")
+            new_username = data.get('new_username')
+            logger.debug(f"new_username: {new_username}")
+
+            if User.objects.filter(username=new_username).exists():
+                return JsonResponse({'error': 'Username already exists'}, status=400)
+
+            if len(new_username) < 5:  # Example: Username should be at least 5 characters
+                return JsonResponse({'error': 'Username is too short. Minimum length is 5 characters.'}, status=400)
+
+            if not new_username.isalnum():  # Example: Username should only contain letters and numbers
+                return JsonResponse({'error': 'Username can only contain letters and numbers.'}, status=400)
+
+            user = request.user
+            user.username = new_username
+            user.save()
+            return JsonResponse({'success': True, 'redirect_url': '/profile/'})
+
+        except ValidationError as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        except Exception as e:
+            logger.error(f"Error in change_username: {str(e)}")
+            return JsonResponse({'error': 'Internal server error'}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+def change_name(request):
+    """View to handle name change."""
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User is not authenticated'}, status=401)
+
+        try:
+            data = json.loads(request.body)
+            new_name = data.get('new_name')
+        except Exception:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        if not new_name:
+            return JsonResponse({'error': 'Name cannot be empty'}, status=400)
+
+        try:
+            first_name, last_name = new_name.split(' ', 1) 
+        except ValueError:
+            return JsonResponse({'error': 'Please provide both first and last name'}, status=400)
+
+        user = request.user
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+
+        # Redirect to profile page after saving
+        return JsonResponse({'success': True, 'redirect_url': '/profile/'})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+@csrf_exempt
+def delete_account(request):
+    """View to handle account deletion."""
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User is not authenticated'}, status=401)
+        try:
+            user = request.user
+            user.delete()
+            return JsonResponse({'success': True, 'redirect_url': '/'})
+        except Exception as e:
+            logger.error(f"Error deleting account: {str(e)}")
+            return JsonResponse({'error': 'Internal server error'}, status=500)
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

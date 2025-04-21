@@ -67,8 +67,12 @@
           {% endif %}
         </div>
         <div class="course-card card">
-          <h3>Geography Exam</h3>
-          <p><strong>3 days</strong> left to complete your exam prep!</p>
+          <h3>{{ soonest_test }}</h3>
+          {% if days_left != "∞" %}
+          <p><strong id="days-left">{{ days_left }}</strong> days left.</p><p>Touch here to generate a test to train.</p>
+          {% else %}
+          <p>No upcoming tests</p>
+          {% endif %}
         </div>
         <div class="streak-card card">
           <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="icon" />
@@ -87,14 +91,18 @@
           <div class="calendar" id="calendar">
             <!-- Calendar days will be dynamically generated here -->
           </div>
-          
+
           <div class="subject-container" id="subject-container" style="display: none;">
-            <h3>Choose a Subject for <span id="selected-date"></span></h3>
+            <h3>Choose a Subject for <span id="selected-date" data-date=""></span></h3>
             <select id="subject-select">
               <option value="Math">Math</option>
               <option value="Science">Science</option>
               <option value="History">History</option>
               <option value="Literature">Literature</option>
+              <option value="Geography">Geography</option>
+              <option value="Physics">Physics</option>
+              <option value="Bulgarian">Bulgarian</option>
+              <option value="English">English</option>
             </select>
             <button id="save-subject" disabled>Save Subject</button>
           </div>

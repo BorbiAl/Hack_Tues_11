@@ -1,0 +1,252 @@
+body {
+    margin: 0;
+    font-family: 'Nunito', sans-serif;
+    background-color: #ffffff;
+    color: #3d0066;
+    font-size: 1rem;
+  }
+  .app-container {
+    max-width: 75rem;
+    margin: 0 auto;
+    padding: 1.25rem;
+  }
+
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3d0066;
+    color: #ffffff;
+    padding: 1rem 2rem;
+    border-radius: 0.625rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+  }
+  .header-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  .header-streak {
+    display: flex;
+    align-items: center;
+  }
+  .streak-icon {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.5rem;
+  }
+  .streak-number {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+
+  .main-content {
+    display: flex;
+    margin-top: 1.25rem;
+  }
+
+  .app-sidebar {
+    width: 15rem;
+    background-color: #3d0066;
+    padding: 1.25rem;
+    border-radius: 0.625rem;
+    margin-left: 3rem;
+    margin-right: 1.25rem;
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.625rem;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+  }
+
+  .nav-item:hover {
+    background-color: #c670ff;
+    transform: scale(1.02);
+  }
+
+  .nav-item:focus {
+    outline: 0.125rem solid #d6a800;
+    outline-offset: 0.25rem;
+  }
+
+  .nav-item:active {
+    transform: scale(0.98);
+  }
+
+  .nav-item.active {
+    background-color: #d6a800;
+    color: #3d0066;
+  }
+
+  .nav-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.75rem;
+  }
+
+  .content {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    flex-direction: column;
+    grid-gap: 1.25rem;
+  }
+
+  .test-framework-card {
+    background-color: #eec7fc;
+    width: 50rem;
+    border-radius: 0.625rem;
+    box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: grid;
+    margin-right: 1.25rem;
+    padding: 1.5rem;
+    height: auto;
+  }
+
+
+  /* Center the question and answers in the box */
+  #question-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 100%;
+    list-style: none;
+  }
+
+/* Styling for the question title */
+.question-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #3d0066;
+}
+
+/* Styling for the question text */
+.question-text {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  color: #3d0066;
+  line-height: 1.6;
+}
+
+/* Styling for answer options */
+.answer-option {
+  display: block;
+  background-color: #3d0066;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.625rem;
+  padding: 1rem 2rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-bottom: 1rem;
+  max-width: 100%; 
+  text-align: center;
+  box-sizing: border-box;
+
+}
+
+input {
+  appearance: none;
+  border: none;
+}
+
+.answer-option:hover {
+  background-color: #2b004f;
+  transform: scale(1.02);
+}
+
+.answer-option:active {
+  transform: scale(0.98);
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 48rem) {
+  #question-container {
+    padding: 1rem;
+    max-width: 90%;
+  }
+
+  .question-title {
+    font-size: 1.75rem;
+  }
+
+  .question-text {
+    font-size: 1.25rem;
+  }
+
+  .answer-option {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+  @media (max-width: 48rem) {
+    .main-content {
+      flex-direction: column;
+    }
+    .app-sidebar {
+      width: 100%;
+      margin-bottom: 1.25rem;
+    }
+  }
+  .custom-alert {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(57, 56, 57, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .custom-alert-box {
+    background-color: rgb(53, 1, 87);
+    color: white;
+    padding: 2rem 3rem;
+    border-radius: 0.63rem;
+    box-shadow: 0 0 1.5rem rgba(145, 145, 145, 0.5);
+    text-align: center;
+    max-width: 40rem;
+    width: 90%;
+  }
+  
+  .custom-alert-box button {
+    margin-top: 1.5rem;
+    padding: 1rem 2rem;
+    background-color: #d6a800;
+    color: #000;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .hidden {
+    display: none;
+  }

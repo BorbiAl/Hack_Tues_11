@@ -20,7 +20,7 @@
       <div class="header-logo">bAIganio</div>
       <div class="header-streak">
         <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="nav-icon">
-          <span class="streak-number">{{ streak }}</span>
+        <span class="streak-number">{{ streak }}</span>
       </div>
     </header>
     <div class="main-content">
@@ -63,7 +63,7 @@
             <div id="overlay"></div>
 
             <div class="profile-details">
-              <p>Name: {{ user.first_name }} {{ user.last_name }}
+              <p class="name">Name: {{ user.first_name }} {{ user.last_name }}
                 <button class="open-name-modal">
                   <img src="{% static 'core/css/icons8-pencil-drawing-96.png' %}" alt="Edit Icon">
                 </button>
@@ -93,7 +93,7 @@
                 </form>
               </div>
             </div>
-            
+
             <!-- Change Username Modal -->
             <div id="change-username" class="modal">
               <div class="modal-content">
@@ -106,7 +106,7 @@
                 </form>
               </div>
             </div>
-            
+
             <!-- Change Password Modal -->
             <div id="change-password" class="modal">
               <div class="modal-content">
@@ -121,67 +121,188 @@
                 </form>
               </div>
             </div>
-          
-          <div style="flex-grow: 1;"></div>
-          
-          <div>
-            <button class="log-out-btn">Log out</button>
-          </div>
-          <div>
-            <button class="delete-account-btn">Delete Account</button>
-          </div>
-    </section>
-  </div>
+
+            <div style="flex-grow: 1;"></div>
+
+            <div>
+                <button class="log-out-btn" onclick="window.location.href='/'">Log out</button>
+            </div>
+            <div>
+              <button class="delete-account-btn" id="deleteaccount">Delete Account</button>
+            </div>
+      </section>
+    </div>
 
   <script>
     const p = document.getElementById("password");
-      const masked = '⁎'.repeat(10);
-      p.textContent = masked; 
+    const masked = '⁎'.repeat(10);
+    p.textContent = masked;
 
     let profilePic = document.getElementById("profile-pic");
     let inputfile = document.getElementById("input-file");
-  
-    profilePic.addEventListener("click", function() {
+
+    profilePic.addEventListener("click", function () {
       inputfile.click();
     });
 
-    inputfile.onchange = function() {
+    inputfile.onchange = function () {
       profilePic.src = URL.createObjectURL(inputfile.files[0]);
     };
 
-
-
-
-
     const overlay = document.getElementById('overlay');
-  const modals = {
-    name: document.getElementById('change-name'),
-    username: document.getElementById('change-username'),
-    password: document.getElementById('change-password')
-  };
+    const modals = {
+      name: document.getElementById('change-name'),
+      username: document.getElementById('change-username'),
+      password: document.getElementById('change-password')
+    };
 
-  // Отваряне на модали
-  document.querySelector('.open-name-modal')?.addEventListener('click', () => openModal(modals.name));
-  document.querySelector('.open-username-modal')?.addEventListener('click', () => openModal(modals.username));
-  document.querySelector('.open-password-modal')?.addEventListener('click', () => openModal(modals.password));
+    document.querySelector('.open-name-modal')?.addEventListener('click', () => openModal(modals.name));
+    document.querySelector('.open-username-modal')?.addEventListener('click', () => openModal(modals.username));
+    document.querySelector('.open-password-modal')?.addEventListener('click', () => openModal(modals.password));
 
-  // Функция за отваряне
-  function openModal(modal) {
-    modal.classList.add('active');
-    overlay.classList.add('active');
-  }
+    function openModal(modal) {
+      modal.classList.add('active');
+      overlay.classList.add('active');
+    }
 
-  // Затваряне на всички модали
-  document.querySelectorAll('.close-btn').forEach(btn => {
-    btn.addEventListener('click', closeModals);
-  });
-  overlay.addEventListener('click', closeModals);
+    document.querySelectorAll('.close-btn').forEach(btn => {
+      btn.addEventListener('click', closeModals);
+    });
+    overlay.addEventListener('click', closeModals);
 
-  function closeModals() {
-    Object.values(modals).forEach(modal => modal.classList.remove('active'));
-    overlay.classList.remove('active');
-  }
-</script>
+    function closeModals() {
+      Object.values(modals).forEach(modal => modal.classList.remove('active'));
+      overlay.classList.remove('active');
+    }
+
+    const changeNameForm = document.querySelector('#change-name form');
+    if (changeNameForm) {
+      changeNameForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const firstName = changeNameForm.querySelector('input[name="first_name"]').value;
+        const lastName = changeNameForm.querySelector('input[name="last_name"]').value;
+
+        fetch('/change-name/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({ new_name: `${firstName} ${lastName}` }),
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              window.location.href = data.redirect_url;
+            } else if (data.error) {
+              alert('Error: ' + data.error);
+            }
+          })
+          .catch(error => {
+            alert('An error occurred: ' + error);
+          });
+      });
+    }
+
+    const changeUsernameForm = document.querySelector('#change-username form');
+    if (changeUsernameForm) {
+      changeUsernameForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const newUsername = changeUsernameForm.querySelector('input[name="username"]').value;
+
+        fetch('/change-username/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({ new_username: newUsername }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              window.location.href = data.redirect_url;
+            } else {
+              alert('Error: ' + data.error);
+            }
+          })
+          .catch(error => {
+            alert('An error occurred: ' + error);
+          });
+      });
+    }
+
+    const changePasswordForm = document.querySelector('#change-password form');
+    if (changePasswordForm) {
+      changePasswordForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const newPassword = changePasswordForm.querySelector('input[name="new_password1"]').value;
+        const confirmPassword = changePasswordForm.querySelector('input[name="new_password2"]').value;
+
+        fetch('/change-password/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({ new_password: newPassword, confirm_password: confirmPassword }),
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              window.location.href = '/profile/'; // Redirect to profile.html
+            } else if (data.error) {
+              alert('Error: ' + data.error);
+            }
+          })
+          .catch(error => {
+            alert('An error occurred: ' + error);
+          });
+      });
+    }
+
+    const deleteAccountBtn = document.querySelector('.delete-account-btn');
+    if (deleteAccountBtn) {
+      deleteAccountBtn.addEventListener('click', function () {
+        if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+          fetch('/delete-account/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin',
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.success) {
+                window.location.href = data.redirect_url;
+              } else if (data.error) {
+                alert('Error: ' + data.error);
+              }
+            })
+            .catch(error => {
+              alert('An error occurred: ' + error);
+            });
+        }
+      });
+    }
+  </script>
 
 </body>
+
 </html>

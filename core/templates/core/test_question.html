@@ -139,22 +139,25 @@
               container.innerHTML = html;
 
               const form = document.getElementById("question-form");
-                form.addEventListener("change", function () {
+              form.addEventListener("change", function () {
                 const selected = form.selected_answer.value;
+                const selectedText = answers.find(ans => ans.startsWith(selected));
+                const correctText = answers.find(ans => ans.startsWith(correctAnswer));
 
                 const isCorrect = selected === correctAnswer;
                 results.push({
                   question: questionText,
-                  selected,
-                  correct: correctAnswer,
-                  is_correct: isCorrect
+                  selected: selectedText,
+                  correct: correctText,
+                  is_correct: isCorrect,
+                  answers: answers
                 });
 
                 showAlert(isCorrect ? "Правилен отговор! 🔥" : `Грешен отговор 😢 Правилният беше: ${correctAnswer}`, () => {
                   currentIndex++;
                   renderQuestion(currentIndex);
                 });
-                });
+              });
             }
 
             renderQuestion(currentIndex);
