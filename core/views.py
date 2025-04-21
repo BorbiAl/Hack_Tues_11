@@ -17,6 +17,8 @@ from pdf2image import convert_from_path
 from openai import OpenAI
 from nltk.tokenize import sent_tokenize
 import nltk
+from concurrent.futures import ThreadPoolExecutor
+import pytesseract
 
 nltk.download('punkt_tab')
 
@@ -74,15 +76,16 @@ def test_result_view(request):
     if request.user.is_authenticated:
         profile = request.user.profile
         today = date.today()
-
         if profile.last_test_date is None:
             profile.streak = 1
         elif profile.last_test_date == today:
             pass
         elif (today - profile.last_test_date).days == 1:
             profile.streak += 1
-        else:
+        elif (today - profile.last_test_date).days > 1:
             profile.streak = 1
+        else:
+            profile.streak += 1
 
         profile.last_test_date = today
         profile.save()
@@ -97,6 +100,7 @@ def test_result_view(request):
             total_questions = len(results)
             correct_answers = sum(1 for result in results if result['is_correct'])
             wrong_answers_count = total_questions - correct_answers
+            
         except Exception:
             results = None
     else:
@@ -133,14 +137,36 @@ def test_result_view(request):
         total_questions = len(results)
         wrong_answers_count = total_questions - correct_answers
 
+    points = correct_answers * 10  - wrong_answers_count * 2
+
+    # Save to user profile
+    profile = request.user.profile
+    profile.points += points
+    profile.save()
+    
+
     context = {
         'total_questions': total_questions,
         'correct_answers': correct_answers,
         'wrong_answers_count': wrong_answers_count,
         'results': results,
         'streak': profile.streak,
+        'points': points,
     }
+    request.session['results'] = None 
     return render(request, 'core/test_result.html', context)
+
+def save_points(request):
+    """Save points to user profile."""
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        score = data.get('score', 0)
+        profile = request.user.profile
+        # Accumulate points instead of overwriting
+        profile.points += score
+        profile.save()
+        return JsonResponse({'status': 'success', 'new_points': profile.points})
+    return JsonResponse({'status': 'error'}, status=400)
 
 @login_required
 def profile_view(request):
@@ -225,14 +251,16 @@ def dashboard_view(request):
 def ranking_view(request):
     """View to display rankings."""
     if request.method == 'GET':
+        top_users = User.objects.filter(profile__points__isnull=False).order_by('-profile__points')[:10]
+        rankings = [
+            {'username': user.username, 'score': user.profile.points}
+            for user in top_users
+        ]
         context = {
             'username': request.user.username,
-            'rankings': [
-                {'username': 'JohnDoe', 'score': 95},
-                {'username': 'JaneSmith', 'score': 90},
-                {'username': 'AliceBrown', 'score': 85},
-            ],
-            'streak': request.user.profile.streak if request.user.is_authenticated else 0,
+            'rankings': rankings,
+            'points': request.user.profile.points if request.user.is_authenticated else 0,
+            'user': request.user,  # Add user to context for template access
         }
         return render(request, 'core/ranking.html', context)
 
@@ -274,7 +302,7 @@ def generate_questions(request):
         return ' '.join(sentences[:max_sentences])
 
     prompt = (
-        "Прочети следния текст и създай поне 6 въпроса с 4 възможни отговора (само един правилен), като не използваш изрази от типа на 'от текста'.\n"
+        "Прочети следния текст и създай въпроси с 4 възможни отговора (само един правилен), като не използваш изрази от типа на 'от текста'.\n"
         "Форматът да бъде:\n"
         "Въпрос: <тук въпросът>\n"
         "А) <отговор 1>\n"

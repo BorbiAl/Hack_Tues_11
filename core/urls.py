@@ -20,6 +20,7 @@ urlpatterns = [
     path('change-name/', views.change_name, name='change_name'),
     path('change-username/', views.change_username, name='change_username'),
     path('delete-account/', views.delete_account, name='delete_account'),
+    path('save-points/', views.save_points, name='save_points'),
 ]
  
 if settings.DEBUG:

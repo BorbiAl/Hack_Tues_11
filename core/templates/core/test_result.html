@@ -1,125 +1,188 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BAi Ganio</title>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{% static 'core/css/icons8-idea.svg' %}"
+    />
+    <link rel="stylesheet" href="{% static 'core/css/test_result.css' %}" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BAi Ganio</title>
-  <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
-  <link rel="stylesheet" href="{% static 'core/css/test_result.css' %}">
-</head>
-
-<body>
-  <div class="container">
-    <header class="header">
-      <div class="header-logo">bAIganio</div>
-      <div class="header-streak">
-        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="icon" />
-        <span class="streak-number" id="streak-number">{{ streak}}</span>
-      </div>
-    </header>
-    <div class="main-content">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <ul class="nav-list">
-          <li>
-            <a href="{% url 'dashboard' %}" class="nav-item">
-              <img src="{% static 'core/css/home.png' %}?v=2" alt="Home Icon" class="nav-icon">
-              <span>Home</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'ranking' %}" class="nav-item">
-              <img src="{% static 'core/css/ranking.png' %}?v=2" alt="Ranking Icon" class="nav-icon">
-              <span>Ranking</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'test_textbook' %}" class="nav-item active">
-              <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon">
-              <span>Tests</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'profile' %}" class="nav-item">
-              <img src="{% static 'core/css/profile.png' %}?v=2" alt="Profile Icon" class="nav-icon" />
-              <span>Profile</span>
-            </a>
-          </li>
-        </ul>
-      </aside>
-      <section class="content">
-        <div class="results">
-          <h2>Test Results</h2>
-          <div class="results-summary">
-            <p>Total Questions: <span id="total-questions">0</span></p>
-            <p>Correct Answers: <span id="correct-answers">0</span></p>
-            <p>Wrong Answers: <span id="wrong-answers">0</span></p>
-          </div>
-          <div class="answers-details">
-            <h3>Answers Details</h3>
-            <ul id="results-list">
-              <!-- JS will populate this -->
-            </ul>
-          </div>
+  <body>
+    <div class="container">
+      <header class="header">
+        <div class="header-logo">bAIganio</div>
+        <div class="header-streak">
+          <img
+            src="{% static 'core/css/icons8-fire-48.png' %}?v=2"
+            alt="Flame Icon"
+            class="icon"
+          />
+          <span class="streak-number" id="streak-number">{{ streak }}</span>
         </div>
-      </section>
+      </header>
+      <div class="main-content">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <ul class="nav-list">
+            <li>
+              <a href="{% url 'dashboard' %}" class="nav-item">
+                <img
+                  src="{% static 'core/css/home.png' %}?v=2"
+                  alt="Home Icon"
+                  class="nav-icon"
+                />
+                <span>Home</span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'ranking' %}" class="nav-item">
+                <img
+                  src="{% static 'core/css/ranking.png' %}?v=2"
+                  alt="Ranking Icon"
+                  class="nav-icon"
+                />
+                <span>Ranking</span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'test_textbook' %}" class="nav-item active">
+                <img
+                  src="{% static 'core/css/icons8-test-48.png' %}?v=2"
+                  alt="Tests Icon"
+                  class="nav-icon"
+                />
+                <span>Tests</span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'profile' %}" class="nav-item">
+                <img
+                  src="{% static 'core/css/profile.png' %}?v=2"
+                  alt="Profile Icon"
+                  class="nav-icon"
+                />
+                <span>Profile</span>
+              </a>
+            </li>
+          </ul>
+        </aside>
+        <section class="content">
+          <div class="results">
+            <h2>Test Results</h2>
+            <div class="results-summary">
+              <p>Total Questions: <span id="total-questions">0</span></p>
+              <p>Correct Answers: <span id="correct-answers">0</span></p>
+              <p>Wrong Answers: <span id="wrong-answers">0</span></p>
+            </div>
+            <div class="answers-details">
+              <h3>Answers Details</h3>
+              <ul id="results-list">
+                <!-- JS will populate this -->
+              </ul>
+              <p style="font-size: 22pt" id="points">
+                <strong>Points:</strong>{{ points }}
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
-  </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      let resultsJson = sessionStorage.getItem('results');
-      let resultsList = document.getElementById('results-list');
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        let resultsJson = sessionStorage.getItem("results");
+        let resultsList = document.getElementById("results-list");
 
-      if (resultsJson) {
-        try {
-          let results = JSON.parse(resultsJson);
-          let total = results.length;
-          let correct = 0;
+        if (resultsJson) {
+          try {
+            let results = JSON.parse(resultsJson);
+            let total = results.length;
+            let correct = 0;
 
-          results.forEach(result => {
-            if (result.is_correct) correct++;
+            results.forEach((result) => {
+              if (result.is_correct) correct++;
 
-            let allAnswers = result.answers
-              .map(ans => {
-                const letter = ans[0];
-                const isCorrect = letter === result.correct[0];
-                const isSelected = letter === result.selected[0];
+              let allAnswers = result.answers
+                .map((ans) => {
+                  const letter = ans[0];
+                  const isCorrect = letter === result.correct[0];
+                  const isSelected = letter === result.selected[0];
 
-                let className = "";
-                if (isCorrect) className = "correct";
-                else if (isSelected) className = "incorrect";
+                  let className = "";
+                  if (isCorrect) className = "correct";
+                  else if (isSelected) className = "incorrect";
 
-                return `<li class="${className}">${ans} ${isCorrect ? "✔️" : isSelected ? "❌" : ""}</li>`;
+                  return `<li class="${className}">${ans} ${
+                    isCorrect ? "✔️" : isSelected ? "❌" : ""
+                  }</li>`;
+                })
+                .join("");
+
+              let li = document.createElement("li");
+              li.innerHTML = `
+              <p><strong>Question❓:</strong> ${result.question}</p>
+              <br>
+              <ul class="answers-list">${allAnswers}</ul>
+              <br>
+            `;
+              resultsList.appendChild(li);
+            });
+
+            document.getElementById("total-questions").textContent = total;
+            document.getElementById("correct-answers").textContent = correct;
+            document.getElementById("wrong-answers").textContent =
+              total - correct;
+            let points = correct * 10 - (total - correct) * 2;
+            document.getElementById("points").textContent = `Points: ${points}`;
+            function updatePoints(score) {
+              fetch("/save-points/", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body: JSON.stringify({ score: score }),
               })
-              .join("");
-
-            let li = document.createElement('li');
-            li.innerHTML = `
-                    <p><strong>Question❓:</strong> ${result.question}</p>
-                    <br>
-                    <ul class="answers-list">${allAnswers}</ul>
-                    <br>
-                  `;
-            resultsList.appendChild(li);
-          });
-
-
-          document.getElementById('total-questions').textContent = total;
-          document.getElementById('correct-answers').textContent = correct;
-          document.getElementById('wrong-answers').textContent = total - correct;
-
-        } catch (e) {
-          resultsList.innerHTML = '<li>Error loading results. Please try again.</li>';
-          console.error('Invalid sessionStorage format:', e);
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.status != "success") {
+                    alert("Error updating points.");
+                  }
+                });
+            }
+            updatePoints(points);
+            // Helper function to get CSRF token
+            function getCookie(name) {
+              let cookieValue = null;
+              if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  if (cookie.substring(0, name.length + 1) === name + "=") {
+                    cookieValue = decodeURIComponent(
+                      cookie.substring(name.length + 1)
+                    );
+                    break;
+                  }
+                }
+              }
+              return cookieValue;
+            }
+          } catch (e) {
+            resultsList.innerHTML =
+              "<li>Error loading results. Please try again.</li>";
+            console.error("Invalid sessionStorage format:", e);
+          }
+        } else {
+          resultsList.innerHTML = "<li>No test results found.</li>";
         }
-      } else {
-        resultsList.innerHTML = '<li>No test results found.</li>';
-      }
-    });
-  </script>
-</body>
-
+      });
+    </script>
+  </body>
 </html>

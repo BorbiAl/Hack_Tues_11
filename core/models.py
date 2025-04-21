@@ -52,6 +52,7 @@ class Profile(models.Model):
     last_test_date = models.DateField(null=True, blank=True)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
+    points = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"

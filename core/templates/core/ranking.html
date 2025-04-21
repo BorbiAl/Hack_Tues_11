@@ -272,24 +272,28 @@
 
 
       <div class="ranking-container">
-        <div class="ranking-card">
-          <h2>Welcome, <span class="username">{{ username }} <br> You have {{points}} points</span>!</h2>
-          <div class="leaderboard">
-            <h3>Leaderboard</h3>
-            <ul class="leaderboard-list">
-              {% for ranking in rankings %}
-              <li class="leaderboard-item">
-                <span class="rank">{{ forloop.counter }}.</span>
-                <span class="username">{{ ranking.username }}</span>
-                <span class="score">{{ ranking.score }} points</span>
-              </li>
-              {% endfor %}
-            </ul>
+          <div class="ranking-card">
+            <h2>Welcome, <span class="username">{{ username }} <br> You have {{ points }} points</span>!</h2>
+            <div class="leaderboard">
+              <h3>Leaderboard</h3>
+              <ul class="leaderboard-list">
+                {% for ranking in rankings %}
+                <li class="leaderboard-item">
+                  <span class="rank">{{ forloop.counter }}.</span>
+                  <span class="username">{{ ranking.username }}</span>
+                  <span class="score">{{ ranking.score }} points</span>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
           </div>
-        </div>
       </div>
     </div>
   </div>
+
+  <script>
+    
+  </script>
 </body>
 
 </html>
