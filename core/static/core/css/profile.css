@@ -60,6 +60,10 @@ body {
     margin-left: 3rem;
     margin-right: 1.25rem;
     box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 30rem;
   }
 
   .nav-list {
@@ -113,8 +117,7 @@ body {
     padding: 1.25rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    margin-right: 1.25rem;
+    flex-grow: 1;
   }
 
   .profile-card h2 {
@@ -188,53 +191,34 @@ body {
   .profile-actions {
     display: flex;
     justify-content: space-around;
-    margin-top: 2.75rem;
+    margin-top: auto; /* Push to bottom */
+    padding-top: 2rem;
   }
 
-  .profile-actions button {
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.5rem;
-    cursor: pointer;
-  }
-
-.log-out-btn {
-  background-color: #3d0066; /* Dark purple */
-  color: #ffffff; /* White text */
-  border: 2px solid #3d0066;
-  font-size: 0.5rem;
-  height: 3.5rem;
-  width: 7rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-  .log-out-btn:hover {
-    background-color: #3d0066;
-    color: #ffffff;
-  }
-
-  .delete-account-btn {
-    background-color: #3d0066; /* Dark purple */
-    color: #ffffff; /* White text */
-    border: 2px solid #3d0066;
-    font-size: 0.5rem;
-    height: 3.5rem;
-    width: 7rem;
+  .profile-buttons {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    cursor: pointer;
+    flex-direction: column;
+    align-items: flex-end; /* или center, ако искаш да са по средата */
+    margin-top: 2rem;
+    gap: 1rem;
   }
-
+  
+  .log-out-btn,
+  .delete-account-btn {
+    background-color: white;
+    color: #3d0066;
+    border: 2px solid #3d0066;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s ease;
+  }
+  
+  .log-out-btn:hover,
   .delete-account-btn:hover {
     background-color: #3d0066;
-    color: #ffffff;
-    transform: scale(1.02);
+    color: white;
   }
 
   .modal {
