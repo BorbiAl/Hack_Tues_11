@@ -1,34 +1,21 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView
-from django.http import HttpResponse
 from django.core.cache import cache
-from django.core.paginator import Paginator
 from .models import Test, Subject, Question
 from .forms import CustomUserCreationForm
 import os
 from django.utils.dateformat import format as date_format
 import logging
-import openai
 import json
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
-from datetime import date, timedelta 
+from datetime import date, timedelta
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from PyPDF2 import PdfReader
-import fitz
-from PIL import Image
-import pytesseract
 from pdf2image import convert_from_path
 from openai import OpenAI
-from .utils import parse_generated_questions
-from concurrent.futures import ThreadPoolExecutor
 from nltk.tokenize import sent_tokenize
-from django.core.cache import cache
 import nltk
 
 nltk.download('punkt_tab')
@@ -81,11 +68,6 @@ def save_test_results(request):
     request.session['results'] = results
     request.session.modified = True
     return JsonResponse({'status': 'Results saved successfully'}, status=200)
-
-import json
-from datetime import date
-from django.shortcuts import render
-from .models import Test, Question
 
 def test_result_view(request):
     """View to display test results using session data or saved test questions, preserving streak logic."""

@@ -123,9 +123,10 @@ body {
   height: 15rem;
 }
 
-.card:hover {
+.welcome-card:hover {
   transform: translateY(-0.125rem);
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+  background-color: #e4acf8;
 }
 
 .card:active {
@@ -146,6 +147,17 @@ body {
   margin-top: 0;
   font-size: 1.5rem;
   color: #3d0066;
+}
+
+
+.course-card:hover {
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+  background-color: #e4acf8;
+}
+
+.course-card:active {
+  transform: translateY(0);
 }
 
 .course-card p {
@@ -354,4 +366,16 @@ body {
 
 .subject-container button:hover {
   background-color: #ffce1f;
+}
+
+.calendar-day.empty.prev-month {
+  color: #bbb;
+  background-color: #f8f8f8;
+  cursor: default;
+}
+.calendar-day.past-date {
+  color: #ccc;
+  background-color: #e4e4e4;
+  pointer-events: none;
+  cursor: default;
 }
