@@ -187,22 +187,6 @@ body {
   .profile-info button:hover img {
     transform: scale(1.1);
   }
-
-  .profile-actions {
-    display: flex;
-    justify-content: space-around;
-    margin-top: auto; /* Push to bottom */
-    padding-top: 2rem;
-  }
-
-  .profile-buttons {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end; /* или center, ако искаш да са по средата */
-    margin-top: 2rem;
-    gap: 1rem;
-  }
-  
   .log-out-btn,
   .delete-account-btn {
     background-color: white;
@@ -213,6 +197,9 @@ body {
     cursor: pointer;
     font-weight: bold;
     transition: 0.3s ease;
+    gap: 0.5rem;
+    display: inline-block;
+    margin-right: 1rem; 
   }
   
   .log-out-btn:hover,
