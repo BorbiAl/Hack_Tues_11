@@ -3,11 +3,11 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BAi Ganio - Textbook Selection</title>
-  <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
-  <link rel="stylesheet" href="{% static 'core/css/test_textbook.css' %}">
+  <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}" />
+  <link rel="stylesheet" href="{% static 'core/css/test_textbook.css' %}" />
 </head>
 
 <body>
@@ -24,19 +24,19 @@
         <ul class="nav-list">
           <li>
             <a href="{% url 'dashboard' %}" class="nav-item">
-              <img src="{% static 'core/css/home.png' %}?v=2" alt="Home Icon" class="nav-icon">
+              <img src="{% static 'core/css/home.png' %}?v=2" alt="Home Icon" class="nav-icon" />
               <span>Home</span>
             </a>
           </li>
           <li>
             <a href="{% url 'ranking' %}" class="nav-item">
-              <img src="{% static 'core/css/ranking.png' %}?v=2" alt="Ranking Icon" class="nav-icon">
+              <img src="{% static 'core/css/ranking.png' %}?v=2" alt="Ranking Icon" class="nav-icon" />
               <span>Ranking</span>
             </a>
           </li>
           <li>
             <a href="{% url 'test_textbook' %}" class="nav-item active">
-              <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon">
+              <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon" />
               <span>Tests</span>
             </a>
           </li>
@@ -65,10 +65,10 @@
           </select>
 
           <label for="start_page">Start Page:</label>
-          <input type="number" name="start_page" id="start_page" min="1" required>
+          <input type="number" name="start_page" id="start_page" min="1" required />
 
           <label for="end_page">End Page:</label>
-          <input type="number" name="end_page" id="end_page" min="1" required>
+          <input type="number" name="end_page" id="end_page" min="1" required />
 
           <button type="submit" {% if not files %}disabled{% endif %}>Generate Test</button>
         </form>
@@ -98,13 +98,9 @@
         // Show the loading overlay when the form is submitted
         loadingOverlay.style.display = "flex";
       });
-
-      // Optional: Hide the loading overlay after a delay (for testing purposes)
-      // setTimeout(() => loadingOverlay.style.display = "none", 5000);
     });
   </script>
   <script>
-    // Define the getCookie function first
     function getCookie(name) {
       let cookieValue = null;
       if (document.cookie && document.cookie !== "") {
@@ -148,6 +144,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Accept": "application/json",
             "X-CSRFToken": getCookie("csrftoken"),
           },
           body: JSON.stringify({
@@ -156,7 +153,12 @@
             end_page: endPage,
           }),
         })
-          .then((res) => res.json())
+          .then((res) => {
+            if (!res.ok) {
+              return res.text().then(text => { throw new Error(text) });
+            }
+            return res.json();
+          })
           .then((data) => {
             console.log("Backend response:", data);
             if (data.questions && data.questions.length > 0) {
@@ -165,9 +167,8 @@
               console.log("No questions were generated.");
             }
 
-            if (data.question) { // Corrected: Access the 'question' property
-              // Save questions in sessionStorage
-              sessionStorage.setItem("generatedQuestion", JSON.stringify(data)); // Store the entire response
+            if (data.question) {
+              sessionStorage.setItem("generatedQuestion", JSON.stringify(data));
               window.location.href = "/test-question/";
             } else {
               alert("Не бяха генерирани въпроси.");
@@ -175,16 +176,14 @@
           })
           .catch((err) => {
             console.error("Error:", err);
-            alert("Възникна проблем при заявката.");
+            alert("Възникна проблем при заявката: " + err.message);
           })
           .finally(() => {
-            // Hide the loading overlay after the request is complete
             loadingOverlay.style.display = "none";
           });
       });
     });
   </script>
-
 </body>
 
 </html>

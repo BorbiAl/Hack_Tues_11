@@ -1,8 +1,8 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.views import LoginView
 from django.core.cache import cache
 from .models import Test, Subject, Question
@@ -31,6 +31,7 @@ client = OpenAI(
     api_key=settings.OPENAI_API_KEY,
 )
 
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe' 
 
 def test_textbook_view(request):
     """View to display available textbooks with caching."""
