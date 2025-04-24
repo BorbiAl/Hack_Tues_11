@@ -284,7 +284,6 @@ body {
 }
 
 @media (max-width: 48rem) {
-  /* Sidebar: Stack items horizontally */
   .sidebar {
     width: 100vw;
     margin: 0;
@@ -305,6 +304,7 @@ body {
   }
 
   .header {
+    width: 100%;
     position: fixed;
     top: 0;
     left: 0;
@@ -314,9 +314,11 @@ body {
     box-shadow: none;
     margin-bottom: 0%;
     gap: 0.5rem;
+
   }
 
   .nav-list {
+    width: 100vw;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -345,18 +347,14 @@ body {
     width: 1.5rem;
     height: 1.5rem;
   }
-
-  .main-content {
-    flex-direction: column;
-    margin-top: 7.5rem;
-    padding: 1rem;
+  
+  .content {
+    justify-content: center;
+    align-items: center;
   }
 
-  
   .profile-card {
-    width: 100%;
-    max-width: 22rem;
-    margin: 0 auto;
+    width: 80vw;
     padding: 1rem;
     border-radius: 0.5rem;
   }
@@ -372,7 +370,6 @@ body {
     height: 5rem;
     margin: 1rem auto;
   }
-
   
   .profile-info {
     flex-direction: column;
@@ -418,5 +415,16 @@ body {
     text-align: center;
     align-items: center;
     justify-content: center;
+  }
+
+  .log-out-btn:hover,
+  .delete-account-btn:hover {
+    background-color: #3d0066;
+    color: white;
+  }
+  
+  .main-content {
+    flex-direction: column;
+    margin-top: 7.5rem;
   }
 }

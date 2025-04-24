@@ -4,13 +4,16 @@ body {
   color: #3d0066;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 .container {
   max-width: 100rem;
   margin: auto;
-  padding: rem;
+  padding: 1rem;
+  box-sizing: border-box;
 }
+
 .header {
   position: sticky;
   top: 0;
@@ -21,6 +24,8 @@ body {
   background-color: #3d0066;
   color: #ffffff;
   padding: 1rem 2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .logo {
@@ -30,17 +35,15 @@ body {
 
 .hero {
   text-align: center;
-  padding: 6.25rem 1.25rem;
+  padding: 6rem 1rem;
   background-color: #eec7fc;
   margin-top: 1.25rem;
 }
 
 .hero h1 {
-  padding-top: 1rem;
   font-size: 3rem;
-  margin-bottom: 0.625rem;
+  margin-bottom: 1rem;
   color: #3d0066;
-  justify-content: center;
 }
 
 .hero p {
@@ -50,7 +53,6 @@ body {
 }
 
 .hero img {
-  justify-content: center;
   max-width: 100%;
   height: auto;
   margin-bottom: 1.25rem;
@@ -59,15 +61,13 @@ body {
 .hero-buttons {
   display: flex;
   justify-content: center;
-  padding-left: 6rem;
-  padding-right: 10rem;
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-  gap: 8rem;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 1.25rem;
 }
 
 .primary, .secondary {
-  background: #f8e16f;
+  background: linear-gradient(135deg, #f8e16f, #ffe047);
   color: #3d0066;
   padding: 1rem 2rem;
   font-size: 1.25rem;
@@ -75,12 +75,9 @@ body {
   transition: all 0.3s ease;
   cursor: pointer;
   border: none;
-  background-color: #f8e16f;
-  color: #3d0066;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-  background-image: linear-gradient(135deg, #f8e16f, #ffe047);
   animation: pulse 2s infinite;
-  width: 12rem; /* Ensures both buttons have the same width */
+  width: 12rem;
   text-align: center;
 }
 
@@ -89,10 +86,8 @@ body {
   background: #ffffff;
   color: #3d0066;
   animation-play-state: paused;
-  background-image: none;
   transform: scale(1.1);
 }
-
 
 @keyframes pulse {
   0% { transform: scale(1); }
@@ -103,7 +98,11 @@ body {
 .features {
   display: flex;
   justify-content: space-around;
-  margin: 3.125rem 0;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin: 3rem 0;
+  padding: 0 1rem;
+  box-sizing: border-box;
 }
 
 .feature-card {
@@ -114,6 +113,8 @@ body {
   text-align: center;
   box-shadow: 0.125rem 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
   width: 30%;
+  min-width: 16rem;
+  max-width: 22rem;
   color: #3d0066;
 }
 
@@ -139,4 +140,55 @@ body {
 
 .footer a:hover {
   color: #ffe047;
+}
+
+@media screen and (max-width: 48rem) {
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    margin: 0;
+    padding: 1rem;
+    justify-content: center; 
+    text-align: center;
+  }
+
+  .logo {
+    width: 100%;
+    font-size: 1.75rem;
+  }
+
+  .hero {
+    margin-top: 0rem;
+    width: 100vw;
+    left: 0;
+    margin-left: calc(-50vw + 50%);
+    box-sizing: border-box;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .primary, .secondary {
+    width: 50%;
+    font-size: 1.1rem;
+  }
+
+  .feature-card {
+    display: none;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+  }
 }

@@ -64,13 +64,16 @@
             {% endif %}
           </select>
 
-          <label for="start_page">Start Page:</label>
+          <label for="start_page">Начална Страница:</label>
           <input type="number" name="start_page" id="start_page" min="1" required />
 
-          <label for="end_page">End Page:</label>
+          <label for="end_page">Крайна Страница:</label>
           <input type="number" name="end_page" id="end_page" min="1" required />
 
-          <button type="submit" {% if not files %}disabled{% endif %}>Generate Test</button>
+          <label for="num_q">Брой въпроси:</label>
+          <input type="number" name="num_q" id="num_q" min="1" required />
+
+          <button type="submit" {% if not files %}disabled{% endif %}>Създай Тест</button>
         </form>
         <!-- Container for displaying generated Rag test questions -->
         <div id="generated-questions"></div>
@@ -95,7 +98,6 @@
       }
 
       form.addEventListener("submit", function () {
-        // Show the loading overlay when the form is submitted
         loadingOverlay.style.display = "flex";
       });
     });
@@ -131,8 +133,9 @@
         const pdfFilename = document.getElementById("pdf_file").value;
         const startPage = parseInt(document.getElementById("start_page").value);
         const endPage = parseInt(document.getElementById("end_page").value);
+        const numQuestions = parseInt(document.getElementById("num_q").value);
 
-        if (!pdfFilename || isNaN(startPage) || isNaN(endPage)) {
+        if (!pdfFilename || isNaN(startPage) || isNaN(endPage) || isNaN(numQuestions)) {
           alert("Моля, попълнете всички полета правилно.");
           return;
         }
@@ -151,6 +154,7 @@
             pdf_filename: pdfFilename,
             start_page: startPage,
             end_page: endPage,
+            num_q: numQuestions,
           }),
         })
           .then((res) => {

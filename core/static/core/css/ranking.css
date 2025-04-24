@@ -220,11 +220,16 @@ body {
       height: 1.5rem;
   }
 
+  .content{
+    justify-content: center;
+    align-items: center;
+  }
+
   .ranking-card {
-    width: 90vw; 
+    width: 100%; 
     height: auto; 
     margin-right: 0; 
-    margin-bottom: 1rem; 
+    margin-bottom: 0 auto 1rem auto; 
   }
 
   .ranking-card h2 {

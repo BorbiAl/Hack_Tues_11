@@ -277,6 +277,7 @@ def generate_questions(request):
         pdf_filename = data.get('pdf_filename')
         start_page = int(data['start_page'])
         end_page = int(data['end_page'])
+        num_q = int(data['num_q'])
     except (KeyError, ValueError):
         return JsonResponse({'error': 'Invalid input data'}, status=400)
 
@@ -303,14 +304,14 @@ def generate_questions(request):
         return ' '.join(sentences[:max_sentences])
 
     prompt = (
-        "Прочети следния текст и създай въпроси с 4 възможни отговора (само един правилен), като не използваш изрази от типа на 'от текста'.\n"
+        f"Прочети следния текст и създай {num_q} въпроси с 4 възможни отговора (само един правилен), като не използваш изрази от типа на 'от текста'.\n"
         "Форматът да бъде:\n"
         "Въпрос: <тук въпросът>\n"
         "А) <отговор 1>\n"
         "Б) <отговор 2>\n"
         "В) <отговор 3>\n"
         "Г) <отговор 4>\n"
-        "Правилен отговор: <буква>\n\n"
+        f"Правилен отговор: <буква>\n\n"
         f"Текст:\n{truncate_text(extracted_text)}"
     )
 
@@ -327,7 +328,7 @@ def generate_questions(request):
     return JsonResponse({'question': result})
 
 @login_required
-@csrf_exempt  # If CSRF middleware is enabled, remove this and use CSRF token in the frontend
+@csrf_exempt 
 def save_subject(request):
     if request.method == 'POST':
         try:
