@@ -79,8 +79,12 @@
                 </button>
               </p>
               <div class="profile-buttons">
-              <button class="log-out-btn" onclick="window.location.href='/'">Log out</button>
-              <button class="delete-account-btn" id="deleteaccount">Delete Account</button>
+                <div class="log-out">
+                <button class="log-out-btn" onclick="window.location.href='/'">Log out</button> 
+              </div>
+              <div class="delete-account">
+                <button class="delete-account-btn" id="deleteaccount">Delete Account</button>
+              </div>
             </div>
             </div>
 
@@ -161,6 +165,10 @@
       modal.classList.add('active');
       overlay.classList.add('active');
     }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModals();
+    });
 
     document.querySelectorAll('.close-btn').forEach(btn => {
       btn.addEventListener('click', closeModals);
