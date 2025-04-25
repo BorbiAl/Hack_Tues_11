@@ -272,19 +272,55 @@ def generate_questions(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST request required'}, status=400)
 
-    try:
-        data = json.loads(request.body)
-        pdf_filename = data.get('pdf_filename')
-        start_page = int(data['start_page'])
-        end_page = int(data['end_page'])
-        num_q = int(data['num_q'])
-    except (KeyError, ValueError):
-        return JsonResponse({'error': 'Invalid input data'}, status=400)
+    if request.content_type.startswith('multipart/form-data'):
+        pdf_file = request.FILES.get('user_file', None)
+        pdf_filename = request.POST.get('pdf_url', None)  
+        num_q = request.POST.get('num_q')
 
-    pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_filename))
+        start_page = (
+            request.POST.get('user_file_start_page') or
+            request.POST.get('textbook_start_page')
+        )
+        end_page = (
+            request.POST.get('user_file_end_page') or
+            request.POST.get('textbook_end_page')
+        )
 
-    if not os.path.exists(pdf_path):
-        return JsonResponse({'error': 'PDF file not found'}, status=404)
+        if not start_page or not end_page or not num_q:
+            return JsonResponse({'error': 'Missing start_page, end_page or num_q'}, status=400)
+
+        try:
+            start_page = int(start_page)
+            end_page = int(end_page)
+            num_q = int(num_q)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid start_page, end_page or num_q'}, status=400)
+
+        if pdf_file:
+            temp_path = os.path.join(settings.MEDIA_ROOT, pdf_file.name)
+            with open(temp_path, 'wb+') as destination:
+                for chunk in pdf_file.chunks():
+                    destination.write(chunk)
+            pdf_path = temp_path
+        elif pdf_filename:
+            pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_filename))
+            if not os.path.exists(pdf_path):
+                return JsonResponse({'error': 'PDF file not found'}, status=404)
+        else:
+            return JsonResponse({'error': 'No PDF file provided'}, status=400)
+    else:
+        try:
+            data = json.loads(request.body)
+            pdf_filename = data.get('pdf_filename')
+            start_page = int(data.get('start_page'))
+            end_page = int(data.get('end_page'))
+            num_q = int(data.get('num_q'))
+        except (KeyError, ValueError):
+            return JsonResponse({'error': 'Invalid input data'}, status=400)
+
+        pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_filename))
+        if not os.path.exists(pdf_path):
+            return JsonResponse({'error': 'PDF file not found'}, status=404)
 
     try:
         images = convert_from_path(pdf_path, first_page=start_page, last_page=end_page)
@@ -292,7 +328,8 @@ def generate_questions(request):
         return JsonResponse({'error': f'PDF to image conversion failed: {str(e)}'}, status=500)
 
     def process_page(img):
-        return pytesseract.image_to_string(img, lang='bul')
+        gray_image = img.convert('L') 
+        return pytesseract.image_to_string(gray_image, lang='bul')
 
     with ThreadPoolExecutor() as executor:
         results = executor.map(process_page, images)
@@ -300,6 +337,7 @@ def generate_questions(request):
     extracted_text = '\n'.join(results)
 
     def truncate_text(text, max_sentences=10):
+        from nltk.tokenize import sent_tokenize
         sentences = sent_tokenize(text)
         return ' '.join(sentences[:max_sentences])
 
@@ -317,7 +355,7 @@ def generate_questions(request):
 
     try:
         response = client.chat.completions.create(
-            model="mistralai/mistral-small-3.1-24b-instruct:free",
+            model="mistralai/mistral-nemo:free",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
         )
@@ -326,6 +364,8 @@ def generate_questions(request):
         return JsonResponse({'error': f'OpenAI API error: {str(e)}'}, status=500)
 
     return JsonResponse({'question': result})
+
+
 
 @login_required
 @csrf_exempt 

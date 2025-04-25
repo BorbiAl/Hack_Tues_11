@@ -166,15 +166,38 @@ body {
     gap: 1rem;
 }
 
-.textbook-form label {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
+#upload-file-container {
+    margin-top: 10px;
 }
 
-.textbook-form input[type="text"],
-.textbook-form input[type="number"],
-.textbook-form select {
+#upload-file-container label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+#user_file {
+    display: none;
+}
+
+.custom-file-upload {
+    width: calc(100% - 2rem);
+    padding: 0.75rem 1rem;
+    margin-right: 2rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-style: normal;
+    color: #fff5fa;
+    background-color: #3d0066;
+}
+
+.custom-file-upload:hover {
+    background-color: #5a0099;
+}
+
+#existing-file-container select {
+    width: 100%;
     padding: 0.75rem 1rem;
     border: none;
     border-radius: 0.5rem;
@@ -186,7 +209,33 @@ body {
     transition: box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.textbook-form select{
+.textbook-form label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.textbook-form input[type="text"],
+.textbook-form input[type="number"],
+.textbook-form select,
+#textbook_start_page,
+#textbook_end_page,
+#user_file_start_page,
+#user_file_end_page {
+    width: calc(100% - 2rem);
+    padding: 0.75rem 1rem;
+    margin-right: 2rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-style: normal;
+    background: #fff5fa;
+    color: #3d0066;
+    box-shadow: inset 0 0 0 0.125rem #c670ff;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.textbook-form select {
     appearance: none;
 }
 
@@ -252,7 +301,7 @@ input[type="number"] {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 0.5rem; 
+        gap: 0.5rem;
         flex-direction: row;
         background-color: #3d0066;
         position: fixed;
@@ -273,11 +322,12 @@ input[type="number"] {
     }
 
     .nav-list {
+        width: 100vw;
         display: flex;
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        gap: 0.5rem; 
+        gap: 0.5rem;
         padding: 0;
         margin: 0;
         list-style: none;
@@ -301,7 +351,21 @@ input[type="number"] {
         height: 1.5rem;
     }
 
-    
+    .textbook-form input[type="text"],
+    .textbook-form input[type="number"],
+    .custom-file-upload,
+    .textbook-form select,
+    #textbook_start_page,
+    #textbook_end_page,
+    #user_file_start_page,
+    #user_file_end_page {
+        font-size: 0.8rem;
+    }
+
+    .textbook-form button {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+    }
 
     .main-content {
         flex-direction: column;
