@@ -155,11 +155,9 @@ body {
   margin-bottom: 0.75rem;
   padding: 0.75rem 1rem;
   border-radius: 0.625rem;
-  justify-content: center;
+  justify-content: space-between;
   font-weight: bold;
-  opacity: 0.6;
-  padding-left: 10%;
-  padding-right: 10%;
+  opacity: 0.6;;
 }
 
 @media (max-width: 48rem) {

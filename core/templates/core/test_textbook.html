@@ -55,47 +55,48 @@
           {% csrf_token %}
 
           <div id="existing-file-container">
-            <br>
-            <select name="pdf_url" id="pdf_file" required {% if not files %}disabled{% endif %}>
+            <br />
+            <select name="pdf_filename" id="pdf_file" required {% if not files %}disabled{% endif %}>
               {% if files %}
               <option value="">Изберете учебник</option>
               {% for file in files %}
               <option value="{{ file.url }}">{{ file.name }}</option>
-              {% endfor %}
-              {% else %}
+              {% endfor %} {% else %}
               <option value="">No textbooks found</option>
               {% endif %}
             </select>
           </div>
 
           <div id="upload-file-container">
-            <label for="user_file" class="custom-file-upload" id="upload-label">Upload PDF File</label><br>
+            <label for="user_file" class="custom-file-upload" id="upload-label">Upload PDF File</label><br />
             <input type="file" name="user_file" id="user_file" accept="application/pdf" />
           </div>
 
-          <div id="textbook-page-range" style="display: none;">
-            <label for="textbook_start_page">Учебник - начална страница:</label><br><br>
+          <div id="textbook-page-range" style="display: none">
+            <label for="textbook_start_page">Учебник - начална страница:</label><br /><br />
             <input type="number" id="textbook_start_page" name="textbook_start_page" min="1" />
             <label></label>
 
-            <label for="textbook_end_page">Учебник - крайна страница:</label><br><br>
+            <label for="textbook_end_page">Учебник - крайна страница:</label><br /><br />
             <input type="number" id="textbook_end_page" name="textbook_end_page" min="1" />
             <label></label>
           </div>
 
-          <div id="user-file-page-range" style="display: none;">
-            <label for="user_file_start_page">Файл - начална страница:</label><br><br>
+          <div id="user-file-page-range" style="display: none">
+            <label for="user_file_start_page">Файл - начална страница:</label><br /><br />
             <input type="number" id="user_file_start_page" name="user_file_start_page" min="1" />
             <label></label>
 
-            <label for="user_file_end_page">Файл - крайна страница:</label><br><br>
+            <label for="user_file_end_page">Файл - крайна страница:</label><br /><br />
             <input type="number" id="user_file_end_page" name="user_file_end_page" min="1" />
             <label></label>
           </div>
           <label for="num_q">Брой въпроси:</label>
           <input type="number" name="num_q" id="num_q" min="1" required />
 
-          <br><button type="submit" {% if not files %}disabled{% endif %}>Създай Тест</button>
+          <br /><button type="submit" {% if not files %}disabled{% endif %}>
+            Създай Тест
+          </button>
         </form>
         <!-- Container for displaying generated test questions -->
         <div id="generated-questions"></div>
@@ -118,8 +119,12 @@
       const uploadLabel = document.getElementById("upload-label");
       const existingFileSelect = document.getElementById("pdf_file");
 
-      const textbookPageRange = document.getElementById("textbook-page-range");
-      const userFilePageRange = document.getElementById("user-file-page-range");
+      const textbookPageRange = document.getElementById(
+        "textbook-page-range"
+      );
+      const userFilePageRange = document.getElementById(
+        "user-file-page-range"
+      );
 
       if (!form || !loadingOverlay || !uploadLabel) {
         console.error("Required elements not found.");
@@ -166,73 +171,80 @@
 
       form.addEventListener("submit", function (e) {
         e.preventDefault();
-      
+
         const selectedTextbook = existingFileSelect.value;
         const userFileSelected = userFileInput.files.length > 0;
         const numQuestions = parseInt(document.getElementById("num_q").value);
-      
+
         if (!selectedTextbook && !userFileSelected) {
           alert("Моля, изберете учебник или качете файл.");
           return;
         }
-      
+
         if (isNaN(numQuestions) || numQuestions < 1) {
           alert("Моля, въведете валиден брой въпроси.");
           return;
         }
-      
+
         const formData = new FormData();
         formData.append("num_q", numQuestions);
         formData.append("csrfmiddlewaretoken", getCookie("csrftoken"));
-      
+
         if (selectedTextbook) {
           const start = document.getElementById("textbook_start_page").value;
           const end = document.getElementById("textbook_end_page").value;
-      
-  
+
           if (!start || !end) {
             alert("Моля, въведете начална и крайна страница за учебника.");
             loadingOverlay.style.display = "none";
             return;
           }
-      
-          if (parseInt(end) < parseInt(start)) {
-            alert("Крайната страница трябва да е по-голяма или равна на началната страница.");
-            return;
-          }
-      
 
-          const actualEndPage = 1000; 
-          if (parseInt(end) > actualEndPage) {
-            alert("Крайната страница не може да бъде по-голяма от реалната крайна страница на учебника.");
+          if (parseInt(end) < parseInt(start)) {
+            alert(
+              "Крайната страница трябва да е по-голяма или равна на началната страница."
+            );
             return;
           }
-      
+
+          const actualEndPage = 1000;
+          if (parseInt(end) > actualEndPage) {
+            alert(
+              "Крайната страница не може да бъде по-голяма от реалната крайна страница на учебника."
+            );
+            return;
+          }
+
+          formData.append("pdf_filename", selectedTextbook);
           formData.append("textbook_start_page", start);
           formData.append("textbook_end_page", end);
         }
-      
+
         if (userFileSelected) {
           const start = document.getElementById("user_file_start_page").value;
           const end = document.getElementById("user_file_end_page").value;
-      
+
           if (!start || !end) {
             alert("Моля, въведете начална и крайна страница за файла.");
             loadingOverlay.style.display = "none";
             return;
           }
-      
+
           if (parseInt(end) < parseInt(start)) {
-            alert("Крайната страница трябва да е по-голяма или равна на началната страница.");
+            alert(
+              "Крайната страница трябва да е по-голяма или равна на началната страница."
+            );
             return;
           }
 
-          const actualEndPage = 500; 
+          const actualEndPage = 500;
           if (parseInt(end) > actualEndPage) {
-            alert("Крайната страница не може да бъде по-голяма от реалната крайна страница на файла.");
+            alert(
+              "Крайната страница не може да бъде по-голяма от реалната крайна страница на файла."
+            );
             return;
           }
-      
+
           formData.append("user_file", userFileInput.files[0]);
           formData.append("user_file_start_page", start);
           formData.append("user_file_end_page", end);
@@ -246,13 +258,18 @@
         })
           .then((res) => {
             if (!res.ok) {
-              return res.text().then(text => { throw new Error(text) });
+              return res.text().then((text) => {
+                throw new Error(text);
+              });
             }
             return res.json();
           })
           .then((data) => {
             if (data.question) {
-              sessionStorage.setItem("generatedQuestion", JSON.stringify(data));
+              sessionStorage.setItem(
+                "generatedQuestion",
+                JSON.stringify(data)
+              );
               window.location.href = "/test-question/";
             } else {
               alert("Не бяха генерирани въпроси.");
@@ -274,7 +291,9 @@
           for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
             if (cookie.substring(0, name.length + 1) === name + "=") {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1)
+              );
               break;
             }
           }

@@ -19,6 +19,10 @@ from nltk.tokenize import sent_tokenize
 import nltk
 from concurrent.futures import ThreadPoolExecutor
 import pytesseract
+import tempfile
+from urllib.parse import urlparse
+from googletrans import Translator
+import asyncio
 
 nltk.download('punkt_tab')
 
@@ -35,7 +39,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 def test_textbook_view(request):
     """View to display available textbooks with caching."""
-    media_path = settings.MEDIA_ROOT
+    media_path = settings.MEDIA_ROOT 
     files = cache.get('textbook_files')
 
     if not files:
@@ -272,10 +276,12 @@ def generate_questions(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST request required'}, status=400)
 
+    pdf_filename = None 
+    pdf_file = None
+
     if request.content_type.startswith('multipart/form-data'):
         pdf_file = request.FILES.get('user_file', None)
-        pdf_filename = request.POST.get('pdf_url', None)  
-        num_q = request.POST.get('num_q')
+        pdf_filename = request.POST.get('pdf_filename', None) 
 
         start_page = (
             request.POST.get('user_file_start_page') or
@@ -285,6 +291,7 @@ def generate_questions(request):
             request.POST.get('user_file_end_page') or
             request.POST.get('textbook_end_page')
         )
+        num_q = request.POST.get('num_q')
 
         if not start_page or not end_page or not num_q:
             return JsonResponse({'error': 'Missing start_page, end_page or num_q'}, status=400)
@@ -329,13 +336,19 @@ def generate_questions(request):
 
     def process_page(img):
         gray_image = img.convert('L') 
-        return pytesseract.image_to_string(gray_image, lang='bul')
+        return pytesseract.image_to_string(gray_image, lang='bul+eng')
 
     with ThreadPoolExecutor() as executor:
         results = executor.map(process_page, images)
 
+    
     extracted_text = '\n'.join(results)
-
+    async def translate_text():
+        translator = Translator()
+        translated = await translator.translate(extracted_text, dest="bg")
+        return translated.text
+    
+    text = asyncio.run(translate_text())
     def truncate_text(text, max_sentences=10):
         from nltk.tokenize import sent_tokenize
         sentences = sent_tokenize(text)
@@ -349,8 +362,8 @@ def generate_questions(request):
         "Б) <отговор 2>\n"
         "В) <отговор 3>\n"
         "Г) <отговор 4>\n"
-        f"Правилен отговор: <буква>\n\n"
-        f"Текст:\n{truncate_text(extracted_text)}"
+        "Правилен отговор: <буква>\n\n"
+        f"Текст:\n{truncate_text(text)}" 
     )
 
     try:
