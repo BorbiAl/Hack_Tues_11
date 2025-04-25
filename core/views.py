@@ -167,7 +167,6 @@ def save_points(request):
         data = json.loads(request.body)
         score = data.get('score', 0)
         profile = request.user.profile
-        # Accumulate points instead of overwriting
         profile.points += score
         profile.save()
         return JsonResponse({'status': 'success', 'new_points': profile.points})
@@ -265,7 +264,7 @@ def ranking_view(request):
             'username': request.user.username,
             'rankings': rankings,
             'points': request.user.profile.points if request.user.is_authenticated else 0,
-            'user': request.user,  # Add user to context for template access
+            'user': request.user, 
         }
         return render(request, 'core/ranking.html', context)
 
@@ -348,7 +347,7 @@ def generate_questions(request):
         translated = await translator.translate(extracted_text, dest="bg")
         return translated.text
     
-    text = asyncio.run(translate_text())
+    extracted_text = asyncio.run(translate_text())
     def truncate_text(text, max_sentences=10):
         from nltk.tokenize import sent_tokenize
         sentences = sent_tokenize(text)
@@ -363,7 +362,7 @@ def generate_questions(request):
         "В) <отговор 3>\n"
         "Г) <отговор 4>\n"
         "Правилен отговор: <буква>\n\n"
-        f"Текст:\n{truncate_text(text)}" 
+        f"Текст:\n{truncate_text(extracted_text)}"
     )
 
     try:
