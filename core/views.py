@@ -24,7 +24,10 @@ from urllib.parse import urlparse
 from googletrans import Translator
 import asyncio
 
-nltk.download('punkt_tab')
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt', quiet=True)
 
 # Initialize logger
 logger = logging.getLogger(__name__) 
@@ -70,8 +73,7 @@ def test_question_view(request):
 
 def save_test_results(request):
     """Save test results to session."""
-    # Assuming 'results' is a list of dictionaries like: [{"question": ..., "selected": ..., "correct": ..., "is_correct": ...}]
-    results = request.POST.get('results')  # Make sure you are passing results from the frontend as a JSON object
+    results = request.POST.get('results') 
     request.session['results'] = results
     request.session.modified = True
     return JsonResponse({'status': 'Results saved successfully'}, status=200)
@@ -97,7 +99,6 @@ def test_result_view(request):
     else:
         return render(request, 'core/test_result.html', {'error': 'User not authenticated.'})
 
-    # Try to get results from session
     results_json = request.session.get('results', None)
     if results_json:
         try:
@@ -111,7 +112,6 @@ def test_result_view(request):
     else:
         results = None
 
-    # If no results in session, fallback to fetching from database
     if not results:
         test = Test.objects.filter(user=request.user).order_by('-date').first()
         if not test:
@@ -144,7 +144,6 @@ def test_result_view(request):
 
     points = correct_answers * 10  - wrong_answers_count * 2
 
-    # Save to user profile
     profile = request.user.profile
     profile.points += points
     profile.save()
@@ -231,9 +230,8 @@ def dashboard_view(request):
     if upcoming_tests.exists():
         next_test = upcoming_tests.first()
         
-        # Shift the test by 1 day for display
         display_date = next_test.date + timedelta(days=1)
-        formatted_date = date_format(display_date, 'j F Y')  # e.g. "26 April 2025"
+        formatted_date = date_format(display_date, 'j F Y') 
         
         soonest_test = f"Test for {next_test.subject.name} on {formatted_date}"
         days_left = (display_date - today).days
@@ -267,7 +265,6 @@ def ranking_view(request):
             'user': request.user, 
         }
         return render(request, 'core/ranking.html', context)
-
 
 @csrf_exempt
 def generate_questions(request):
@@ -342,28 +339,34 @@ def generate_questions(request):
 
     
     extracted_text = '\n'.join(results)
-    async def translate_text():
-        translator = Translator()
-        translated = await translator.translate(extracted_text, dest="bg")
-        return translated.text
-    
-    extracted_text = asyncio.run(translate_text())
-    def truncate_text(text, max_sentences=10):
-        from nltk.tokenize import sent_tokenize
+
+    def truncate_text(text, num_questions, sentences_per_question=5):
         sentences = sent_tokenize(text)
-        return ' '.join(sentences[:max_sentences])
+        needed_sentences = num_questions * sentences_per_question
+        return ' '.join(sentences[:needed_sentences])
+    
+    if len(extracted_text) < 1000:
+        num_q = 2
+    elif len(extracted_text) < 2000:
+        num_q = 3
 
     prompt = (
-        f"Прочети следния текст и създай {num_q} въпроси с 4 възможни отговора (само един правилен), като не използваш изрази от типа на 'от текста'.\n"
-        "Форматът да бъде:\n"
-        "Въпрос: <тук въпросът>\n"
-        "А) <отговор 1>\n"
-        "Б) <отговор 2>\n"
-        "В) <отговор 3>\n"
-        "Г) <отговор 4>\n"
-        "Правилен отговор: <буква>\n\n"
-        f"Текст:\n{truncate_text(extracted_text)}"
-    )
+            f"Прочети следния текст и създай ТОЧНО {num_q} въпроса с 4 възможни отговора (А, Б, В, Г), като само един е правилен - ако в текста не е верен използвай интернет за да потвърдиш, че е, ако не е напиши верния.\n"
+            "Използвай следния формат БЕЗ никакви пропуски:\n"
+            "\n"
+            "Въпрос: <тук напиши въпроса>\n"
+            "А) <първи отговор>\n"
+            "Б) <втори отговор>\n"
+            "В) <трети отговор>\n"
+            "Г) <четвърти отговор>\n"
+            "Правилен отговор: <тук напиши само една буква (А/Б/В/Г)>\n"
+            "\n"
+            "**Важно: След всеки въпрос продължавай незабавно със следващия! НЕ прекратявай преждевременно. НЕ добавяй обяснения или допълнителен текст!**\n"
+            "Започни директно с първия въпрос.\n"
+            "\n"
+            "Текст за генериране на въпроси:\n"
+            f"{truncate_text(extracted_text, num_q)}"
+        )
 
     try:
         response = client.chat.completions.create(
@@ -371,7 +374,8 @@ def generate_questions(request):
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
         )
-        result = response.choices[0].message.content.strip()
+        result = response.choices[0].message.content.strip() 
+
     except Exception as e:
         return JsonResponse({'error': f'OpenAI API error: {str(e)}'}, status=500)
 
@@ -386,15 +390,13 @@ def save_subject(request):
         try:
             logger.debug("save_subject view called")
             data = json.loads(request.body)
-            logger.debug(f"Request body: {data}")  # Log the entire request body
+            logger.debug(f"Request body: {data}")
             date = data.get('date')
-            subject_name = data.get('subject')  # subject is passed as a name
+            subject_name = data.get('subject')
 
             if not date or not subject_name:
                 logger.warning("Missing date or subject")
                 return JsonResponse({'error': 'Missing date or subject'}, status=400)
-
-            # Ensure the subject exists in the database
             try:
                 subject = Subject.objects.get(name=subject_name)
                 logger.debug(f"Found subject: {subject}")
@@ -402,14 +404,13 @@ def save_subject(request):
                 logger.warning(f"Subject not found: {subject_name}")
                 return JsonResponse({'error': 'Subject not found'}, status=400)
 
-            # Create the Test object
             try:
                 test = Test.objects.create(
                     user=request.user,
                     date=date,
-                    subject=subject,  # Use the actual Subject object
-                    grade=0,  # Default grade
-                    question_data=[]  # Default empty questions
+                    subject=subject,  
+                    grade=0,  
+                    question_data=[]  
                 )
                 logger.info(f"Test created: {test}")
                 return JsonResponse({'date': test.date, 'subject': test.subject.name})
@@ -422,13 +423,13 @@ def save_subject(request):
             logger.error(f"Invalid JSON: {str(e)}")
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
         except Exception as e:
-            # Log the error for debugging
+            
             logger.error(f"Error saving test: {str(e)}")
             return JsonResponse({'error': str(e)}, status=400)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def saved_tests(request):
-    logger.debug("saved_tests view called")  # Log entry point
+    logger.debug("saved_tests view called") 
     user = request.user
     month = request.GET.get('month')
     year = request.GET.get('year')
@@ -442,14 +443,14 @@ def saved_tests(request):
         year = int(year)
 
     except Exception as e:
-        logger.exception("Invalid month or year")  # Log the full exception
+        logger.exception("Invalid month or year") 
         return JsonResponse({'error': 'INVALID MONTH OR YEAR'}, status=400)
 
     try:
         tests = Test.objects.filter(user=user, date__month=month, date__year=year).order_by('-date')
         tests_data = []
         for test in tests:
-            subject_name = test.subject.name if test.subject else "No Subject"  # Handle missing subject
+            subject_name = test.subject.name if test.subject else "No Subject" 
             tests_data.append({
                 'subject': subject_name,
                 'date': test.date.strftime('%Y-%m-%d'),
@@ -458,7 +459,7 @@ def saved_tests(request):
         return JsonResponse({'tests': tests_data})
     except Exception as e:
         logger.exception("Error processing tests")
-        return JsonResponse({'error': str(e)}, status=500)  # Return 500 for server errors
+        return JsonResponse({'error': str(e)}, status=500) 
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -482,14 +483,14 @@ def change_password(request):
         if new_password != confirm_password:
             return JsonResponse({'error': 'Passwords do not match'}, status=400)
 
-        if len(new_password) < 8:  # Example: Password should be at least 8 characters
+        if len(new_password) < 8:
             return JsonResponse({'error': 'Password too short. Minimum length is 8 characters.'}, status=400)
 
         user = request.user
         user.set_password(new_password)
         user.save()
 
-        update_session_auth_hash(request, user)  # Keep user logged in after password change
+        update_session_auth_hash(request, user) 
 
         return JsonResponse({'success': True, 'redirect_url': '/profile/'})
 
@@ -511,10 +512,10 @@ def change_username(request):
             if User.objects.filter(username=new_username).exists():
                 return JsonResponse({'error': 'Username already exists'}, status=400)
 
-            if len(new_username) < 5:  # Example: Username should be at least 5 characters
+            if len(new_username) < 5: 
                 return JsonResponse({'error': 'Username is too short. Minimum length is 5 characters.'}, status=400)
 
-            if not new_username.isalnum():  # Example: Username should only contain letters and numbers
+            if not new_username.isalnum():
                 return JsonResponse({'error': 'Username can only contain letters and numbers.'}, status=400)
 
             user = request.user
@@ -556,7 +557,7 @@ def change_name(request):
         user.last_name = last_name
         user.save()
 
-        # Redirect to profile page after saving
+       
         return JsonResponse({'success': True, 'redirect_url': '/profile/'})
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)

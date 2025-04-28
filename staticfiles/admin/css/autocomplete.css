@@ -207,7 +207,7 @@ select.admin-autocomplete {
     border: none;
     outline: 0;
     box-shadow: none;
-    -webkit-appearance: textfield;
+    appearance: textfield;
 }
 
 .select2-container--admin-autocomplete .select2-results > .select2-results__options {
