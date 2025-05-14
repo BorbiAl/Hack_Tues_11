@@ -19,10 +19,7 @@ from nltk.tokenize import sent_tokenize
 import nltk
 from concurrent.futures import ThreadPoolExecutor
 import pytesseract
-import tempfile
-from urllib.parse import urlparse
-from googletrans import Translator
-import asyncio
+import language_tool_python
 
 try:
     nltk.data.find('tokenizers/punkt')
@@ -351,37 +348,28 @@ def generate_questions(request):
         num_q = 3
 
     prompt = (
-        f"Прочети следния текст и създай ТОЧНО {num_q} въпроса с 4 възможни отговора (А, Б, В, Г), като само един от тях е правилен.\n"
+        f"Прочети следния текст и създай ТОЧНО {num_q} въпроса с 4 възможни отговора (А, Б, В, Г), като само един от тях е правилен.\n\n"
         "Използвай САМО информация, която се съдържа директно в текста. НЕ използвай външни източници и НЕ добавяй никакви предположения.\n"
-        "Ако даден факт не е изрично споменат в текста, НЕ създавай въпрос по него!\n"
-        "\n"
-        "**Ако си несигурен в правилния отговор, НЕ добавяй този въпрос.**\n"
-        "\n"
-        "Формат:\n"
-        "Въпрос: <тук напиши въпроса>\n"
-        "А) <първи отговор>\n"
-        "Б) <втори отговор>\n"
-        "В) <трети отговор>\n"
-        "Г) <четвърти отговор>\n"
-        "Правилен отговор: <само една буква (А/Б/В/Г)>\n"
-        "\n"
-        "**Не добавяй никакви обяснения или коментари. Започни директно с първия въпрос.**\n"
-        "\n"
-        "Текст за генериране на въпроси:\n"
-        f"{truncate_text(extracted_text, num_q)}"
+        "Ако даден факт не е изрично споменат в текста, НЕ създавай въпрос по него!\n\n"
+        "Форматът трябва да бъде точно както следва (спазвай разстоянията и новите редове):\n\n"
+        "Въпрос: Кой е създателят на теорията на относителността?\n"
+        "А) Исак Нютон\n"
+        "Б) Никола Тесла\n"
+        "В) Алберт Айнщайн\n"
+        "Г) Галилео Галилей\n"
+        "Правилен отговор: В\n\n"
+        f"Генерирай въпросите точно в този формат.\n\n"
+        f"Текст за въпроси:\n{truncate_text(extracted_text, num_q)}"
     )
 
     try:
         response = client.chat.completions.create(
             model="mistralai/mistral-nemo:free",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
         )
         result = response.choices[0].message.content.strip() 
-
     except Exception as e:
-        return JsonResponse({'error': f'OpenAI API error: {str(e)}'}, status=500)
-
+        return JsonResponse({'error': f'OpenAI API error: {str(e)}'}, status=500) 
     return JsonResponse({'question': result})
 
 

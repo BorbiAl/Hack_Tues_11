@@ -1,13 +1,7 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
 *.pyc
+__pycache__/
 *.pyo
 *.pyd
-__pycache__/
-*.swp
-*.swo
-*.bak
-.env
-env/
-venv/
-ENV/
-.venv/
-.env/
+*.db
+*.env

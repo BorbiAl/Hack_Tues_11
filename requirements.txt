@@ -9,7 +9,7 @@ frontend
 gunicorn
 Jinja2
 MarkupSafe
-mysqlclient
+language_tool_python
 waitress
 whitenoise
 nltk
