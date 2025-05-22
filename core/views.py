@@ -19,7 +19,6 @@ from nltk.tokenize import sent_tokenize
 import nltk
 from concurrent.futures import ThreadPoolExecutor
 import pytesseract
-import language_tool_python
 
 try:
     nltk.data.find('tokenizers/punkt')
@@ -348,7 +347,7 @@ def generate_questions(request):
         num_q = 3
 
     prompt = (
-        f"Прочети следния текст и създай ТОЧНО {num_q} въпроса с 4 възможни отговора (А, Б, В, Г), като само един от тях е правилен.\n\n"
+        f"Прочети следния текст и създай ТОЧНО {num_q} въпроса на БЪЛГАРСКИ език с 4 възможни отговора (А, Б, В, Г), като само един от тях е правилен.\n\n"
         "Използвай САМО информация, която се съдържа директно в текста. НЕ използвай външни източници и НЕ добавяй никакви предположения.\n"
         "Ако даден факт не е изрично споменат в текста, НЕ създавай въпрос по него!\n\n"
         "Форматът трябва да бъде точно както следва (спазвай разстоянията и новите редове):\n\n"
@@ -364,15 +363,14 @@ def generate_questions(request):
 
     try:
         response = client.chat.completions.create(
-            model="mistralai/mistral-nemo:free",
+            model= "google/gemini-2.0-flash-exp:free",
             messages=[{"role": "user", "content": prompt}],
         )
         result = response.choices[0].message.content.strip() 
+        print(result)
     except Exception as e:
         return JsonResponse({'error': f'OpenAI API error: {str(e)}'}, status=500) 
-    return JsonResponse({'question': result})
-
-
+    return JsonResponse({'question': result}) 
 
 @login_required
 @csrf_exempt 
