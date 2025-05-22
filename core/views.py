@@ -138,7 +138,7 @@ def test_result_view(request):
         total_questions = len(results)
         wrong_answers_count = total_questions - correct_answers
 
-    points = correct_answers * 10  - wrong_answers_count * 2
+    points = correct_answers * 3  - wrong_answers_count * 2
 
     profile = request.user.profile
     profile.points += points
