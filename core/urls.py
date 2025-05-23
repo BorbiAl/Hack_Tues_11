@@ -21,6 +21,7 @@ urlpatterns = [
     path('change-username/', views.change_username, name='change_username'),
     path('delete-account/', views.delete_account, name='delete_account'),
     path('save-points/', views.save_points, name='save_points'),
+    path('upload-profile-picture/', views.upload_profile_picture, name='upload_profile_picture'),
 ]
  
 if settings.DEBUG:

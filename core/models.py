@@ -47,7 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True, default='.../static/core/css/blank-profile-picture.png')
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True, default='profile_pictures/blank-profile-picture.jpg') 
     streak = models.IntegerField(default=0)
     last_test_date = models.DateField(null=True, blank=True)
     first_name = models.CharField(max_length=100, blank=True)

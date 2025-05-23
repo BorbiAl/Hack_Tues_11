@@ -19,6 +19,7 @@ from nltk.tokenize import sent_tokenize
 import nltk
 from concurrent.futures import ThreadPoolExecutor
 import pytesseract
+from django.views.decorators.http import require_POST
 
 try:
     nltk.data.find('tokenizers/punkt')
@@ -35,7 +36,7 @@ client = OpenAI(
 )
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe' 
-
+@login_required
 def test_textbook_view(request):
     """View to display available textbooks with caching."""
     media_path = settings.MEDIA_ROOT 
@@ -66,14 +67,14 @@ def test_question_view(request):
         return render(request, 'core/test_question.html', {'error': 'No question found. Please generate a test first.'})
 
     return render(request, 'core/test_question.html', {'question': question})
-
+@login_required
 def save_test_results(request):
     """Save test results to session."""
     results = request.POST.get('results') 
     request.session['results'] = results
     request.session.modified = True
     return JsonResponse({'status': 'Results saved successfully'}, status=200)
-
+@login_required
 def test_result_view(request):
     """View to display test results using session data or saved test questions, preserving streak logic."""
     if request.user.is_authenticated:
@@ -171,12 +172,30 @@ def save_points(request):
 def profile_view(request):
     """View to display user profile and tests with optimized queries."""
     tests = Test.objects.select_related('subject').all()
+    profile = request.user.profile
+    profile_picture_url = profile.profile_picture.url if profile.profile_picture else f"{settings.MEDIA_URL}profile-picture/blank-profile-picture.jpg"
     context = {
         'username': request.user.username,
         'tests': tests,
-        'streak': request.user.profile.streak if request.user.is_authenticated else 0,
+        'streak': profile.streak if request.user.is_authenticated else 0,
+        'profile_picture_url': profile_picture_url,
+        'user': request.user,
+        'profile': profile,
     }
     return render(request, 'core/profile.html', context)
+
+@login_required
+@require_POST
+def upload_profile_picture(request):
+    """Handle profile picture upload via AJAX."""
+    if 'profile_picture' in request.FILES:
+        profile = request.user.profile
+        image = request.FILES['profile_picture']
+        profile.profile_picture.save(image.name, image)
+        profile.save()
+        return JsonResponse({'status': 'success', 'profile_picture_url': profile.profile_picture.url})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'No image uploaded'}, status=400)
 
 
 class CustomLoginView(LoginView):
@@ -205,6 +224,8 @@ def signup_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            user.profile_picture = '/profile_pictures/blank-profile-picture.png'
+            user.save()
             return redirect('dashboard')
     else:
         form = CustomUserCreationForm()
@@ -245,7 +266,7 @@ def dashboard_view(request):
 
     return render(request, 'core/dashboard.html', context)
 
-
+@login_required
 def ranking_view(request):
     """View to display rankings."""
     if request.method == 'GET':
@@ -262,6 +283,7 @@ def ranking_view(request):
         }
         return render(request, 'core/ranking.html', context)
 
+@login_required
 @csrf_exempt
 def generate_questions(request):
     """Generate questions with optimized text extraction and parallel processing."""
@@ -565,3 +587,4 @@ def delete_account(request):
             logger.error(f"Error deleting account: {str(e)}")
             return JsonResponse({'error': 'Internal server error'}, status=500)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+

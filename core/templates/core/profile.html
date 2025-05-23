@@ -57,8 +57,8 @@
           <h2>Profile Details</h2>
           <div class="profile-info">
             <div class="profile-photo">
-              <img src="{% static 'core/css/blank-profile-picture.png' %}" id="profile-pic" alt="Profile Photo">
-              <input type="file" accept="image/*" id="input-file">
+              <img src="{% if profile_picture_url %}{{ profile_picture_url }}{% endif %}" id="profile-pic" alt="Profile Photo" style="cursor:pointer;">
+              <input type="file" accept="image/*" id="input-file" style="display:none;">
             </div>
             <div id="overlay"></div>
 
@@ -147,7 +147,31 @@
     });
 
     inputfile.onchange = function () {
-      profilePic.src = URL.createObjectURL(inputfile.files[0]);
+      const file = inputfile.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+
+        fetch('/upload-profile-picture/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+          body: formData,
+          credentials: 'same-origin',
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            profilePic.src = data.profile_picture_url;
+          } else {
+            alert('Failed to upload profile picture: ' + data.message);
+          }
+        })
+        .catch(error => {
+          alert('Error uploading profile picture: ' + error);
+        });
+      }
     };
 
     const overlay = document.getElementById('overlay');
