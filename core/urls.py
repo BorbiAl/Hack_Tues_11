@@ -23,6 +23,8 @@ urlpatterns = [
     path('save-points/', views.save_points, name='save_points'),
     path('upload-profile-picture/', views.upload_profile_picture, name='upload_profile_picture'),
     path('learn/', views.learn, name='learn'),
+    path('summarize/', views.summarize_text, name='summarize'),
+    
 ]
  
 if settings.DEBUG:

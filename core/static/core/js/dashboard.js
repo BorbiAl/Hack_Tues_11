@@ -237,7 +237,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!hasMoved) {
       popup.classList.toggle("hidden");
       e.stopPropagation();
-      window.location.href = "/learn/";
     }
   });
 

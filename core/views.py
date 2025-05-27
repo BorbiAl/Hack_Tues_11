@@ -256,12 +256,31 @@ def dashboard_view(request):
         soonest_test = "No upcoming tests scheduled"
         days_left = "∞"
 
+
+    
+    media_path = settings.MEDIA_ROOT 
+    files = cache.get('textbook_files')
+
+    if not files:
+        files = []
+        for root, _, filenames in os.walk(media_path):
+            for file_name in filenames:
+                if file_name.lower().endswith('.pdf'):
+                    relative_path = os.path.relpath(os.path.join(root, file_name), media_path)
+                    files.append({
+                        'name': os.path.splitext(file_name)[0],
+                        'url': f"{settings.MEDIA_URL}{relative_path.replace(os.sep, '/')}"
+                    })
+        cache.set('textbook_files', files, timeout=60 * 60)
+    files = sorted(files, key=lambda x: x['name'])
     context = {
         'username': user.username,
         'soonest_test': soonest_test,
         'days_left': days_left,
         'streak': user.profile.streak if hasattr(user, 'profile') else 0,
         'is_first_login': user.last_login is None,
+        'files': files,
+        
     }
 
     return render(request, 'core/dashboard.html', context)
@@ -637,7 +656,6 @@ def learn(request):
             pdf_filename = data.get('pdf_filename')
             start_page = int(data.get('start_page'))
             end_page = int(data.get('end_page'))
-            num_q = int(data.get('num_q'))
         except (KeyError, ValueError):
             return JsonResponse({'error': 'Invalid input data'}, status=400)
 
@@ -659,11 +677,6 @@ def learn(request):
 
     
     extracted_text = '\n'.join(results)
-    
-    if len(extracted_text) < 1000:
-        num_q = 2
-    elif len(extracted_text) < 2000:
-        num_q = 3
 
     prompt = (
         f"Прочети следния текст и създай обобщение на материала на БЪЛГАРСКИ език\n"
@@ -681,3 +694,6 @@ def learn(request):
     except Exception as e:
         return JsonResponse({'error': f'OpenAI API error: {str(e)}'}, status=500) 
     return JsonResponse({'question': result}) 
+
+def summarize_text(request):
+    return render(request, 'core/summarize.html')

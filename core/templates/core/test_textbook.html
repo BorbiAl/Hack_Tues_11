@@ -244,7 +244,7 @@
             );
             return;
           }
-
+          formData.append("csrfmiddlewaretoken", getCookie("csrftoken"));
           formData.append("user_file", userFileInput.files[0]);
           formData.append("user_file_start_page", start);
           formData.append("user_file_end_page", end);
