@@ -472,3 +472,61 @@ body {
       padding: 1rem;
   }
 }
+
+.floating-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: hsl(269, 100%, 50%);
+  color: white;
+  font-size: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: grab;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s ease;
+}
+
+.floating-button:active {
+  cursor: grabbing;
+  background-color: hsl(269, 80%, 50%);
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+  min-width: 200px;
+  height: 80vh;
+  width: 30vw;
+}
+
+.hidden {
+  display: none;
+}
+
+#closeBtn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: pointer;
+}

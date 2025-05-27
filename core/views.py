@@ -588,3 +588,96 @@ def delete_account(request):
             return JsonResponse({'error': 'Internal server error'}, status=500)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
+@csrf_exempt
+def learn(request):
+    """View to summarize the textbook so you can learn"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST request required'}, status=400)
+
+    pdf_filename = None 
+    pdf_file = None
+
+    if request.content_type.startswith('multipart/form-data'):
+        pdf_file = request.FILES.get('user_file', None)
+        pdf_filename = request.POST.get('pdf_filename', None) 
+
+        start_page = (
+            request.POST.get('user_file_start_page') or
+            request.POST.get('textbook_start_page')
+        )
+        end_page = (
+            request.POST.get('user_file_end_page') or
+            request.POST.get('textbook_end_page')
+        )
+
+        if not start_page or not end_page:
+            return JsonResponse({'error': 'Missing start_page, end_page'}, status=400)
+
+        try:
+            start_page = int(start_page)
+            end_page = int(end_page)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid start_page, end_page'}, status=400)
+
+        if pdf_file:
+            temp_path = os.path.join(settings.MEDIA_ROOT, pdf_file.name)
+            with open(temp_path, 'wb+') as destination:
+                for chunk in pdf_file.chunks():
+                    destination.write(chunk)
+            pdf_path = temp_path
+        elif pdf_filename:
+            pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_filename))
+            if not os.path.exists(pdf_path):
+                return JsonResponse({'error': 'PDF file not found'}, status=404)
+        else:
+            return JsonResponse({'error': 'No PDF file provided'}, status=400)
+    else:
+        try:
+            data = json.loads(request.body)
+            pdf_filename = data.get('pdf_filename')
+            start_page = int(data.get('start_page'))
+            end_page = int(data.get('end_page'))
+            num_q = int(data.get('num_q'))
+        except (KeyError, ValueError):
+            return JsonResponse({'error': 'Invalid input data'}, status=400)
+
+        pdf_path = os.path.join(settings.MEDIA_ROOT, os.path.basename(pdf_filename))
+        if not os.path.exists(pdf_path):
+            return JsonResponse({'error': 'PDF file not found'}, status=404)
+
+    try:
+        images = convert_from_path(pdf_path, first_page=start_page, last_page=end_page)
+    except Exception as e:
+        return JsonResponse({'error': f'PDF to image conversion failed: {str(e)}'}, status=500)
+
+    def process_page(img):
+        gray_image = img.convert('L') 
+        return pytesseract.image_to_string(gray_image, lang='bul+eng')
+
+    with ThreadPoolExecutor() as executor:
+        results = executor.map(process_page, images)
+
+    
+    extracted_text = '\n'.join(results)
+    
+    if len(extracted_text) < 1000:
+        num_q = 2
+    elif len(extracted_text) < 2000:
+        num_q = 3
+
+    prompt = (
+        f"Прочети следния текст и създай обобщение на материала на БЪЛГАРСКИ език\n"
+        "Нека обобщението бъде интересно и помага на различни хора да се обучават.\n" 
+        f"Текст за обобщение:\n{extracted_text}"
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model= "google/gemini-2.0-flash-exp:free",
+            messages=[{"role": "user", "content": prompt}],
+        )
+        result = response.choices[0].message.content.strip() 
+        print(result)
+    except Exception as e:
+        return JsonResponse({'error': f'OpenAI API error: {str(e)}'}, status=500) 
+    return JsonResponse({'question': result}) 

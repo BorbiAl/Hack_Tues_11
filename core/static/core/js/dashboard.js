@@ -201,3 +201,68 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const button = document.getElementById("floating-button");
+  const popup = document.getElementById("popup");
+  const closeBtn = document.getElementById("closeBtn");
+
+  let isDragging = false;
+  let hasMoved = false;
+  let offsetX, offsetY;
+
+  button.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    hasMoved = false; // reset move flag
+    offsetX = e.clientX - button.getBoundingClientRect().left;
+    offsetY = e.clientY - button.getBoundingClientRect().top;
+    button.style.cursor = "grabbing";
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (isDragging) {
+      hasMoved = true; // mouse moved while dragging
+      button.style.left = `${e.clientX - offsetX}px`;
+      button.style.top = `${e.clientY - offsetY}px`;
+      button.style.right = "auto";
+      button.style.bottom = "auto";
+    }
+  });
+
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+    button.style.cursor = "grab";
+  });
+
+  button.addEventListener("click", (e) => {
+    if (!hasMoved) {
+      popup.classList.toggle("hidden");
+      e.stopPropagation();
+      window.location.href = "/learn/";
+    }
+  });
+
+  closeBtn.addEventListener("click", (e) => {
+    popup.classList.add("hidden");
+    e.stopPropagation();
+  });
+
+  popup.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      popup.classList.add("hidden");
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (
+      !popup.classList.contains("hidden") &&
+      !popup.contains(event.target) &&
+      !event.target.closest("#floating-button")
+    ) {
+      popup.classList.add("hidden");
+    }
+  });
+});
