@@ -14,64 +14,49 @@
   </head>
 
   <body>
-    <div class="container">
-      <header class="header">
-        <div class="header-logo">bAIganio</div>
-        <div class="header-streak">
-          <img
-            src="{% static 'core/css/icons8-fire-48.png' %}?v=2"
-            alt="Flame Icon"
-            class="icon"
-          />
-          <span class="streak-number" id="streak-number">{{ streak }}</span>
-        </div>
-      </header>
-      <div class="main-content">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-          <ul class="nav-list">
-            <li>
-              <a href="{% url 'dashboard' %}" class="nav-item">
-                <img
-                  src="{% static 'core/css/home.png' %}?v=2"
-                  alt="Home Icon"
-                  class="nav-icon"
-                />
-                <span>Home</span>
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'ranking' %}" class="nav-item">
-                <img
-                  src="{% static 'core/css/ranking.png' %}?v=2"
-                  alt="Ranking Icon"
-                  class="nav-icon"
-                />
-                <span>Ranking</span>
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'test_textbook' %}" class="nav-item active">
-                <img
-                  src="{% static 'core/css/icons8-test-48.png' %}?v=2"
-                  alt="Tests Icon"
-                  class="nav-icon"
-                />
-                <span>Tests</span>
-              </a>
-            </li>
-            <li>
-              <a href="{% url 'profile' %}" class="nav-item">
-                <img
-                  src="{% static 'core/css/profile.png' %}?v=2"
-                  alt="Profile Icon"
-                  class="nav-icon"
-                />
-                <span>Profile</span>
-              </a>
-            </li>
-          </ul>
-        </aside>
+  <div class="container">
+    <!-- Header Section -->
+    <header class="header">
+      <div class="header-logo">bAIganio</div>
+      <div class="header-streak">
+        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="nav-icon" />
+        <span class="streak-number">{{ streak }}</span>
+      </div>
+    </header>
+
+    <!-- Main Content Section -->
+    <div class="main-content">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <ul class="nav-list">
+          <li>
+            <a href="{% url 'dashboard' %}" class="nav-item">
+              <img src="{% static 'core/css/home.png' %}?v=2" alt="Home Icon" class="nav-icon" />
+              <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'ranking' %}" class="nav-item">
+              <img src="{% static 'core/css/ranking.png' %}?v=2" alt="Ranking Icon" class="nav-icon" />
+              <span>Ranking</span>
+            </a>
+          </li>
+          <li>
+          <li>
+            <a href="{% url 'test_textbook' %}" class="nav-item active">
+              <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon">
+              <span>Tests</span>
+            </a>
+          </li>
+          </li>
+          <li>
+            <a href="{% url 'profile' %}" class="nav-item">
+              <img src="{% static 'core/css/profile.png' %}?v=2" alt="Profile Icon" class="nav-icon" />
+              <span>Profile</span>
+            </a>
+          </li>
+        </ul>
+      </aside>
         <section class="content">
           <div class="results">
             <h2>Test Results</h2>

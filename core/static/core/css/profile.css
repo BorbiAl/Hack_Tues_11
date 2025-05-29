@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   background-color: #ffffff;
   color: #3d0066;
 }
@@ -35,8 +35,7 @@ body {
   align-items: center;
 }
 
-.header-streak .icon,
-.nav-icon {
+.header-streak .icon {
   width: 2rem;
   height: 2rem;
   margin-right: 0.5rem;
@@ -57,13 +56,8 @@ body {
   background-color: #3d0066;
   padding: 1.25rem;
   border-radius: 0.625rem;
-  margin-left: 3rem;
-  margin-right: 1.25rem;
+  margin-right: 1.25rem; /* Match dashboard */
   box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 30rem;
 }
 
 .nav-list {
@@ -102,15 +96,33 @@ body {
   color: #3d0066;
 }
 
+.nav-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.75rem;
+}
+
+.streak-number {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.main-content {
+  display: flex;
+  margin-top: 1.25rem;
+}
+
 .content {
   flex-grow: 1;
+  width: 100%;
+  min-width: 0;
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   grid-gap: 1.25rem;
 }
 
 .profile-card {
   background-color: #eec7fc;
-  width: 50rem;
   border-radius: 0.625rem;
   box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
   text-align: center;

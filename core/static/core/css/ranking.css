@@ -49,7 +49,6 @@ body {
 .main-content {
   display: flex;
   margin-top: 1.25rem;
-  flex-direction: row;
 }
 
 .sidebar {
@@ -57,8 +56,7 @@ body {
   background-color: #3d0066;
   padding: 1.25rem;
   border-radius: 0.625rem;
-  margin-left: 3rem;
-  margin-right: 1.25rem;
+  margin-right: 1.25rem; /* Match dashboard */
   box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
 }
 
@@ -104,25 +102,35 @@ body {
   margin-right: 0.75rem;
 }
 
+.streak-number {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.main-content {
+  display: flex;
+  margin-top: 1.25rem;
+}
+
 .content {
   flex-grow: 1;
+  width: 100%;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  flex-direction: row;
   grid-gap: 1.25rem;
 }
 
-
 .ranking-card {
   background-color: #eec7fc;
-  width: 50rem;;
   border-radius: 0.625rem;
   box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
   text-align: center;
   height: auto;
   display: grid;
-  margin-right: 1.25rem;
-  
+  margin-left: 0;
+  width: 100%; /* Ensure it fills the grid cell */
+  /* Remove any margin-right or fixed width */
 }
 
 .ranking-card h2 {
@@ -173,7 +181,7 @@ body {
       flex-direction: row;
       background-color: #3d0066;
       position: fixed;
-      top: 3.75rem;
+      top: 3.5rem;
       left: 0;
       right: 0;
       z-index: 999;
@@ -218,9 +226,9 @@ body {
       height: 1.5rem;
   }
 
-  .content{
-    justify-content: center;
-    align-items: center;
+  .content {
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); /* smaller min size */
+    grid-gap: 0.75rem;
   }
 
   .ranking-card {

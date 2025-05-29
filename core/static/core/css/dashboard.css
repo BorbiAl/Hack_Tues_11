@@ -1,12 +1,13 @@
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
   font-family: 'Nunito', sans-serif;
   background-color: #ffffff;
   color: #3d0066;
+  scroll-behavior: smooth;
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
 
 .container {
@@ -32,6 +33,97 @@ body {
 .header-logo {
   font-size: 1.5rem;
   font-weight: bold;
+}
+
+.header-streak {
+  display: flex;
+  align-items: center;
+}
+
+.header-streak .icon {
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.5rem;
+}
+
+.streak-number {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.main-content {
+  display: flex;
+  margin-top: 1.25rem;
+}
+
+.sidebar {
+  width: 15rem;
+  background-color: #3d0066;
+  padding: 1.25rem;
+  border-radius: 0.625rem;
+  margin-right: 1.25rem; /* Match dashboard */
+  box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+}
+
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #ffffff;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.625rem;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.nav-item:hover {
+  background-color: #c670ff;
+  transform: scale(1.02);
+}
+
+.nav-item:focus {
+  outline: 0.125rem solid #d6a800;
+  outline-offset: 0.25rem;
+}
+
+.nav-item:active {
+  transform: scale(0.98);
+}
+
+.nav-item.active {
+  background-color: #d6a800;
+  color: #3d0066;
+}
+
+.nav-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.75rem;
+}
+
+.streak-number {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.main-content {
+  display: flex;
+  margin-top: 1.25rem;
+}
+
+.content {
+  flex-grow: 1;
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  grid-gap: 1.25rem;
 }
 
 .loading-overlay {
@@ -82,7 +174,6 @@ body {
 
 .textbook-container {
     height: 80vh;
-    width: 60vw;
     flex: 1;
     background-color: #eec7fc;
     padding: 2rem;
@@ -90,6 +181,7 @@ body {
     box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
     font-family: 'Nunito', sans-serif;
     font-size: 1rem;
+    width: 100%;
 }
 
 .textbook-form {
@@ -223,86 +315,6 @@ input[type="number"] {
 .answer-button:hover {
     background-color: #ffce1f;
 }
-
-.header-streak {
-  display: flex;
-  align-items: center;
-}
-
-.header-streak .icon {
-  width: 2rem;
-  height: 2rem;
-  margin-right: 0.5rem;
-}
-
-.streak-number {
-  font-size: 1.25rem;
-  font-weight: bold;
-}
-
-.main-content {
-  display: flex;
-  margin-top: 1.25rem;
-}
-
-.sidebar {
-  width: 15rem;
-  background-color: #3d0066;
-  padding: 1.25rem;
-  border-radius: 0.625rem;
-  margin-right: 1.25rem;
-  box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-}
-
-.nav-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: #ffffff;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  border-radius: 0.625rem;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.nav-item:hover {
-  background-color: #c670ff;
-  transform: scale(1.02);
-}
-
-.nav-item:focus {
-  outline: 0.125rem solid #d6a800;
-  outline-offset: 0.25rem;
-}
-
-.nav-item:active {
-  transform: scale(0.98);
-}
-
-.nav-item.active {
-  background-color: #d6a800;
-  color: #3d0066;
-}
-
-.nav-icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  margin-right: 0.75rem;
-}
-
-.content {
-  flex-grow: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  grid-gap: 1.25rem;
-}
-
 
 .card {
   background-color: #eec7fc;
@@ -669,7 +681,7 @@ input[type="number"] {
   right: 20px;
   width: 60px;
   height: 60px;
-  background-color: hsl(269, 100%, 50%);
+  background-color: #580093;
   color: white;
   font-size: 32px;
   border: none;
@@ -685,7 +697,7 @@ input[type="number"] {
 
 .floating-button:active {
   cursor: grabbing;
-  background-color: hsl(269, 80%, 50%);
+  background-color: #3d0066;
 }
 
 .popup {

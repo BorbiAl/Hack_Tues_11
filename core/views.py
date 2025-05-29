@@ -20,6 +20,9 @@ import nltk
 from concurrent.futures import ThreadPoolExecutor
 import pytesseract
 from django.views.decorators.http import require_POST
+from django.contrib.auth import get_user_model
+User = get_user_model()
+from django.core.exceptions import ValidationError
 
 try:
     nltk.data.find('tokenizers/punkt')
@@ -55,7 +58,7 @@ def test_textbook_view(request):
         cache.set('textbook_files', files, timeout=60 * 60)  # Cache for 1 hour
 
     context = {'files': sorted(files, key=lambda x: x['name'])}
-    return render(request, 'core/test_textbook.html', context)
+    return render(request, 'core/test_textbook.html', context, status=200)
 
 
 @csrf_exempt
@@ -64,9 +67,9 @@ def test_question_view(request):
     question = request.session.get('generatedQuestion', None)
 
     if not question:
-        return render(request, 'core/test_question.html', {'error': 'No question found. Please generate a test first.'})
+        return render(request, 'core/test_question.html', {'error': 'No question found. Please generate a test first.'}, status=404)
 
-    return render(request, 'core/test_question.html', {'question': question})
+    return render(request, 'core/test_question.html', {'question': question}, status=200)
 @login_required
 def save_test_results(request):
     """Save test results to session."""
@@ -94,7 +97,7 @@ def test_result_view(request):
         profile.last_test_date = today
         profile.save()
     else:
-        return render(request, 'core/test_result.html', {'error': 'User not authenticated.'})
+        return render(request, 'core/test_result.html', {'error': 'User not authenticated.'}, status=401)
 
     results_json = request.session.get('results', None)
     if results_json:
@@ -112,7 +115,7 @@ def test_result_view(request):
     if not results:
         test = Test.objects.filter(user=request.user).order_by('-date').first()
         if not test:
-            return render(request, 'core/test_result.html', {'error': 'No test found for user.'})
+            return render(request, 'core/test_result.html', {'error': 'No test found for user.'}, status=404)
 
         questions = Question.objects.filter(test=test)
 
@@ -155,7 +158,7 @@ def test_result_view(request):
         'points': points,
     }
     request.session['results'] = None 
-    return render(request, 'core/test_result.html', context)
+    return render(request, 'core/test_result.html', context, status=200)
 
 def save_points(request):
     """Save points to user profile."""
@@ -165,7 +168,7 @@ def save_points(request):
         profile = request.user.profile
         profile.points += score
         profile.save()
-        return JsonResponse({'status': 'success', 'new_points': profile.points})
+        return JsonResponse({'status': 'success', 'new_points': profile.points}, status=200)
     return JsonResponse({'status': 'error'}, status=400)
 
 @login_required
@@ -182,7 +185,7 @@ def profile_view(request):
         'user': request.user,
         'profile': profile,
     }
-    return render(request, 'core/profile.html', context)
+    return render(request, 'core/profile.html', context, status=200)
 
 @login_required
 @require_POST
@@ -193,7 +196,7 @@ def upload_profile_picture(request):
         image = request.FILES['profile_picture']
         profile.profile_picture.save(image.name, image)
         profile.save()
-        return JsonResponse({'status': 'success', 'profile_picture_url': profile.profile_picture.url})
+        return JsonResponse({'status': 'success', 'profile_picture_url': profile.profile_picture.url}, status=200)
     else:
         return JsonResponse({'status': 'error', 'message': 'No image uploaded'}, status=400)
 
@@ -211,7 +214,7 @@ class CustomLoginView(LoginView):
             login(self.request, user)
             return super().form_valid(form)
         else:
-            return HttpResponse("<h1>Invalid username or password</h1>")
+            return HttpResponse("<h1>Invalid username or password</h1>", status=401)
 
     def get_success_url(self):
         return '/dashboard/'
@@ -229,12 +232,12 @@ def signup_view(request):
             return redirect('dashboard')
     else:
         form = CustomUserCreationForm()
-    return render(request, 'core/signup.html', {'form': form})
+    return render(request, 'core/signup.html', {'form': form}, status=200)
 
 
 def home_view(request):
     """Home view."""
-    return render(request, 'base.html')
+    return render(request, 'base.html', status=200)
 
 
 @login_required
@@ -283,7 +286,7 @@ def dashboard_view(request):
         
     }
 
-    return render(request, 'core/dashboard.html', context)
+    return render(request, 'core/dashboard.html', context, status=200)
 
 @login_required
 def ranking_view(request):
@@ -300,7 +303,7 @@ def ranking_view(request):
             'points': request.user.profile.points if request.user.is_authenticated else 0,
             'user': request.user, 
         }
-        return render(request, 'core/ranking.html', context)
+        return render(request, 'core/ranking.html', context, status=200)
 
 @login_required
 @csrf_exempt
@@ -411,7 +414,7 @@ def generate_questions(request):
         print(result)
     except Exception as e:
         return JsonResponse({'error': f'OpenAI API error: {str(e)}'}, status=500) 
-    return JsonResponse({'question': result}) 
+    return JsonResponse({'question': result}, status=200) 
 
 @login_required
 @csrf_exempt 
@@ -443,7 +446,7 @@ def save_subject(request):
                     question_data=[]  
                 )
                 logger.info(f"Test created: {test}")
-                return JsonResponse({'date': test.date, 'subject': test.subject.name})
+                return JsonResponse({'date': test.date, 'subject': test.subject.name}, status=201)
 
             except Exception as e:
                 logger.error(f"Error creating test: {str(e)}")
@@ -486,15 +489,10 @@ def saved_tests(request):
                 'date': test.date.strftime('%Y-%m-%d'),
             })
 
-        return JsonResponse({'tests': tests_data})
+        return JsonResponse({'tests': tests_data}, status=200)
     except Exception as e:
         logger.exception("Error processing tests")
         return JsonResponse({'error': str(e)}, status=500) 
-
-from django.conf import settings
-from django.contrib.auth import get_user_model
-User = get_user_model()
-from django.core.exceptions import ValidationError
 
 @csrf_exempt
 def change_password(request):
@@ -522,7 +520,7 @@ def change_password(request):
 
         update_session_auth_hash(request, user) 
 
-        return JsonResponse({'success': True, 'redirect_url': '/profile/'})
+        return JsonResponse({'success': True, 'redirect_url': '/profile/'}, status=200)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -551,7 +549,7 @@ def change_username(request):
             user = request.user
             user.username = new_username
             user.save()
-            return JsonResponse({'success': True, 'redirect_url': '/profile/'})
+            return JsonResponse({'success': True, 'redirect_url': '/profile/'}, status=200)
 
         except ValidationError as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -588,7 +586,7 @@ def change_name(request):
         user.save()
 
        
-        return JsonResponse({'success': True, 'redirect_url': '/profile/'})
+        return JsonResponse({'success': True, 'redirect_url': '/profile/'}, status=200)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -679,8 +677,10 @@ def learn(request):
     extracted_text = '\n'.join(results)
 
     prompt = (
-        f"Прочети следния текст и създай обобщение на материала на БЪЛГАРСКИ език\n"
-        "Нека обобщението бъде интересно и помага на различни хора да се обучават.\n" 
+        "Прочети следния текст и го обясни ясно на БЪЛГАРСКИ език, като използваш различни символи и емотикони за различни секции и теми, подобно на ChatGPT.\n"
+        "Използвай подходящи символи за заглавия (например: 📚, 📝, 🔬, 💡), за важни точки (например: ⭐, ➡️, ✔️), за примери (например: 🧩, 📝), и за обобщения (например: 🏁, 📌).\n"
+        "Направи текста интересен и лесен за учене, като структурираш материала на секции с подходящи емотикони и символи. Накрая направи обобщение като използваш тези символи (например: 🏁, 📌).\n"
+        "Не добавяй информация, която не е в текста. Не слагай начални изречрния като тези 'Ето структурирано обяснение на текста, като използвам символи и емотикони, за да е по-интересно и лесно за усвояване:'\n\n"
         f"Текст за обобщение:\n{extracted_text}"
     )
 
@@ -693,7 +693,14 @@ def learn(request):
         print(result)
     except Exception as e:
         return JsonResponse({'error': f'OpenAI API error: {str(e)}'}, status=500) 
-    return JsonResponse({'question': result}) 
-
+    request.session['generatedSummary'] = result
+    return JsonResponse({'summary': result}, status=200) 
+@csrf_exempt
 def summarize_text(request):
-    return render(request, 'core/summarize.html')
+    """View to display the generated summary."""
+    summary = request.session.get('generatedSummary', None)
+
+    if not summary:
+        return render(request, 'core/summarize.html', {'error': 'No summary found. Please generate a summary first.'}, status=404)
+
+    return render(request, 'core/summarize.html', {'summary': summary}, status=200)

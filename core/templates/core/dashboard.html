@@ -113,7 +113,7 @@
     <footer class="footer">
       <p>&copy; 2025 bAIganio. All rights reserved.</p>
     </footer>
-    <button id="floating-button" class="floating-button"></button>
+    <button id="floating-button" class="floating-button" style="font-size: 80px;">+</button>
     <div id="popup" class="popup hidden">
   <div class="popup-content">
     <span id="closeBtn"></span>
@@ -171,12 +171,11 @@
   </div>
   </div>
 
-  <div id="loading-overlay" class="loading-overlay">
-    <div class="loading-spinner"></div>
-
-    <p>Processing your request...</p>
-
-  </div>
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p>Прави се теста...</p>
+    </div>
   </div>
 
 
@@ -320,8 +319,8 @@
       return res.json();
     })
     .then((data) => {
-      if (data.question) {
-        sessionStorage.setItem("generatedQuestion", JSON.stringify(data));
+      if (data.summary) {
+        sessionStorage.setItem("generatedSummary", JSON.stringify(data));
         window.location.href = "/summarize/";
       } else {
         alert("Не беше генерирано summary.");

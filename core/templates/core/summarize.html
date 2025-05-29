@@ -1,0 +1,88 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAi Ganio - Learn</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'core/css/icons8-idea.svg' %}">
+  <link rel="stylesheet" href="{% static 'core/css/summary.css' %}">
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header Section -->
+    <header class="header">
+      <div class="header-logo">bAIganio</div>
+      <div class="header-streak">
+        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="nav-icon" />
+        <span class="streak-number">{{ streak }}</span>
+      </div>
+    </header>
+
+    <!-- Main Content Section -->
+    <div class="main-content">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <ul class="nav-list">
+          <li>
+            <a href="{% url 'dashboard' %}" class="nav-item active">
+              <img src="{% static 'core/css/home.png' %}?v=2" alt="Home Icon" class="nav-icon" />
+              <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'ranking' %}" class="nav-item">
+              <img src="{% static 'core/css/ranking.png' %}?v=2" alt="Ranking Icon" class="nav-icon" />
+              <span>Ranking</span>
+            </a>
+          </li>
+          <li>
+          <li>
+            <a href="{% url 'test_textbook' %}" class="nav-item">
+              <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon">
+              <span>Tests</span>
+            </a>
+          </li>
+          </li>
+          <li>
+            <a href="{% url 'profile' %}" class="nav-item">
+              <img src="{% static 'core/css/profile.png' %}?v=2" alt="Profile Icon" class="nav-icon" />
+              <span>Profile</span>
+            </a>
+          </li>
+        </ul>
+      </aside>
+      <section class="content">
+          <div id="text-container">
+            <h1>{{ title }}</h1>
+            <p>{{ summary|safe }}</p>
+            <button class="btn btn-primary" onclick="window.location.href='{% url 'test_textbook' %}'">Провери знанията си?</button>
+          </div>
+          
+      </section>
+      <script>
+document.addEventListener("DOMContentLoaded", function() {
+  const summaryParagraph = document.querySelector("#text-container p");
+  if (summaryParagraph) {
+    let html = summaryParagraph.innerHTML;
+
+    // 1. Replace **bold** markdown with <strong> tags
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    // 2. Replace new lines (if your summary contains \n, otherwise skip)
+    html = html.replace(/\n/g, '<br>');
+
+    // 3. Optional: wrap sentences in spans for styling (if still needed)
+    const sentences = html.split(/([.!?]\s)/g);
+    summaryParagraph.innerHTML = sentences.map(s => {
+      if (s.trim() === "") return "";
+      return `<span class="summary-sentence">${s}</span>`;
+    }).join("");
+  }
+});
+</script>
+    </body>
+</html>

@@ -12,14 +12,18 @@
 
 <body>
   <div class="container">
+    <!-- Header Section -->
     <header class="header">
       <div class="header-logo">bAIganio</div>
       <div class="header-streak">
-        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="icon" />
+        <img src="{% static 'core/css/icons8-fire-48.png' %}?v=2" alt="Flame Icon" class="nav-icon" />
         <span class="streak-number">{{ streak }}</span>
       </div>
     </header>
+
+    <!-- Main Content Section -->
     <div class="main-content">
+      <!-- Sidebar -->
       <aside class="sidebar">
         <ul class="nav-list">
           <li>
@@ -35,10 +39,12 @@
             </a>
           </li>
           <li>
+          <li>
             <a href="{% url 'test_textbook' %}" class="nav-item active">
-              <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon" />
+              <img src="{% static 'core/css/icons8-test-48.png' %}?v=2" alt="Tests Icon" class="nav-icon">
               <span>Tests</span>
             </a>
+          </li>
           </li>
           <li>
             <a href="{% url 'profile' %}" class="nav-item">
@@ -48,7 +54,7 @@
           </li>
         </ul>
       </aside>
-
+      <section class="content">
       <div class="textbook-container">
         <h2>Select a Textbook</h2>
         <form class="textbook-form" id="test-form" method="POST" enctype="multipart/form-data">
@@ -103,6 +109,7 @@
       </div>
     </div>
   </div>
+  </section>
 
   <div class="loading-overlay" id="loading-overlay">
     <div class="loading-content">
