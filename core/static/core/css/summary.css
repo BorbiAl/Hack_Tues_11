@@ -130,9 +130,9 @@ body::-webkit-scrollbar {
   background-color: #eec7fc;
   border-radius: 0.625rem;
   box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-  text-align: left;
+  text-align:start;
   display: grid;
-  margin-right: 1.25rem;
+  margin-right: 1.5rem;
   padding: 1.5rem;
   height: auto;
   width: calc(100% - 3.1rem);
@@ -141,6 +141,16 @@ body::-webkit-scrollbar {
   margin-top: 0;
   padding-top: 0;
 }
+
+.footer{
+  text-align: center;
+  padding: 1rem;
+  color: #3d0066;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
 
 #text-container p, 
 #text-container p .summary-sentence {

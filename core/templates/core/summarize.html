@@ -70,10 +70,12 @@ document.addEventListener("DOMContentLoaded", function() {
     let html = summaryParagraph.innerHTML;
 
     // 1. Replace **bold** markdown with <strong> tags
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight: bold;">$1</strong>');
+    html = html.replace(/\#\#\#(.+?)/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.?)/g, '');
 
     // 2. Replace new lines (if your summary contains \n, otherwise skip)
-    html = html.replace(/\n/g, '<br>');
+    html = html.replace(/\n/g, '<br><br>');
 
     // 3. Optional: wrap sentences in spans for styling (if still needed)
     const sentences = html.split(/([.!?]\s)/g);

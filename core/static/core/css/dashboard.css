@@ -546,6 +546,15 @@ input[type="number"] {
   cursor: default;
 }
 
+.footer{
+  text-align: center;
+  padding: 1rem;
+  color: #3d0066;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
 @media (max-width: 48rem) {
   .sidebar {
       width: 100vw;
@@ -711,6 +720,11 @@ input[type="number"] {
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow-y: scroll;
+}
+
+.popup::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for the popup */
 }
 
 .hidden {

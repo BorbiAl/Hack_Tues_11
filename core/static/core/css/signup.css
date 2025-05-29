@@ -9,12 +9,17 @@ body {
     align-items: center;
     justify-content: center;
     height: 100vh;
+    overflow: hidden;
   }
   
   .signup-container {
     background-color: #eec7fc;
-    padding: 2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 1rem;
+    padding-bottom: .5rem;
     border-radius: 0.625rem;
+    margin-top: 2rem;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 350px;
   }
@@ -70,8 +75,9 @@ body {
     text-decoration: underline;
   }
   
-  .footer {
+  .footer{
     text-align: center;
-    margin-top: 2rem;
     color: #3d0066;
+    position: relative;
+    width: 100%;
   }
