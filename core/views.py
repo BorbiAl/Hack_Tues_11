@@ -497,7 +497,7 @@ def saved_tests(request):
 @csrf_exempt
 def change_password(request):
     """View to handle password change."""
-    if request.method == 'POST':
+    if request.method == 'PUT':
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'User is not authenticated'}, status=401)
 
@@ -527,7 +527,7 @@ def change_password(request):
 @csrf_exempt
 def change_username(request):
     """View to handle username change."""
-    if request.method == 'POST':
+    if request.method == 'PUT':
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'User is not authenticated'}, status=401)
 
@@ -562,7 +562,7 @@ def change_username(request):
 @csrf_exempt
 def change_name(request):
     """View to handle name change."""
-    if request.method == 'POST':
+    if request.method == 'PUT':
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'User is not authenticated'}, status=401)
 
@@ -593,7 +593,7 @@ def change_name(request):
 @csrf_exempt
 def delete_account(request):
     """View to handle account deletion."""
-    if request.method == 'POST':
+    if request.method == 'DELETE':
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'User is not authenticated'}, status=401)
         try:

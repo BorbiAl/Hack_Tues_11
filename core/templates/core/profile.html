@@ -218,7 +218,7 @@
         const lastName = changeNameForm.querySelector('input[name="last_name"]').value;
 
         fetch('/change-name/', {
-          method: 'POST',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
           },
@@ -251,7 +251,7 @@
         const newUsername = changeUsernameForm.querySelector('input[name="username"]').value;
 
         fetch('/change-username/', {
-          method: 'POST',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -280,7 +280,7 @@
         const confirmPassword = changePasswordForm.querySelector('input[name="new_password2"]').value;
 
         fetch('/change-password/', {
-          method: 'POST',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -311,7 +311,7 @@
       deleteAccountBtn.addEventListener('click', function () {
         if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
           fetch('/delete-account/', {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
             },
